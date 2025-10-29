@@ -9,9 +9,9 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
+import { usePodcast } from "./PodcastContext";
 
 interface PlayerContextType {
-  playlist: Podcast[];
   currentTrack: Podcast | null;
   isPlaying: boolean;
   play: (trackId?: string) => void;
@@ -25,7 +25,6 @@ interface PlayerContextType {
   seek: (time: number) => void;
   volume: number;
   setVolume: (volume: number) => void;
-  addPodcast: (podcast: Omit<Podcast, "id">) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -38,14 +37,8 @@ export const usePlayer = () => {
   return context;
 };
 
-export const PlayerProvider = ({
-  children,
-  initialPodcasts,
-}: {
-  children: React.ReactNode;
-  initialPodcasts: Podcast[];
-}) => {
-  const [playlist, setPlaylist] = useState<Podcast[]>(initialPodcasts);
+export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
+  const { podcasts } = usePodcast();
   const [currentTrack, setCurrentTrack] = useState<Podcast | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -53,19 +46,11 @@ export const PlayerProvider = ({
   const [volume, setVolumeState] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const addPodcast = (podcast: Omit<Podcast, "id">) => {
-    const newPodcast: Podcast = {
-      ...podcast,
-      id: (playlist.length + 1).toString(),
-    };
-    setPlaylist((prev) => [newPodcast, ...prev]);
-  };
-
   const play = useCallback(
     (trackId?: string) => {
       const trackToPlay = trackId
-        ? playlist.find((p) => p.id === trackId)
-        : currentTrack || playlist[0];
+        ? podcasts.find((p) => p.id === trackId)
+        : currentTrack || podcasts[0];
       if (trackToPlay) {
         if (currentTrack?.id !== trackToPlay.id) {
           setCurrentTrack(trackToPlay);
@@ -79,7 +64,7 @@ export const PlayerProvider = ({
           .catch((e) => console.error("Playback failed", e));
       }
     },
-    [playlist, currentTrack],
+    [podcasts, currentTrack],
   );
 
   const pause = useCallback(() => {
@@ -88,8 +73,8 @@ export const PlayerProvider = ({
   }, []);
 
   const togglePlay = useCallback(() => {
-    if (!currentTrack && playlist.length > 0) {
-      play(playlist[0].id);
+    if (!currentTrack && podcasts.length > 0) {
+      play(podcasts[0].id);
       return;
     }
 
@@ -98,24 +83,24 @@ export const PlayerProvider = ({
     } else {
       play();
     }
-  }, [isPlaying, pause, play, currentTrack, playlist]);
+  }, [isPlaying, pause, play, currentTrack, podcasts]);
 
   const findCurrentTrackIndex = () =>
-    currentTrack ? playlist.findIndex((p) => p.id === currentTrack.id) : -1;
+    currentTrack ? podcasts.findIndex((p) => p.id === currentTrack.id) : -1;
 
   const nextTrack = useCallback(() => {
-    if (!playlist.length) return;
+    if (!podcasts.length) return;
     const currentIndex = findCurrentTrackIndex();
-    const nextIndex = (currentIndex + 1) % playlist.length;
-    play(playlist[nextIndex].id);
-  }, [playlist, play, findCurrentTrackIndex]);
+    const nextIndex = (currentIndex + 1) % podcasts.length;
+    play(podcasts[nextIndex].id);
+  }, [podcasts, play, findCurrentTrackIndex]);
 
   const prevTrack = useCallback(() => {
-    if (!playlist.length) return;
+    if (!podcasts.length) return;
     const currentIndex = findCurrentTrackIndex();
-    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-    play(playlist[prevIndex].id);
-  }, [playlist, play, findCurrentTrackIndex]);
+    const prevIndex = (currentIndex - 1 + podcasts.length) % podcasts.length;
+    play(podcasts[prevIndex].id);
+  }, [podcasts, play, findCurrentTrackIndex]);
 
   const seek = (time: number) => {
     if (audioRef.current) {
@@ -155,7 +140,6 @@ export const PlayerProvider = ({
   }, [nextTrack]);
 
   const value = {
-    playlist,
     currentTrack,
     isPlaying,
     play,
@@ -169,7 +153,6 @@ export const PlayerProvider = ({
     seek,
     volume,
     setVolume,
-    addPodcast,
   };
 
   return (

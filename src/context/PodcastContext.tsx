@@ -1,0 +1,51 @@
+
+"use client";
+
+import {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
+import type { Podcast } from "@/lib/podcasts";
+import { podcasts as initialPodcasts } from "@/lib/podcasts";
+
+interface PodcastContextType {
+  podcasts: Podcast[];
+  addPodcast: (podcast: Omit<Podcast, "id">) => void;
+}
+
+const PodcastContext = createContext<PodcastContextType | undefined>(
+  undefined,
+);
+
+export const usePodcast = () => {
+  const context = useContext(PodcastContext);
+  if (!context) {
+    throw new Error("usePodcast must be used within a PodcastProvider");
+  }
+  return context;
+};
+
+export const PodcastProvider = ({ children }: { children: ReactNode }) => {
+  const [podcasts, setPodcasts] = useState<Podcast[]>(initialPodcasts);
+
+  const addPodcast = (podcast: Omit<Podcast, "id">) => {
+    const newPodcast: Podcast = {
+      ...podcast,
+      id: (Date.now() + Math.random()).toString(),
+    };
+    setPodcasts((prev) => [newPodcast, ...prev]);
+  };
+
+  const value = {
+    podcasts,
+    addPodcast,
+  };
+
+  return (
+    <PodcastContext.Provider value={value}>
+      {children}
+    </PodcastContext.Provider>
+  );
+};

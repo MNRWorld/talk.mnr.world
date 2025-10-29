@@ -1,11 +1,10 @@
-
 "use client";
 
-import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePlayer } from "@/context/PlayerContext";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { usePodcast } from "@/context/PodcastContext";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
@@ -37,7 +37,7 @@ const formSchema = z.object({
 
 export function AddPodcastDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const { addPodcast } = usePlayer();
+  const { addPodcast } = usePodcast();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,11 +50,12 @@ export function AddPodcastDialog({ children }: { children: React.ReactNode }) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const seed = Date.now() + Math.random();
     addPodcast({
       title: values.title,
       artist: values.artist,
       audioUrl: values.url,
-      coverArt: `https://picsum.photos/seed/${Math.random()}/500/500`,
+      coverArt: `https://picsum.photos/seed/${seed}/500/500`,
       coverArtHint: "podcast placeholder",
     });
     setOpen(false);
