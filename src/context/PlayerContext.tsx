@@ -51,11 +51,13 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       const trackToPlay = trackId
         ? podcasts.find((p) => p.id === trackId)
         : currentTrack || podcasts[0];
+
       if (trackToPlay) {
         if (currentTrack?.id !== trackToPlay.id) {
           setCurrentTrack(trackToPlay);
           if (audioRef.current) {
             audioRef.current.src = trackToPlay.audioUrl;
+            setProgress(0);
           }
         }
         audioRef.current
@@ -85,8 +87,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isPlaying, pause, play, currentTrack, podcasts]);
 
-  const findCurrentTrackIndex = () =>
-    currentTrack ? podcasts.findIndex((p) => p.id === currentTrack.id) : -1;
+  const findCurrentTrackIndex = useCallback(
+    () => (currentTrack ? podcasts.findIndex((p) => p.id === currentTrack.id) : -1),
+    [currentTrack, podcasts]
+  );
+
 
   const nextTrack = useCallback(() => {
     if (!podcasts.length) return;
@@ -117,11 +122,15 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onTimeUpdate = () => {
-    setProgress(audioRef.current?.currentTime || 0);
+    if (audioRef.current) {
+      setProgress(audioRef.current.currentTime);
+    }
   };
 
   const onLoadedMetadata = () => {
-    setDuration(audioRef.current?.duration || 0);
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
   };
 
   useEffect(() => {

@@ -57,8 +57,8 @@ export function AddPodcastDialog({ children }: { children: ReactNode }) {
       coverArt: `https://picsum.photos/seed/${Date.now()}/500/500`,
       coverArtHint: "podcast cover",
     });
-    setOpen(false);
     form.reset();
+    setOpen(false);
     toast({
       title: "Podcast Added",
       description: `${values.title} has been added to your library.`,
@@ -77,7 +77,10 @@ export function AddPodcastDialog({ children }: { children: ReactNode }) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="url"
