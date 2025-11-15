@@ -6,8 +6,8 @@ import { PodcastProvider } from "@/context/PodcastContext";
 import { PlayerProvider } from "@/context/PlayerContext";
 
 export const metadata: Metadata = {
-  title: "PodLink",
-  description: "Your personalized podcast library.",
+  title: "MNR Talks",
+  description: "Your personalized audio library.",
 };
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
