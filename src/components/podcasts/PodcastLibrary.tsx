@@ -10,8 +10,7 @@ import { Button } from "@/components/ui/button";
 
 const getRowLimit = () => {
   if (typeof window === "undefined") {
-    // Default for server-side rendering
-    return 6;
+    return null;
   }
   if (window.innerWidth >= 1536) return 6; // 2xl
   if (window.innerWidth >= 1280) return 5; // xl
@@ -29,7 +28,7 @@ const CategorySection = ({
   podcasts: Podcast[];
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [rowLimit, setRowLimit] = useState(getRowLimit());
+  const [rowLimit, setRowLimit] = useState<number | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -37,14 +36,14 @@ const CategorySection = ({
     };
 
     window.addEventListener("resize", handleResize);
-    // Set initial value
-    handleResize();
+    handleResize(); // Set initial value on client-side mount
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const displayedPodcasts = isExpanded ? podcasts : podcasts.slice(0, rowLimit);
-  const hasMore = podcasts.length > rowLimit;
+  const displayedPodcasts =
+    isExpanded || rowLimit === null ? podcasts : podcasts.slice(0, rowLimit);
+  const hasMore = rowLimit !== null && podcasts.length > rowLimit;
 
   return (
     <section className="mb-8">
