@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { PodcastProvider } from "@/context/PodcastContext";
+import { PlayerProvider } from "@/context/PlayerContext";
 
 export const metadata: Metadata = {
   title: "PodLink",
@@ -18,8 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} font-body antialiased`}>
-        {children}
-        <Toaster />
+        <PodcastProvider>
+          <PlayerProvider>
+            {children}
+            <Toaster />
+          </PlayerProvider>
+        </PodcastProvider>
       </body>
     </html>
   );
