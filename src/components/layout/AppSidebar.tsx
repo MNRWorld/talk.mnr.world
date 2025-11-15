@@ -32,7 +32,7 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" isActive>
+              <SidebarMenuButton href="/">
                 <Home />
                 Home
               </SidebarMenuButton>
@@ -44,13 +44,13 @@ export default function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="/categories" isActive>
                 <Grid />
                 Categories
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#">
+              <SidebarMenuButton href="/">
                 <Library />
                 Your Library
               </SidebarMenuButton>
