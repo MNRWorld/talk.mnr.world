@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
-import { SearchDialog } from "../search/SearchDialog";
+import { User } from "lucide-react";
 import { Button } from "../ui/button";
 
 export default function MobileHeader() {
@@ -24,12 +23,10 @@ export default function MobileHeader() {
         </svg>
         <h1 className="text-xl font-bold font-headline">Talks</h1>
       </Link>
-      <SearchDialog>
-        <Button variant="ghost" size="icon">
-          <Search />
-          <span className="sr-only">Search</span>
-        </Button>
-      </SearchDialog>
+      <Button variant="ghost" size="icon">
+        <User />
+        <span className="sr-only">Login</span>
+      </Button>
     </header>
   );
 }
