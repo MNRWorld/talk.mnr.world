@@ -42,7 +42,7 @@ export default function AppSidebar() {
               d="m2.14 50.25 68.58 118.16 19.42-11.26-47.23-81.41 72.2-0.16-14.84-25.57-98.12.22Z"
             />
           </svg>
-          <h1 className="text-xl font-bold font-headline">PodLink</h1>
+          <h1 className="text-xl font-bold font-headline">Talks</h1>
         </div>
       </SidebarHeader>
       <SidebarContent>
