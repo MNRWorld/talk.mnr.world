@@ -86,10 +86,13 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const play = useCallback(
     (trackId?: string) => {
-      const trackToPlay = trackId
-        ? podcasts.find((p) => p.id === trackId)
-        : currentTrack || podcasts[0];
-
+      let trackToPlay: Podcast | undefined | null = null;
+      if (trackId) {
+        trackToPlay = podcasts.find((p) => p.id === trackId);
+      } else {
+        trackToPlay = currentTrack || (podcasts.length > 0 ? podcasts[0] : null);
+      }
+      
       if (trackToPlay) {
         if (currentTrack?.id !== trackToPlay.id) {
           setCurrentTrack(trackToPlay);
