@@ -5,11 +5,13 @@ import AppSidebar from "@/components/layout/AppSidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import HistoryList from "@/components/podcasts/HistoryList";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import MobileHeader from "@/components/layout/MobileHeader";
 
 export default function LibraryPage() {
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col bg-background">
+        <MobileHeader />
         <div className="flex flex-1 overflow-hidden">
           <AppSidebar />
           <SidebarInset className="flex flex-1 flex-col">

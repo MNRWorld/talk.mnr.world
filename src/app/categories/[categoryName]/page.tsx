@@ -6,6 +6,7 @@ import PodcastCard from "@/components/podcasts/PodcastCard";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { podcasts } from "@/lib/podcasts";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import MobileHeader from "@/components/layout/MobileHeader";
 
 interface CategoryPageProps {
   params: {
@@ -22,6 +23,7 @@ const CategoryPage = ({ params }: CategoryPageProps) => {
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col bg-background">
+        <MobileHeader />
         <div className="flex flex-1 overflow-hidden">
           <AppSidebar />
           <SidebarInset className="flex flex-1 flex-col">
