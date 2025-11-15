@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import NextLink from "next/link";
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
@@ -541,13 +542,20 @@ const sidebarMenuButtonVariants = cva(
   },
 );
 
+type SidebarMenuButtonProps = (
+  | (React.ComponentProps<"button"> & { href?: never })
+  | (React.ComponentProps<typeof NextLink> & { href: string })
+) & {
+  asChild?: boolean;
+  isActive?: boolean;
+  tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+  variant?: VariantProps<typeof sidebarMenuButtonVariants>["variant"];
+  size?: VariantProps<typeof sidebarMenuButtonVariants>["size"];
+};
+
 const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & {
-    asChild?: boolean;
-    isActive?: boolean;
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
-  } & VariantProps<typeof sidebarMenuButtonVariants>
+  HTMLButtonElement & HTMLAnchorElement,
+  SidebarMenuButtonProps
 >(
   (
     {
@@ -557,22 +565,31 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
+      href,
       ...props
     },
     ref,
   ) => {
-    const Comp = asChild ? Slot : "button";
     const { isMobile, state } = useSidebar();
 
+    const commonProps = {
+      "data-sidebar": "menu-button",
+      "data-size": size,
+      "data-active": isActive,
+      className: cn(sidebarMenuButtonVariants({ variant, size }), className),
+      ...props,
+    };
+
+    const buttonContent = href ? (
+      <NextLink ref={ref} href={href} {...commonProps} />
+    ) : (
+      <button ref={ref} {...commonProps} />
+    );
+
+    const Comp = asChild ? Slot : typeof buttonContent.type;
+
     const button = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
-      />
+      <Comp {...buttonContent.props}>{buttonContent.props.children}</Comp>
     );
 
     if (!tooltip) {
@@ -769,3 +786,5 @@ export {
   SidebarTrigger,
   useSidebar,
 };
+
+    

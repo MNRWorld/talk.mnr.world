@@ -1,5 +1,6 @@
 "use client";
 
+import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { Grid, Home, Library, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,7 +49,7 @@ interface NavItemProps {
 
 function NavItem({ href, label, icon: Icon, isActive }: NavItemProps) {
   return (
-    <a
+    <NextLink
       href={href}
       className={cn(
         "flex flex-col items-center justify-center gap-1 text-xs transition-colors",
@@ -59,6 +60,8 @@ function NavItem({ href, label, icon: Icon, isActive }: NavItemProps) {
     >
       <Icon className="h-6 w-6" />
       <span>{label}</span>
-    </a>
+    </NextLink>
   );
 }
+
+    
