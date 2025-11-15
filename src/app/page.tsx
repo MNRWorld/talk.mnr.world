@@ -1,3 +1,4 @@
+import BottomNavBar from "@/components/layout/BottomNavBar";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { PodcastProvider } from "@/context/PodcastContext";
 import AppSidebar from "@/components/layout/AppSidebar";
@@ -13,11 +14,12 @@ export default function Home() {
           <div className="flex h-screen flex-col bg-background">
             <div className="flex flex-1 overflow-hidden">
               <AppSidebar />
-              <SidebarInset className="flex-1 overflow-y-auto pb-28">
+              <SidebarInset className="flex-1 overflow-y-auto pb-48 md:pb-28">
                 <PodcastLibrary />
               </SidebarInset>
             </div>
             <Player />
+            <BottomNavBar />
           </div>
         </SidebarProvider>
       </PlayerProvider>

@@ -44,14 +44,14 @@ export default function Player() {
 
   if (!currentTrack) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex h-24 items-center justify-center border-t border-border/50 bg-card/80 px-6 backdrop-blur-sm">
+      <div className="fixed bottom-16 left-0 right-0 z-50 flex h-24 items-center justify-center border-t border-border/50 bg-card/80 px-6 backdrop-blur-sm md:bottom-0">
         <p className="text-muted-foreground">No podcast selected.</p>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 h-24 border-t border-border/50 bg-card/80 backdrop-blur-sm">
+    <div className="fixed bottom-16 left-0 right-0 z-50 h-24 border-t border-border/50 bg-card/80 backdrop-blur-sm md:bottom-0">
       <div className="flex h-full items-center justify-between px-4 sm:px-6">
         <div className="flex w-1/3 items-center gap-4 sm:w-1/4">
           <Image
