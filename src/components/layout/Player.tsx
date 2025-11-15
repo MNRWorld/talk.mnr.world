@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -72,11 +73,10 @@ export default function Player() {
       <Overlay isVisible={isExpanded} onClick={() => setIsExpanded(false)} />
       <motion.div
         className={cn(
-          "fixed bottom-16 left-0 right-0 z-50 border-t border-border/50 bg-card/80 backdrop-blur-sm md:bottom-0",
-          {
-            "h-24": !isExpanded,
-            "h-screen pb-16 md:h-full md:pb-0": isExpanded,
-          },
+          "fixed left-0 right-0 z-50 border-t border-border/50 bg-card/80 backdrop-blur-sm",
+          isExpanded
+            ? "bottom-0 top-0 h-screen pb-16 md:pb-0"
+            : "bottom-16 h-24 md:bottom-0",
         )}
         onClick={(e) => {
           if (!isExpanded) {
@@ -92,7 +92,7 @@ export default function Player() {
       >
         <div className="flex h-full flex-col">
           {isExpanded && (
-            <div className="flex-shrink-0 p-4">
+            <div className="flex-shrink-0 p-4 md:hidden">
               <Button
                 variant="ghost"
                 size="icon"
@@ -121,10 +121,12 @@ export default function Player() {
             >
               <motion.div
                 layoutId="player-image"
-                className={cn({
-                  "h-12 w-12 sm:h-16 sm:w-16 relative": !isExpanded,
-                  "w-full aspect-square max-w-sm relative": isExpanded,
-                })}
+                className={cn(
+                  "relative shrink-0",
+                  isExpanded
+                    ? "w-full aspect-square max-w-sm"
+                    : "h-12 w-12 sm:h-16 sm:w-16",
+                )}
               >
                 <Image
                   src={currentTrack.coverArt}
@@ -134,9 +136,9 @@ export default function Player() {
                 />
               </motion.div>
               <div
-                className={cn({
+                className={cn("w-full overflow-hidden", {
                   "hidden sm:block": !isExpanded,
-                  "text-center w-full": isExpanded,
+                  "text-center": isExpanded,
                 })}
               >
                 <h3
@@ -185,7 +187,7 @@ export default function Player() {
                 </span>
               </div>
               <div
-                className={cn("flex items-center justify-center w-full", {
+                className={cn("flex w-full items-center justify-center", {
                   "gap-2 sm:gap-4": !isExpanded,
                   "gap-6": isExpanded,
                 })}
@@ -197,16 +199,12 @@ export default function Player() {
                     e.stopPropagation();
                     prevTrack();
                   }}
-                  className={cn({
-                    "h-8 w-8 sm:h-10 sm:w-10": !isExpanded,
-                    "h-12 w-12": isExpanded,
-                  })}
+                  className={cn(
+                    isExpanded ? "h-12 w-12" : "h-8 w-8 sm:h-10 sm:w-10",
+                  )}
                 >
                   <SkipBack
-                    className={cn({
-                      "h-4 w-4 sm:h-5 sm:w-5": !isExpanded,
-                      "h-6 w-6": isExpanded,
-                    })}
+                    className={cn(isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5")}
                   />
                 </Button>
                 <Button
@@ -214,10 +212,7 @@ export default function Player() {
                   size="icon"
                   className={cn(
                     "rounded-full bg-primary hover:bg-primary/90",
-                    {
-                      "h-10 w-10 sm:h-12 sm:w-12": !isExpanded,
-                      "h-16 w-16": isExpanded,
-                    },
+                    isExpanded ? "h-16 w-16" : "h-10 w-10 sm:h-12 sm:w-12",
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -226,17 +221,17 @@ export default function Player() {
                 >
                   {isPlaying ? (
                     <Pause
-                      className={cn("fill-primary-foreground", {
-                        "h-5 w-5 sm:h-6 sm:w-6": !isExpanded,
-                        "h-8 w-8": isExpanded,
-                      })}
+                      className={cn(
+                        "fill-primary-foreground",
+                        isExpanded ? "h-8 w-8" : "h-5 w-5 sm:h-6 sm:w-6",
+                      )}
                     />
                   ) : (
                     <Play
-                      className={cn("fill-primary-foreground", {
-                        "h-5 w-5 sm:h-6 sm:w-6": !isExpanded,
-                        "h-8 w-8": isExpanded,
-                      })}
+                      className={cn(
+                        "fill-primary-foreground",
+                        isExpanded ? "h-8 w-8" : "h-5 w-5 sm:h-6 sm:w-6",
+                      )}
                     />
                   )}
                 </Button>
@@ -247,24 +242,20 @@ export default function Player() {
                     e.stopPropagation();
                     nextTrack();
                   }}
-                  className={cn({
-                    "h-8 w-8 sm:h-10 sm:w-10": !isExpanded,
-                    "h-12 w-12": isExpanded,
-                  })}
+                  className={cn(
+                    isExpanded ? "h-12 w-12" : "h-8 w-8 sm:h-10 sm:w-10",
+                  )}
                 >
                   <SkipForward
-                    className={cn({
-                      "h-4 w-4 sm:h-5 sm:w-5": !isExpanded,
-                      "h-6 w-6": isExpanded,
-                    })}
+                    className={cn(isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5")}
                   />
                 </Button>
               </div>
             </div>
 
             <div
-              className={cn("items-center justify-end gap-2", {
-                "hidden w-1/4 sm:flex": !isExpanded,
+              className={cn("w-1/4 items-center justify-end gap-2", {
+                "hidden sm:flex": !isExpanded,
                 "flex w-full max-w-sm": isExpanded,
               })}
             >
@@ -282,6 +273,21 @@ export default function Player() {
               />
             </div>
           </div>
+
+          {isExpanded && (
+            <div className="absolute right-4 top-4 hidden md:block">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(false);
+                }}
+              >
+                <ChevronDown />
+              </Button>
+            </div>
+          )}
         </div>
       </motion.div>
     </>
