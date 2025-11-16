@@ -27,6 +27,7 @@ export default function MobileHeader() {
         <Button variant="ghost" size="sm" className="rounded-full">
           Disclaimer
         </Button>
+        <span className="text-muted-foreground">।</span>
         <Button variant="ghost" size="icon" className="rounded-full">
           <User />
           <span className="sr-only">Login</span>
