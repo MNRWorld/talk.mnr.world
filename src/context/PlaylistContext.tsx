@@ -9,6 +9,8 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import predefinedPlaylistsData from "@/lib/predefined-playlists.json";
+
 
 const PLAYLIST_STORAGE_KEY = "podcast_playlists";
 
@@ -45,21 +47,24 @@ export const PlaylistProvider = ({
   useEffect(() => {
     try {
       const storedPlaylists = localStorage.getItem(PLAYLIST_STORAGE_KEY);
-      if (storedPlaylists) {
-        setPlaylists(JSON.parse(storedPlaylists));
-      }
+      const userPlaylists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
+      const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
+      setPlaylists([...predefinedPlaylists, ...userPlaylists]);
     } catch (error) {
       console.error("Failed to load playlists from localStorage", error);
+      const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
+      setPlaylists(predefinedPlaylists);
     }
   }, []);
 
-  const savePlaylists = (updatedPlaylists: Playlist[]) => {
+  const savePlaylists = (updatedUserPlaylists: Playlist[]) => {
     try {
       localStorage.setItem(
         PLAYLIST_STORAGE_KEY,
-        JSON.stringify(updatedPlaylists),
+        JSON.stringify(updatedUserPlaylists),
       );
-      setPlaylists(updatedPlaylists);
+      const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
+      setPlaylists([...predefinedPlaylists, ...updatedUserPlaylists]);
     } catch (error) {
       console.error("Failed to save playlists to localStorage", error);
     }
@@ -71,8 +76,10 @@ export const PlaylistProvider = ({
         id: Date.now().toString(),
         name,
         podcastIds: [],
+        isPredefined: false,
       };
-      const updatedPlaylists = [...playlists, newPlaylist];
+      const userPlaylists = playlists.filter(p => !p.isPredefined);
+      const updatedPlaylists = [...userPlaylists, newPlaylist];
       savePlaylists(updatedPlaylists);
     },
     [playlists],
@@ -80,7 +87,8 @@ export const PlaylistProvider = ({
 
   const addPodcastToPlaylist = useCallback(
     (playlistId: string, podcastId: string) => {
-      const updatedPlaylists = playlists.map((playlist) => {
+      const userPlaylists = playlists.filter(p => !p.isPredefined);
+      const updatedPlaylists = userPlaylists.map((playlist) => {
         if (playlist.id === playlistId) {
           // Avoid adding duplicates
           if (!playlist.podcastIds.includes(podcastId)) {

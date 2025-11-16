@@ -3,12 +3,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ListMusic } from "lucide-react";
+import { ListMusic, Lock } from "lucide-react";
 
 import { usePodcast } from "@/context/PodcastContext";
 import { usePlaylist } from "@/context/PlaylistContext";
 import type { Playlist } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface PlaylistCardProps {
   playlist: Playlist;
@@ -46,6 +47,12 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
               <div className="flex h-full w-full items-center justify-center rounded-md bg-secondary">
                 <ListMusic className="h-16 w-16 text-muted-foreground" />
               </div>
+            )}
+            {playlist.isPredefined && (
+              <Badge variant="secondary" className="absolute bottom-2 right-2">
+                <Lock className="mr-1 h-3 w-3" />
+                Curated
+              </Badge>
             )}
           </div>
           <h3 className="h-6 font-semibold text-foreground line-clamp-1">

@@ -11,6 +11,7 @@ export type Podcast = {
 
 export type Playlist = {
   id: string;
-  name: string;
+  name:string;
   podcastIds: string[];
+  isPredefined?: boolean;
 };

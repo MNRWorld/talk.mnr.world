@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -30,6 +31,8 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
   const { toast } = useToast();
   const isActive = currentTrack?.id === podcast.id;
 
+  const userPlaylists = playlists.filter(p => !p.isPredefined);
+
   const handleAddToPlaylist = (playlistId: string) => {
     addPodcastToPlaylist(playlistId, podcast.id);
     const playlist = playlists.find(p => p.id === playlistId);
@@ -59,8 +62,8 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                {playlists.length > 0 ? (
-                  playlists.map((p) => (
+                {userPlaylists.length > 0 ? (
+                  userPlaylists.map((p) => (
                     <DropdownMenuItem
                       key={p.id}
                       onClick={() => handleAddToPlaylist(p.id)}
@@ -69,7 +72,7 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
                     </DropdownMenuItem>
                   ))
                 ) : (
-                  <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
+                  <DropdownMenuItem disabled>No playlists created</DropdownMenuItem>
                 )}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
