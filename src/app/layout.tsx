@@ -6,6 +6,7 @@ import { PodcastProvider } from "@/context/PodcastContext";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { PlaylistProvider } from "@/context/PlaylistContext";
 import { UserProvider } from "@/context/UserContext";
+import { DownloadProvider } from "@/context/DownloadContext";
 
 export const metadata: Metadata = {
   title: "MNR Talks",
@@ -24,12 +25,14 @@ export default function RootLayout({
       <body className={`${inter.variable} font-body antialiased`}>
         <UserProvider>
           <PodcastProvider>
-            <PlaylistProvider>
-              <PlayerProvider>
-                {children}
-                <Toaster />
-              </PlayerProvider>
-            </PlaylistProvider>
+            <DownloadProvider>
+              <PlaylistProvider>
+                <PlayerProvider>
+                  {children}
+                  <Toaster />
+                </PlayerProvider>
+              </PlaylistProvider>
+            </DownloadProvider>
           </PodcastProvider>
         </UserProvider>
       </body>

@@ -11,7 +11,7 @@ import React, {
   useEffect,
 } from "react";
 import { usePodcast } from "./PodcastContext";
-import { useDownload } from "./DownloadContext";
+import { useDownload } from "@/context/DownloadContext";
 import { useThrottle } from "@/hooks/use-throttle";
 
 const HISTORY_STORAGE_KEY = "podcast_history";
@@ -116,7 +116,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         currentBlobUrl.current = null;
       }
       if (sleepTimerId.current) clearTimeout(sleepTimerId.current);
-      if (sleepTimerIntervalId.current) clearInterval(sleepTimerIntervalId.current);
+      if (sleepTimerIntervalId.current)
+        clearInterval(sleepTimerIntervalId.current);
     };
   }, []);
 

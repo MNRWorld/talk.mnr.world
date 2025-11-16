@@ -1,7 +1,19 @@
+
 "use client";
 
 import Image from "next/image";
-import { MoreVertical, Play, Heart, Plus, Trash2 } from "lucide-react";
+import {
+  MoreVertical,
+  Play,
+  Heart,
+  Plus,
+  Trash2,
+  Download,
+  Loader,
+  Check,
+  ListPlus,
+  Share2,
+} from "lucide-react";
 import type { Podcast } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +33,9 @@ import { usePlaylist } from "@/context/PlaylistContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "../ui/button";
 import { CreatePlaylistDialog } from "../playlists/CreatePlaylistDialog";
+import { useDownload } from "@/context/DownloadContext";
+import { type MouseEvent, useEffect, useState } from "react";
+import { Progress } from "../ui/progress";
 
 interface PodcastCardProps {
   podcast: Podcast;
@@ -35,7 +50,13 @@ export default function PodcastCard({
   playlistId,
   onRemove,
 }: PodcastCardProps) {
-  const { play, currentTrack, isPlaying } = usePlayer();
+  const {
+    play,
+    currentTrack,
+    isPlaying,
+    addToQueue,
+    getPodcastProgress,
+  } = usePlayer();
   const {
     playlists,
     addPodcastToPlaylist,
@@ -44,10 +65,30 @@ export default function PodcastCard({
     FAVORITES_PLAYLIST_ID,
     getPlaylistById,
   } = usePlaylist();
+  const {
+    downloadPodcast,
+    deleteDownloadedPodcast,
+    downloadedPodcasts,
+    downloadingPodcasts,
+  } = useDownload();
   const { toast } = useToast();
   const isActive = currentTrack?.id === podcast.id;
   const isFavorite = isFavoritePodcast(podcast.id);
   const currentPlaylist = playlistId ? getPlaylistById(playlistId) : null;
+  const isDownloading = downloadingPodcasts.includes(podcast.id);
+  const isDownloaded = downloadedPodcasts.some((p) => p.id === podcast.id);
+
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const savedProgress = getPodcastProgress(podcast.id);
+    if (savedProgress) {
+      setProgress(savedProgress.progress);
+      setDuration(savedProgress.duration);
+    }
+  }, [podcast.id, getPodcastProgress, currentTrack]);
+
 
   const userPlaylists = playlists.filter(
     (p) => !p.isPredefined && p.id !== FAVORITES_PLAYLIST_ID,
@@ -62,7 +103,7 @@ export default function PodcastCard({
     });
   };
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
+  const handleToggleFavorite = (e: MouseEvent) => {
     e.stopPropagation();
     toggleFavoritePodcast(podcast.id);
     toast({
@@ -73,7 +114,7 @@ export default function PodcastCard({
     });
   };
 
-  const handleRemoveFromPlaylist = (e: React.MouseEvent) => {
+  const handleRemoveFromPlaylist = (e: MouseEvent) => {
     e.stopPropagation();
     if (onRemove && playlistId) {
       onRemove(podcast.id, playlistId);
@@ -83,6 +124,66 @@ export default function PodcastCard({
       });
     }
   };
+
+  const handleDownload = async (e: MouseEvent) => {
+    e.stopPropagation();
+    if (isDownloaded || isDownloading) {
+      return;
+    }
+    toast({
+      title: "Starting download...",
+      description: `"${podcast.title}" is being downloaded.`,
+    });
+    try {
+      await downloadPodcast(podcast);
+      toast({
+        title: "Download Complete",
+        description: `"${podcast.title}" has been saved for offline listening.`,
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Download Failed",
+        description:
+          "Could not download the podcast. Please try again later.",
+      });
+    }
+  };
+
+  const handleDeleteDownload = (e: MouseEvent) => {
+    e.stopPropagation();
+    deleteDownloadedPodcast(podcast.id);
+    toast({
+      title: "Download Removed",
+      description: `"${podcast.title}" has been removed from your device.`,
+    });
+  };
+
+  const handleAddToQueue = (e: MouseEvent) => {
+    e.stopPropagation();
+    addToQueue(podcast);
+    toast({
+      title: "Added to Queue",
+      description: `"${podcast.title}" has been added to your playing queue.`,
+    });
+  };
+  
+  const handleShare = (e: MouseEvent) => {
+    e.stopPropagation();
+    // In a real app, this would be a dedicated page URL.
+    // For now, we'll just copy the title and artist as an example.
+    const shareText = `Check out "${podcast.title}" by ${podcast.artist}!`;
+    navigator.clipboard.writeText(shareText);
+    toast({
+      title: "Copied to Clipboard",
+      description: "Podcast info has been copied.",
+    });
+  };
+
+  const progressPercentage = duration > 0 ? (progress / duration) * 100 : 0;
+  const showProgressBar = progress > 1 && progress < duration - 1;
+
 
   return (
     <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
@@ -104,6 +205,7 @@ export default function PodcastCard({
           />
         </Button>
       </div>
+
       <div className="absolute right-3 top-4 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -119,6 +221,33 @@ export default function PodcastCard({
             onClick={(e) => e.stopPropagation()}
             align="end"
           >
+            <DropdownMenuItem onClick={handleAddToQueue}>
+              <ListPlus className="mr-2 h-4 w-4" />
+              Add to Queue
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            {isDownloading ? (
+              <DropdownMenuItem disabled>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Downloading...
+              </DropdownMenuItem>
+            ) : isDownloaded ? (
+              <DropdownMenuItem
+                onClick={handleDeleteDownload}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Download
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={handleDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
@@ -142,6 +271,12 @@ export default function PodcastCard({
                 </CreatePlaylistDialog>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
+
+            <DropdownMenuItem onClick={handleShare}>
+              <Share2 className="mr-2 h-4 w-4" />
+              Share
+            </DropdownMenuItem>
+
             {onRemove && currentPlaylist && !currentPlaylist.isPredefined && (
               <>
                 <DropdownMenuSeparator />
@@ -174,6 +309,17 @@ export default function PodcastCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               data-ai-hint={podcast.coverArtHint}
             />
+            {isDownloaded && (
+              <div className="absolute bottom-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary/80 backdrop-blur-sm">
+                <Check className="h-3 w-3 text-primary-foreground" />
+              </div>
+            )}
+            {showProgressBar && (
+              <Progress
+                value={progressPercentage}
+                className="absolute bottom-0 h-1 w-full rounded-none rounded-b-md"
+              />
+            )}
           </div>
           <h3 className="h-12 font-semibold text-foreground line-clamp-2">
             {podcast.title}
