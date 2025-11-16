@@ -34,6 +34,9 @@ import { useToast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { cn } from "@/lib/utils";
 import ListeningChart from "@/components/podcasts/ListeningChart";
+import { usePlaylist } from "@/context/PlaylistContext";
+import { usePodcast } from "@/context/PodcastContext";
+import CategorySection from "@/components/podcasts/CategorySection";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -62,6 +65,8 @@ const StatCard = ({
 export default function ProfilePage() {
   const { user, login, logout } = useUser();
   const { history } = usePlayer();
+  const { podcasts } = usePodcast();
+  const { getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID } = usePlaylist();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(
     user.avatar,
   );
@@ -75,6 +80,11 @@ export default function ProfilePage() {
       name: user.name,
     },
   });
+  
+  const favoritePodcasts = React.useMemo(() => 
+    getPodcastsForPlaylist(FAVORITES_PLAYLIST_ID, podcasts),
+    [getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID, podcasts]
+  );
 
   const stats = React.useMemo(() => {
     if (history.length === 0) {
@@ -334,6 +344,16 @@ export default function ProfilePage() {
                       <p className="text-center text-sm text-muted-foreground">Start listening to see your stats here!</p>
                     )}
                   </div>
+
+                  {favoritePodcasts.length > 0 && (
+                    <>
+                      <Separator />
+                      <CategorySection
+                        title="Favorite Audios"
+                        podcasts={favoritePodcasts}
+                      />
+                    </>
+                  )}
                   
                   <ListeningChart />
 
