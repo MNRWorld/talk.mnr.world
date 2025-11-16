@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { MoreVertical, Play, Heart } from "lucide-react";
+import { MoreVertical, Play, Heart, Plus } from "lucide-react";
 import type { Podcast } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -20,6 +21,7 @@ import {
 import { usePlaylist } from "@/context/PlaylistContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "../ui/button";
+import { CreatePlaylistDialog } from "../playlists/CreatePlaylistDialog";
 
 interface PodcastCardProps {
   podcast: Podcast;
@@ -28,16 +30,24 @@ interface PodcastCardProps {
 
 export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
   const { play, currentTrack, isPlaying } = usePlayer();
-  const { playlists, addPodcastToPlaylist, toggleFavoritePodcast, isFavoritePodcast, FAVORITES_PLAYLIST_ID } = usePlaylist();
+  const {
+    playlists,
+    addPodcastToPlaylist,
+    toggleFavoritePodcast,
+    isFavoritePodcast,
+    FAVORITES_PLAYLIST_ID,
+  } = usePlaylist();
   const { toast } = useToast();
   const isActive = currentTrack?.id === podcast.id;
   const isFavorite = isFavoritePodcast(podcast.id);
 
-  const userPlaylists = playlists.filter(p => !p.isPredefined && p.id !== FAVORITES_PLAYLIST_ID);
+  const userPlaylists = playlists.filter(
+    (p) => !p.isPredefined && p.id !== FAVORITES_PLAYLIST_ID,
+  );
 
   const handleAddToPlaylist = (playlistId: string) => {
     addPodcastToPlaylist(playlistId, podcast.id);
-    const playlist = playlists.find(p => p.id === playlistId);
+    const playlist = playlists.find((p) => p.id === playlistId);
     toast({
       title: "Added to playlist",
       description: `"${podcast.title}" has been added to "${playlist?.name}".`,
@@ -47,26 +57,30 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleFavoritePodcast(podcast.id);
-     toast({
+    toast({
       title: isFavorite ? "Removed from Favorites" : "Added to Favorites",
-      description: `"${podcast.title}" has been ${isFavorite ? 'removed from' : 'added to'} your Favorites.`,
+      description: `"${podcast.title}" has been ${
+        isFavorite ? "removed from" : "added to"
+      } your Favorites.`,
     });
-  }
+  };
 
   return (
     <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
-       <div className="absolute left-3 top-4 z-10">
+      <div className="absolute left-3 top-4 z-10">
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
           onClick={handleToggleFavorite}
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          aria-label={
+            isFavorite ? "Remove from favorites" : "Add to favorites"
+          }
         >
           <Heart
             className={cn(
               "h-5 w-5 text-foreground",
-              isFavorite && "fill-primary text-primary"
+              isFavorite && "fill-primary text-primary",
             )}
           />
         </Button>
@@ -89,18 +103,24 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                {userPlaylists.length > 0 ? (
-                  userPlaylists.map((p) => (
-                    <DropdownMenuItem
-                      key={p.id}
-                      onClick={() => handleAddToPlaylist(p.id)}
-                    >
-                      {p.name}
-                    </DropdownMenuItem>
-                  ))
-                ) : (
-                  <DropdownMenuItem disabled>No playlists created</DropdownMenuItem>
-                )}
+                {userPlaylists.map((p) => (
+                  <DropdownMenuItem
+                    key={p.id}
+                    onClick={() => handleAddToPlaylist(p.id)}
+                  >
+                    {p.name}
+                  </DropdownMenuItem>
+                ))}
+                {userPlaylists.length > 0 && <DropdownMenuSeparator />}
+                <CreatePlaylistDialog>
+                  <DropdownMenuItem
+                    onSelect={(e) => e.preventDefault()}
+                    className="gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    New Playlist
+                  </DropdownMenuItem>
+                </CreatePlaylistDialog>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           </DropdownMenuContent>
