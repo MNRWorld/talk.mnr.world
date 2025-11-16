@@ -1,3 +1,4 @@
+
 "use client";
 
 import { usePodcast } from "@/context/PodcastContext";
@@ -7,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { useMemo, useState, useEffect } from "react";
 import type { Podcast } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { usePlaylist } from "@/context/PlaylistContext";
+import PlaylistCard from "../playlists/PlaylistCard";
 
 const getRowLimit = () => {
   if (typeof window === "undefined") {
@@ -73,7 +76,13 @@ const CategorySection = ({
 
 export default function PodcastLibrary({ showTitle = true }: { showTitle?: boolean }) {
   const { podcasts } = usePodcast();
+  const { playlists } = usePlaylist();
   const { currentTrack } = usePlayer();
+
+  const predefinedPlaylists = useMemo(() => {
+    return [...playlists.filter(p => p.isPredefined)]
+      .sort((a, b) => b.id.localeCompare(a.id));
+  }, [playlists]);
 
   const categories = useMemo(() => {
     const categoryMap = new Map<string, Podcast[]>();
@@ -101,6 +110,21 @@ export default function PodcastLibrary({ showTitle = true }: { showTitle?: boole
       )}
 
       <CategorySection title="Recently Added" podcasts={podcasts} />
+
+      {predefinedPlaylists.length > 0 && (
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-headline text-2xl font-bold tracking-tight">
+              Playlists
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            {predefinedPlaylists.map((playlist) => (
+              <PlaylistCard key={playlist.id} playlist={playlist} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {categories.map(([category, categoryPodcasts]) => (
         <CategorySection
