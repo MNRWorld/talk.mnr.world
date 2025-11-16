@@ -18,6 +18,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Separator } from "../ui/separator";
 
 export default function ListeningChart() {
   const { listeningLog } = usePlayer();
@@ -45,6 +46,7 @@ export default function ListeningChart() {
   if (totalMinutes === 0) {
     return (
        <div className="space-y-4">
+        <Separator />
         <h2 className="text-center text-lg font-medium">Weekly Activity</h2>
          <p className="text-center text-sm text-muted-foreground">Start listening to see your daily stats!</p>
        </div>
@@ -52,45 +54,48 @@ export default function ListeningChart() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Weekly Activity</CardTitle>
-        <CardDescription>
-          You listened for a total of {totalMinutes} minutes this week.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer
-          config={{
-            minutes: {
-              label: "Minutes",
-              color: "hsl(var(--primary))",
-            },
-          }}
-          className="h-[200px] w-full"
-        >
-          <BarChart accessibilityLayer data={chartData}>
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => `${value}m`}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dot" />}
-            />
-            <Bar dataKey="minutes" fill="var(--color-minutes)" radius={8} />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+    <>
+      <Separator />
+      <Card>
+        <CardHeader>
+          <CardTitle>Weekly Activity</CardTitle>
+          <CardDescription>
+            You listened for a total of {totalMinutes} minutes this week.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer
+            config={{
+              minutes: {
+                label: "Minutes",
+                color: "hsl(var(--primary))",
+              },
+            }}
+            className="h-[200px] w-full"
+          >
+            <BarChart accessibilityLayer data={chartData}>
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => `${value}m`}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="dot" />}
+              />
+              <Bar dataKey="minutes" fill="var(--color-minutes)" radius={8} />
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+    </>
   );
 }

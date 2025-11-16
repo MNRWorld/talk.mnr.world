@@ -344,7 +344,7 @@ export default function ProfilePage() {
                       <p className="text-center text-sm text-muted-foreground">Start listening to see your stats here!</p>
                     )}
                   </div>
-
+                  
                   {favoritePodcasts.length > 0 && (
                     <>
                       <Separator />
@@ -354,7 +354,7 @@ export default function ProfilePage() {
                       />
                     </>
                   )}
-                  
+
                   <ListeningChart />
 
                   <Separator />
