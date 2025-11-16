@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ListMusic, Lock, MoreVertical, Trash2 } from "lucide-react";
+import { Heart, ListMusic, Lock, MoreVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { usePodcast } from "@/context/PodcastContext";
@@ -28,6 +28,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 interface PlaylistCardProps {
   playlist: Playlist;
@@ -35,7 +37,7 @@ interface PlaylistCardProps {
 
 export default function PlaylistCard({ playlist }: PlaylistCardProps) {
   const { podcasts } = usePodcast();
-  const { getPodcastsForPlaylist, deletePlaylist } = usePlaylist();
+  const { getPodcastsForPlaylist, deletePlaylist, toggleFavorite } = usePlaylist();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const { toast } = useToast();
 
@@ -65,10 +67,36 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
     });
     setIsAlertOpen(false);
   };
+  
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    toggleFavorite(playlist.id);
+    toast({
+      title: playlist.isFavorite ? "Removed from Saved" : "Added to Saved",
+      description: `"${playlist.name}" has been ${playlist.isFavorite ? 'removed from' : 'added to'} your saved playlists.`,
+    });
+  };
 
   return (
     <>
       <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
+        <div className="absolute left-2 top-2 z-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
+            onClick={handleToggleFavorite}
+            aria-label={playlist.isFavorite ? "Remove from saved playlists" : "Add to saved playlists"}
+          >
+            <Heart
+              className={cn(
+                "h-5 w-5 text-foreground",
+                playlist.isFavorite && "fill-primary text-primary"
+              )}
+            />
+          </Button>
+        </div>
         {!playlist.isPredefined && playlist.id !== FAVORITES_PLAYLIST_ID && (
           <div className="absolute right-2 top-2 z-10">
             <DropdownMenu>
@@ -79,7 +107,7 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
                     e.preventDefault();
                     e.stopPropagation();
                   }}
-                  className="rounded-full p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  className="rounded-full p-1 text-muted-foreground opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
                 >
                   <MoreVertical size={20} />
                 </button>
@@ -117,7 +145,7 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
                 </div>
               )}
               {playlist.isPredefined && (
-                <Badge
+                 <Badge
                   variant="secondary"
                   className="absolute bottom-2 right-2 flex h-6 w-6 items-center justify-center p-0"
                 >

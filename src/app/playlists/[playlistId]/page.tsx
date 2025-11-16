@@ -14,6 +14,7 @@ import { usePodcast } from "@/context/PodcastContext";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface PlaylistPageProps {
   params: {
@@ -25,9 +26,20 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
   const { playlistId } = params;
   const { getPlaylistById, getPodcastsForPlaylist, toggleFavorite } = usePlaylist();
   const { podcasts: allPodcasts } = usePodcast();
+  const { toast } = useToast();
 
   const playlist = getPlaylistById(playlistId);
   const podcastsInPlaylist = getPodcastsForPlaylist(playlistId, allPodcasts);
+
+  const handleToggleFavorite = () => {
+    if (playlist) {
+      toggleFavorite(playlist.id);
+      toast({
+        title: playlist.isFavorite ? "Removed from Saved" : "Added to Saved",
+        description: `"${playlist.name}" has been ${playlist.isFavorite ? 'removed from' : 'added to'} your saved playlists.`,
+      });
+    }
+  };
 
   if (!playlist) {
     return (
@@ -70,7 +82,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => toggleFavorite(playlist.id)}
+                    onClick={handleToggleFavorite}
                     aria-label={playlist.isFavorite ? "Remove from favorites" : "Add to favorites"}
                   >
                     <Heart
