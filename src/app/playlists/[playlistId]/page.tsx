@@ -24,7 +24,12 @@ interface PlaylistPageProps {
 
 const PlaylistPage = ({ params }: PlaylistPageProps) => {
   const { playlistId } = params;
-  const { getPlaylistById, getPodcastsForPlaylist, toggleFavorite } = usePlaylist();
+  const {
+    getPlaylistById,
+    getPodcastsForPlaylist,
+    toggleFavorite,
+    removePodcastFromPlaylist,
+  } = usePlaylist();
   const { podcasts: allPodcasts } = usePodcast();
   const { toast } = useToast();
 
@@ -36,7 +41,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
       toggleFavorite(playlist.id);
       toast({
         title: playlist.isFavorite ? "Removed from Saved" : "Added to Saved",
-        description: `"${playlist.name}" has been ${playlist.isFavorite ? 'removed from' : 'added to'} your saved playlists.`,
+        description: `"${playlist.name}" has been ${playlist.isFavorite ? "removed from" : "added to"} your saved playlists.`,
       });
     }
   };
@@ -83,7 +88,11 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
                     variant="ghost"
                     size="icon"
                     onClick={handleToggleFavorite}
-                    aria-label={playlist.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    aria-label={
+                      playlist.isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
                   >
                     <Heart
                       className={cn(
@@ -100,6 +109,8 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
                         key={podcast.id}
                         podcast={podcast}
                         playlist={podcastsInPlaylist}
+                        playlistId={playlist.id}
+                        onRemove={removePodcastFromPlaylist}
                       />
                     ))}
                   </div>

@@ -1,8 +1,7 @@
-
 "use client";
 
 import Image from "next/image";
-import { MoreVertical, Play, Heart, Plus } from "lucide-react";
+import { MoreVertical, Play, Heart, Plus, Trash2 } from "lucide-react";
 import type { Podcast } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,9 +25,16 @@ import { CreatePlaylistDialog } from "../playlists/CreatePlaylistDialog";
 interface PodcastCardProps {
   podcast: Podcast;
   playlist?: Podcast[];
+  playlistId?: string; // To identify which playlist the card is in
+  onRemove?: (podcastId: string, playlistId: string) => void; // Callback to remove
 }
 
-export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
+export default function PodcastCard({
+  podcast,
+  playlist,
+  playlistId,
+  onRemove,
+}: PodcastCardProps) {
   const { play, currentTrack, isPlaying } = usePlayer();
   const {
     playlists,
@@ -36,10 +42,12 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
     toggleFavoritePodcast,
     isFavoritePodcast,
     FAVORITES_PLAYLIST_ID,
+    getPlaylistById,
   } = usePlaylist();
   const { toast } = useToast();
   const isActive = currentTrack?.id === podcast.id;
   const isFavorite = isFavoritePodcast(podcast.id);
+  const currentPlaylist = playlistId ? getPlaylistById(playlistId) : null;
 
   const userPlaylists = playlists.filter(
     (p) => !p.isPredefined && p.id !== FAVORITES_PLAYLIST_ID,
@@ -63,6 +71,17 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
         isFavorite ? "removed from" : "added to"
       } your Favorites.`,
     });
+  };
+
+  const handleRemoveFromPlaylist = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemove && playlistId) {
+      onRemove(podcast.id, playlistId);
+      toast({
+        title: "Podcast Removed",
+        description: `"${podcast.title}" has been removed from the playlist.`,
+      });
+    }
   };
 
   return (
@@ -123,6 +142,18 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
                 </CreatePlaylistDialog>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
+            {onRemove && currentPlaylist && !currentPlaylist.isPredefined && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleRemoveFromPlaylist}
+                  className="text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Remove from this playlist
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

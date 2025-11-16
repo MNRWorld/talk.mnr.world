@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { Playlist, Podcast } from "@/lib/types";
@@ -21,6 +20,7 @@ interface PlaylistContextType {
   createPlaylist: (name: string) => void;
   deletePlaylist: (playlistId: string) => void;
   addPodcastToPlaylist: (playlistId: string, podcastId: string) => void;
+  removePodcastFromPlaylist: (playlistId: string, podcastId: string) => void;
   getPodcastsForPlaylist: (
     playlistId: string,
     allPodcasts: Podcast[],
@@ -155,6 +155,22 @@ export const PlaylistProvider = ({
     [playlists],
   );
 
+  const removePodcastFromPlaylist = useCallback(
+    (playlistId: string, podcastId: string) => {
+      const updatedPlaylists = playlists.map((playlist) => {
+        if (playlist.id === playlistId && !playlist.isPredefined) {
+          return {
+            ...playlist,
+            podcastIds: playlist.podcastIds.filter((id) => id !== podcastId),
+          };
+        }
+        return playlist;
+      });
+      savePlaylists(updatedPlaylists);
+    },
+    [playlists],
+  );
+
   const getPodcastsForPlaylist = useCallback(
     (playlistId: string, allPodcasts: Podcast[]) => {
       const playlist = playlists.find((p) => p.id === playlistId);
@@ -235,6 +251,7 @@ export const PlaylistProvider = ({
     createPlaylist,
     deletePlaylist,
     addPodcastToPlaylist,
+    removePodcastFromPlaylist,
     getPodcastsForPlaylist,
     getPlaylistById,
     toggleFavorite,
