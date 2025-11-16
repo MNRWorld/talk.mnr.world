@@ -154,7 +154,7 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
                 </Badge>
               )}
             </div>
-            <h3 className="h-6 font-semibold text-foreground line-clamp-1">
+            <h3 className="h-12 font-semibold text-foreground line-clamp-2">
               {playlist.name}
             </h3>
             <p className="h-5 text-sm text-muted-foreground line-clamp-1">
