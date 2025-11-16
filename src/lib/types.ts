@@ -14,4 +14,5 @@ export type Playlist = {
   name:string;
   podcastIds: string[];
   isPredefined?: boolean;
+  isFavorite?: boolean;
 };

@@ -24,6 +24,7 @@ interface PlaylistContextType {
     allPodcasts: Podcast[],
   ) => Podcast[];
   getPlaylistById: (playlistId: string) => Playlist | undefined;
+  toggleFavorite: (playlistId: string) => void;
 }
 
 const PlaylistContext = createContext<PlaylistContextType | undefined>(
@@ -50,7 +51,16 @@ export const PlaylistProvider = ({
       const storedPlaylists = localStorage.getItem(PLAYLIST_STORAGE_KEY);
       const userPlaylists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
       const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
-      setPlaylists([...predefinedPlaylists, ...userPlaylists]);
+      
+      // Merge favorites from userPlaylists into predefinedPlaylists
+      const enrichedPredefined = predefinedPlaylists.map(p => {
+        const userVersion = userPlaylists.find((up: Playlist) => up.id === p.id);
+        return userVersion ? { ...p, isFavorite: userVersion.isFavorite } : p;
+      });
+      
+      const userOnlyPlaylists = userPlaylists.filter((p: Playlist) => !p.isPredefined);
+
+      setPlaylists([...enrichedPredefined, ...userOnlyPlaylists]);
     } catch (error) {
       console.error("Failed to load playlists from localStorage", error);
       const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
@@ -58,14 +68,20 @@ export const PlaylistProvider = ({
     }
   }, []);
 
-  const savePlaylists = (updatedUserPlaylists: Playlist[]) => {
+  const savePlaylists = (updatedPlaylists: Playlist[]) => {
     try {
+      // We only save user-created playlists and favorite status of predefined ones
+      const playlistsToSave = updatedPlaylists.map(p => {
+        if (p.isPredefined) {
+          return { id: p.id, isFavorite: p.isFavorite };
+        }
+        return p;
+      });
       localStorage.setItem(
         PLAYLIST_STORAGE_KEY,
-        JSON.stringify(updatedUserPlaylists),
+        JSON.stringify(playlistsToSave),
       );
-      const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
-      setPlaylists([...predefinedPlaylists, ...updatedUserPlaylists]);
+      setPlaylists(updatedPlaylists);
     } catch (error) {
       console.error("Failed to save playlists to localStorage", error);
     }
@@ -78,9 +94,9 @@ export const PlaylistProvider = ({
         name,
         podcastIds: [],
         isPredefined: false,
+        isFavorite: false,
       };
-      const userPlaylists = playlists.filter(p => !p.isPredefined);
-      const updatedPlaylists = [...userPlaylists, newPlaylist];
+      const updatedPlaylists = [...playlists, newPlaylist];
       savePlaylists(updatedPlaylists);
     },
     [playlists],
@@ -88,8 +104,7 @@ export const PlaylistProvider = ({
 
     const deletePlaylist = useCallback(
     (playlistId: string) => {
-      const userPlaylists = playlists.filter(p => !p.isPredefined);
-      const updatedPlaylists = userPlaylists.filter(
+      const updatedPlaylists = playlists.filter(
         (playlist) => playlist.id !== playlistId
       );
       savePlaylists(updatedPlaylists);
@@ -99,9 +114,8 @@ export const PlaylistProvider = ({
 
   const addPodcastToPlaylist = useCallback(
     (playlistId: string, podcastId: string) => {
-      const userPlaylists = playlists.filter(p => !p.isPredefined);
-      const updatedPlaylists = userPlaylists.map((playlist) => {
-        if (playlist.id === playlistId) {
+      const updatedPlaylists = playlists.map((playlist) => {
+        if (playlist.id === playlistId && !playlist.isPredefined) {
           // Avoid adding duplicates
           if (!playlist.podcastIds.includes(podcastId)) {
             return { ...playlist, podcastIds: [...playlist.podcastIds, podcastId] };
@@ -132,6 +146,19 @@ export const PlaylistProvider = ({
     [playlists],
   );
 
+  const toggleFavorite = useCallback(
+    (playlistId: string) => {
+       const updatedPlaylists = playlists.map((playlist) => {
+        if (playlist.id === playlistId) {
+          return { ...playlist, isFavorite: !playlist.isFavorite };
+        }
+        return playlist;
+      });
+      savePlaylists(updatedPlaylists);
+    },
+    [playlists]
+  );
+
   const value = {
     playlists,
     createPlaylist,
@@ -139,6 +166,7 @@ export const PlaylistProvider = ({
     addPodcastToPlaylist,
     getPodcastsForPlaylist,
     getPlaylistById,
+    toggleFavorite
   };
 
   return (

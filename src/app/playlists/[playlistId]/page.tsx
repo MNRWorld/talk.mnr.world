@@ -11,6 +11,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { usePlaylist } from "@/context/PlaylistContext";
 import { usePodcast } from "@/context/PodcastContext";
+import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface PlaylistPageProps {
   params: {
@@ -20,7 +23,7 @@ interface PlaylistPageProps {
 
 const PlaylistPage = ({ params }: PlaylistPageProps) => {
   const { playlistId } = params;
-  const { getPlaylistById, getPodcastsForPlaylist } = usePlaylist();
+  const { getPlaylistById, getPodcastsForPlaylist, toggleFavorite } = usePlaylist();
   const { podcasts: allPodcasts } = usePodcast();
 
   const playlist = getPlaylistById(playlistId);
@@ -60,9 +63,24 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
           <SidebarInset className="flex flex-1 flex-col">
             <ScrollArea className="h-full">
               <main className="p-4 sm:p-6 lg:p-8">
-                <h1 className="font-headline mb-6 text-3xl font-bold tracking-tight">
-                  {playlist.name}
-                </h1>
+                <div className="mb-6 flex items-center justify-between">
+                  <h1 className="font-headline text-3xl font-bold tracking-tight">
+                    {playlist.name}
+                  </h1>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => toggleFavorite(playlist.id)}
+                    aria-label={playlist.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Heart
+                      className={cn(
+                        "h-6 w-6",
+                        playlist.isFavorite && "fill-primary text-primary",
+                      )}
+                    />
+                  </Button>
+                </div>
                 {podcastsInPlaylist.length > 0 ? (
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     {podcastsInPlaylist.map((podcast) => (
