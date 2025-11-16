@@ -8,6 +8,7 @@ import {
   Search,
   Grid,
   User,
+  ListMusic,
 } from "lucide-react";
 import { AddPodcastDialog } from "../podcasts/AddPodcastDialog";
 import {
@@ -79,6 +80,15 @@ export default function AppSidebar() {
               >
                 <Library />
                 Your Library
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton
+                href="/playlists"
+                isActive={pathname.startsWith("/playlists")}
+              >
+                <ListMusic />
+                Playlists
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

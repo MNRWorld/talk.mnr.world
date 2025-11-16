@@ -1,27 +1,86 @@
 "use client";
 
 import Image from "next/image";
-import { Play } from "lucide-react";
-import type { Podcast } from "@/lib/podcasts";
+import { MoreVertical, Play } from "lucide-react";
+import type { Podcast } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { usePlaylist } from "@/context/PlaylistContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface PodcastCardProps {
   podcast: Podcast;
+  playlist?: Podcast[];
 }
 
-export default function PodcastCard({ podcast }: PodcastCardProps) {
+export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
   const { play, currentTrack, isPlaying } = usePlayer();
+  const { playlists, addPodcastToPlaylist } = usePlaylist();
+  const { toast } = useToast();
   const isActive = currentTrack?.id === podcast.id;
+
+  const handleAddToPlaylist = (playlistId: string) => {
+    addPodcastToPlaylist(playlistId, podcast.id);
+    const playlist = playlists.find(p => p.id === playlistId);
+    toast({
+      title: "Added to playlist",
+      description: `"${podcast.title}" has been added to "${playlist?.name}".`,
+    });
+  };
 
   return (
     <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
+      <div className="absolute right-2 top-2 z-10">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              aria-label="More options"
+              className="p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical size={20} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            onClick={(e) => e.stopPropagation()}
+            align="end"
+          >
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {playlists.length > 0 ? (
+                  playlists.map((p) => (
+                    <DropdownMenuItem
+                      key={p.id}
+                      onClick={() => handleAddToPlaylist(p.id)}
+                    >
+                      {p.name}
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem disabled>No playlists</DropdownMenuItem>
+                )}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       <button
         type="button"
         className="w-full text-left"
-        onClick={() => play(podcast.id)}
+        onClick={() => play(podcast.id, playlist)}
         aria-label={`Play ${podcast.title}`}
       >
         <CardContent className="p-4">
@@ -53,7 +112,7 @@ export default function PodcastCard({ podcast }: PodcastCardProps) {
       <div className="absolute bottom-24 right-6">
         <button
           type="button"
-          onClick={() => play(podcast.id)}
+          onClick={() => play(podcast.id, playlist)}
           aria-label={`Play ${podcast.title}`}
           className={cn(
             "flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-xl transform transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-90",

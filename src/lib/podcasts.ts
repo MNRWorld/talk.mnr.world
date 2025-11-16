@@ -1,13 +1,4 @@
 import podcastsData from "./podcasts.json";
-
-export type Podcast = {
-  id: string;
-  title: string;
-  artist: string;
-  categories: string[];
-  coverArt: string;
-  coverArtHint: string;
-  audioUrl: string;
-};
+import type { Podcast } from "@/lib/types";
 
 export const podcasts: Podcast[] = podcastsData as Podcast[];

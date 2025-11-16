@@ -8,7 +8,7 @@ import {
   type ReactNode,
   useMemo,
 } from "react";
-import type { Podcast } from "@/lib/podcasts";
+import type { Podcast } from "@/lib/types";
 import { podcasts as initialPodcasts } from "@/lib/podcasts";
 
 interface PodcastContextType {

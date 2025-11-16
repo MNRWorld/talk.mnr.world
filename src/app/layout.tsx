@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { PodcastProvider } from "@/context/PodcastContext";
 import { PlayerProvider } from "@/context/PlayerContext";
+import { PlaylistProvider } from "@/context/PlaylistContext";
 
 export const metadata: Metadata = {
   title: "MNR Talks",
@@ -21,10 +22,12 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.variable} font-body antialiased`}>
         <PodcastProvider>
-          <PlayerProvider>
-            {children}
-            <Toaster />
-          </PlayerProvider>
+          <PlaylistProvider>
+            <PlayerProvider>
+              {children}
+              <Toaster />
+            </PlayerProvider>
+          </PlaylistProvider>
         </PodcastProvider>
       </body>
     </html>

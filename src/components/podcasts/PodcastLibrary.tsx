@@ -5,7 +5,7 @@ import PodcastCard from "./PodcastCard";
 import { usePlayer } from "@/context/PlayerContext";
 import { cn } from "@/lib/utils";
 import { useMemo, useState, useEffect } from "react";
-import type { Podcast } from "@/lib/podcasts";
+import type { Podcast } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 
 const getRowLimit = () => {
@@ -96,7 +96,7 @@ export default function PodcastLibrary({ showTitle = true }: { showTitle?: boole
     >
       {showTitle && (
         <h1 className="font-headline mb-6 text-3xl font-bold tracking-tight">
-          Your Library
+          Browse All
         </h1>
       )}
 

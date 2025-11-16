@@ -1,21 +1,17 @@
 
-"use client";
-
 import { AnimatePresence } from "framer-motion";
+import AppSidebar from "@/components/layout/AppSidebar";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import Player from "@/components/layout/Player";
-import AppSidebar from "@/components/layout/AppSidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import HistoryList from "@/components/podcasts/HistoryList";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
+import PlaylistList from "@/components/playlists/PlaylistList";
 import { CreatePlaylistDialog } from "@/components/playlists/CreatePlaylistDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import PlaylistList from "@/components/playlists/PlaylistList";
-import { Separator } from "@/components/ui/separator";
 
-export default function LibraryPage() {
+export default function PlaylistsPage() {
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col bg-background">
@@ -27,7 +23,7 @@ export default function LibraryPage() {
               <main className="p-4 sm:p-6 lg:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <h1 className="font-headline text-3xl font-bold tracking-tight">
-                    Your Library
+                    Playlists
                   </h1>
                   <CreatePlaylistDialog>
                     <Button>
@@ -36,8 +32,6 @@ export default function LibraryPage() {
                   </CreatePlaylistDialog>
                 </div>
                 <PlaylistList />
-                <Separator className="my-8" />
-                <HistoryList />
               </main>
             </ScrollArea>
           </SidebarInset>

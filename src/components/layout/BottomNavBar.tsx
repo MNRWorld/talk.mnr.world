@@ -2,40 +2,44 @@
 
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { Grid, Home, Library, Search } from "lucide-react";
+import { Grid, Home, Library, ListMusic, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchDialog } from "../search/SearchDialog";
 
 export default function BottomNavBar() {
   const pathname = usePathname();
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-card/80 backdrop-blur-sm md:hidden">
-      <div className="grid h-16 grid-cols-4">
-        <NavItem
-          href="/"
-          label="Home"
-          icon={Home}
-          isActive={pathname === "/"}
-        />
-        <SearchDialog>
-          <button className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground">
-            <Search className="h-6 w-6" />
-            <span>Search</span>
-          </button>
-        </SearchDialog>
-        <NavItem
-          href="/categories"
-          label="Categories"
-          icon={Grid}
-          isActive={pathname.startsWith("/categories")}
-        />
-        <NavItem
-          href="/library"
-          label="Your Library"
-          icon={Library}
-          isActive={pathname === "/library"}
-        />
-      </div>
+    <div className="fixed bottom-0 left-0 right-0 z-50 grid h-16 grid-cols-5 border-t border-border/50 bg-card/80 backdrop-blur-sm md:hidden">
+      <NavItem
+        href="/"
+        label="Home"
+        icon={Home}
+        isActive={pathname === "/"}
+      />
+      <SearchDialog>
+        <button className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground">
+          <Search className="h-6 w-6" />
+          <span>Search</span>
+        </button>
+      </SearchDialog>
+      <NavItem
+        href="/categories"
+        label="Categories"
+        icon={Grid}
+        isActive={pathname.startsWith("/categories")}
+      />
+      <NavItem
+        href="/library"
+        label="Library"
+        icon={Library}
+        isActive={pathname === "/library"}
+      />
+      <NavItem
+        href="/playlists"
+        label="Playlists"
+        icon={ListMusic}
+        isActive={pathname.startsWith("/playlists")}
+      />
     </div>
   );
 }
