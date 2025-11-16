@@ -32,6 +32,7 @@ import { useUser } from "@/context/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { cn } from "@/lib/utils";
+import ListeningChart from "@/components/podcasts/ListeningChart";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -136,6 +137,8 @@ export default function ProfilePage() {
       const userProfile = localStorage.getItem("guest_user_profile");
       const podcastHistory = localStorage.getItem("podcast_history");
       const podcastPlaylists = localStorage.getItem("podcast_playlists");
+      const listeningLog = localStorage.getItem("listening_log");
+
 
       const dataToExport = {
         userProfile: userProfile ? JSON.parse(userProfile) : null,
@@ -143,6 +146,7 @@ export default function ProfilePage() {
         podcastPlaylists: podcastPlaylists
           ? JSON.parse(podcastPlaylists)
           : null,
+        listeningLog: listeningLog ? JSON.parse(listeningLog) : null,
       };
 
       const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
@@ -198,6 +202,12 @@ export default function ProfilePage() {
             JSON.stringify(data.podcastPlaylists),
           );
         }
+        if (data.listeningLog) {
+           localStorage.setItem(
+            "listening_log",
+            JSON.stringify(data.listeningLog),
+          );
+        }
 
         toast({
           title: "Import Successful",
@@ -234,7 +244,7 @@ export default function ProfilePage() {
                   "pb-24 md:pb-8",
                 )}
               >
-                <div className="mx-auto max-w-md space-y-8">
+                <div className="mx-auto max-w-2xl space-y-8">
                   <h1 className="text-center font-headline text-3xl font-bold tracking-tight">
                     Edit Profile
                   </h1>
@@ -320,7 +330,8 @@ export default function ProfilePage() {
                       <p className="text-center text-sm text-muted-foreground">Start listening to see your stats here!</p>
                     )}
                   </div>
-
+                  
+                  <ListeningChart />
 
                   <Separator />
 

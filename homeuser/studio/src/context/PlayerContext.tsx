@@ -15,6 +15,8 @@ import { useDownload } from "@/context/DownloadContext";
 
 const HISTORY_STORAGE_KEY = "podcast_history";
 const PROGRESS_STORAGE_KEY = "podcast_progress";
+const LISTENING_LOG_KEY = "listening_log";
+
 
 // --- useThrottle Hook ---
 function useThrottle<T extends (...args: any[]) => any>(
@@ -55,6 +57,8 @@ interface SleepTimerInfo {
   isActive: boolean;
 }
 
+type ListeningLog = Record<string, number>; // { 'YYYY-MM-DD': seconds }
+
 interface PlayerContextType {
   currentTrack: Podcast | null;
   isPlaying: boolean;
@@ -78,6 +82,7 @@ interface PlayerContextType {
   getPodcastProgress: (trackId: string) => ProgressInfo | undefined;
   sleepTimer: SleepTimerInfo;
   setSleepTimer: (minutes: number | null) => void;
+  listeningLog: ListeningLog;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -111,7 +116,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     timeLeft: null,
     isActive: false,
   });
+  const [listeningLog, setListeningLog] = useState<ListeningLog>({});
   const audioRef = useRef<HTMLAudioElement>(null);
+  const lastTimeUpdate = useRef(0);
   const isPlayingRef = React.useRef(isPlaying);
   const currentBlobUrl = useRef<string | null>(null);
   const sleepTimerId = useRef<NodeJS.Timeout | null>(null);
@@ -121,7 +128,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
 
-  // Load history and progress from localStorage on initial mount
+  // Load data from localStorage on initial mount
   useEffect(() => {
     try {
       const storedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -131,6 +138,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       const storedProgress = localStorage.getItem(PROGRESS_STORAGE_KEY);
       if (storedProgress) {
         setProgressMap(JSON.parse(storedProgress));
+      }
+      const storedLog = localStorage.getItem(LISTENING_LOG_KEY);
+      if (storedLog) {
+        setListeningLog(JSON.parse(storedLog));
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
@@ -149,6 +160,15 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         clearInterval(sleepTimerIntervalId.current);
     };
   }, []);
+
+  const saveListeningLog = useThrottle((log: ListeningLog) => {
+    try {
+      localStorage.setItem(LISTENING_LOG_KEY, JSON.stringify(log));
+    } catch (error) {
+      console.error("Failed to save listening log", error);
+    }
+  }, 5000);
+
 
   const saveProgress = useThrottle(
     (trackId: string, progress: number, duration: number) => {
@@ -224,6 +244,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
             }
             setIsPlaying(true);
             audioRef.current!.playbackRate = playbackRate;
+            lastTimeUpdate.current = Date.now();
           })
           .catch((e) => {
             console.error("Playback failed", e);
@@ -271,7 +292,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           audioRef.current
             ?.play()
-            .then(() => setIsPlaying(true))
+            .then(() => {
+              setIsPlaying(true);
+              lastTimeUpdate.current = Date.now();
+            })
             .catch((e) => console.error("Playback failed", e));
         }
       }
@@ -371,6 +395,23 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onTimeUpdate = () => {
     if (audioRef.current) {
+      const now = Date.now();
+      const delta = (now - lastTimeUpdate.current) / 1000;
+      lastTimeUpdate.current = now;
+      
+      if (isPlayingRef.current && delta > 0 && delta < 5) {
+         setListeningLog(prevLog => {
+            const today = new Date().toISOString().split('T')[0];
+            const newLog = {
+              ...prevLog,
+              [today]: (prevLog[today] || 0) + delta,
+            };
+            saveListeningLog(newLog);
+            return newLog;
+         });
+      }
+
+
       const currentTime = audioRef.current.currentTime;
       const currentDuration = audioRef.current.duration;
       setProgress(currentTime);
@@ -431,17 +472,22 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
-      audio.addEventListener("timeupdate", onTimeUpdate);
+      const throttledTimeUpdate = useThrottle(onTimeUpdate, 5000);
+      audio.addEventListener("timeupdate", throttledTimeUpdate);
+      audio.addEventListener("play", () => lastTimeUpdate.current = Date.now());
+      audio.addEventListener("pause", onTimeUpdate); // Log remaining time on pause
       audio.addEventListener("loadedmetadata", onLoadedMetadata);
       audio.addEventListener("ended", nextTrack);
 
       return () => {
-        audio.removeEventListener("timeupdate", onTimeUpdate);
+        audio.removeEventListener("timeupdate", throttledTimeUpdate);
+        audio.removeEventListener("play", () => lastTimeUpdate.current = Date.now());
+        audio.removeEventListener("pause", onTimeUpdate);
         audio.removeEventListener("loadedmetadata", onLoadedMetadata);
         audio.removeEventListener("ended", nextTrack);
       };
     }
-  }, [nextTrack, onTimeUpdate, onLoadedMetadata]);
+  }, [nextTrack, onTimeUpdate]);
 
   const value = {
     currentTrack,
@@ -466,6 +512,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     getPodcastProgress,
     sleepTimer,
     setSleepTimer,
+    listeningLog,
   };
 
   return (
