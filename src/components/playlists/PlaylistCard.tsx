@@ -49,9 +49,12 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
               </div>
             )}
             {playlist.isPredefined && (
-              <Badge variant="secondary" className="absolute bottom-2 right-2">
-                <Lock className="mr-1 h-3 w-3" />
-                Curated
+              <Badge
+                variant="secondary"
+                className="absolute bottom-2 right-2 flex h-6 w-6 items-center justify-center p-0"
+              >
+                <Lock className="h-3 w-3" />
+                <span className="sr-only">Curated</span>
               </Badge>
             )}
           </div>
