@@ -17,6 +17,7 @@ const PLAYLIST_STORAGE_KEY = "podcast_playlists";
 interface PlaylistContextType {
   playlists: Playlist[];
   createPlaylist: (name: string) => void;
+  deletePlaylist: (playlistId: string) => void;
   addPodcastToPlaylist: (playlistId: string, podcastId: string) => void;
   getPodcastsForPlaylist: (
     playlistId: string,
@@ -85,6 +86,17 @@ export const PlaylistProvider = ({
     [playlists],
   );
 
+    const deletePlaylist = useCallback(
+    (playlistId: string) => {
+      const userPlaylists = playlists.filter(p => !p.isPredefined);
+      const updatedPlaylists = userPlaylists.filter(
+        (playlist) => playlist.id !== playlistId
+      );
+      savePlaylists(updatedPlaylists);
+    },
+    [playlists],
+  );
+
   const addPodcastToPlaylist = useCallback(
     (playlistId: string, podcastId: string) => {
       const userPlaylists = playlists.filter(p => !p.isPredefined);
@@ -123,6 +135,7 @@ export const PlaylistProvider = ({
   const value = {
     playlists,
     createPlaylist,
+    deletePlaylist,
     addPodcastToPlaylist,
     getPodcastsForPlaylist,
     getPlaylistById,
