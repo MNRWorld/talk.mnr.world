@@ -105,9 +105,8 @@ export default function PodcastCard({
 
   const handleDownload = async (e: MouseEvent) => {
     e.stopPropagation();
-    if (isDownloaded) {
-       handleDeleteDownload(e);
-       return;
+    if (isDownloaded || isDownloading) {
+      return;
     }
     toast({
       title: "Starting download...",
@@ -139,23 +138,13 @@ export default function PodcastCard({
     });
   };
 
-  const DownloadButton = () => {
-    if (isDownloading) {
-      return <Loader className="h-5 w-5 animate-spin text-foreground" />;
-    }
-    if (isDownloaded) {
-      return <Trash2 className="h-5 w-5 text-destructive" />;
-    }
-    return <Download className="h-5 w-5 text-foreground" />;
-  };
-
   return (
     <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
-      <div className="absolute left-3 top-4 z-10 flex flex-col gap-2">
+      <div className="absolute left-3 top-4 z-10">
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 opacity-100"
+          className="h-8 w-8"
           onClick={handleToggleFavorite}
           aria-label={
             isFavorite ? "Remove from favorites" : "Add to favorites"
@@ -167,22 +156,6 @@ export default function PodcastCard({
               isFavorite && "fill-primary text-primary",
             )}
           />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 opacity-100"
-          onClick={handleDownload}
-          disabled={isDownloading}
-          aria-label={
-            isDownloaded
-              ? "Delete download"
-              : isDownloading
-                ? "Downloading"
-                : "Download"
-          }
-        >
-          <DownloadButton />
         </Button>
       </div>
 
@@ -201,6 +174,26 @@ export default function PodcastCard({
             onClick={(e) => e.stopPropagation()}
             align="end"
           >
+            {isDownloading ? (
+              <DropdownMenuItem disabled>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Downloading...
+              </DropdownMenuItem>
+            ) : isDownloaded ? (
+              <DropdownMenuItem
+                onClick={handleDeleteDownload}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Download
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={handleDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
@@ -256,7 +249,11 @@ export default function PodcastCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               data-ai-hint={podcast.coverArtHint}
             />
-            {isDownloaded && <div className="absolute bottom-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary/80 backdrop-blur-sm"><Check className="h-3 w-3 text-primary-foreground" /></div>}
+            {isDownloaded && (
+              <div className="absolute bottom-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary/80 backdrop-blur-sm">
+                <Check className="h-3 w-3 text-primary-foreground" />
+              </div>
+            )}
           </div>
           <h3 className="h-12 font-semibold text-foreground line-clamp-2">
             {podcast.title}

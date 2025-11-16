@@ -11,12 +11,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { CreatePlaylistDialog } from "@/components/playlists/CreatePlaylistDialog";
 import { Button } from "@/components/ui/button";
-import { Download, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import PlaylistList from "@/components/playlists/PlaylistList";
 import PredefinedPlaylistSection from "@/components/playlists/PredefinedPlaylistSection";
 import { cn } from "@/lib/utils";
 import { useDownload } from "@/context/DownloadContext";
-import PodcastCard from "@/components/podcasts/PodcastCard";
 import CategorySection from "@/components/podcasts/CategorySection";
 
 export default function LibraryPage() {
@@ -49,9 +48,12 @@ export default function LibraryPage() {
                   </div>
 
                   <HistoryList />
-                  
+
                   {downloadedPodcasts.length > 0 && (
-                    <CategorySection title="Downloads" podcasts={downloadedPodcasts} />
+                    <CategorySection
+                      title="Downloads"
+                      podcasts={downloadedPodcasts}
+                    />
                   )}
 
                   <PredefinedPlaylistSection />
