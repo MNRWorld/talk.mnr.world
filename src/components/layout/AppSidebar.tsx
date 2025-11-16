@@ -2,8 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Home, Library, Plus, Search, Grid, User } from "lucide-react";
-import { AddPodcastDialog } from "../podcasts/AddPodcastDialog";
+import { Home, Library, Search, Grid, User } from "lucide-react";
 import {
   Sidebar,
   SidebarHeader,
@@ -81,13 +80,7 @@ export default function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarGroup>
-          <AddPodcastDialog>
-            <button className="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-              <Plus className="h-5 w-5" />
-              <span>Add Podcast</span>
-            </button>
-          </AddPodcastDialog>
-          <button className="mt-2 flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+          <button className="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
             <User className="h-5 w-5" />
             <span>Guest Login</span>
           </button>
