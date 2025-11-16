@@ -11,7 +11,7 @@ import React, {
   useEffect,
 } from "react";
 import { usePodcast } from "./PodcastContext";
-import { useDownload } from "@/context/DownloadContext";
+import { useDownload } from "./DownloadContext";
 
 const HISTORY_STORAGE_KEY = "podcast_history";
 const PROGRESS_STORAGE_KEY = "podcast_progress";
