@@ -186,7 +186,7 @@ export default function ProfilePage() {
                 )}
               >
                 <div className="mx-auto max-w-md space-y-8">
-                  <h1 className="font-headline text-3xl font-bold tracking-tight">
+                  <h1 className="text-center font-headline text-3xl font-bold tracking-tight">
                     Edit Profile
                   </h1>
 
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                   <Separator />
 
                   <div className="w-full space-y-4">
-                     <h2 className="text-lg font-medium">Data Management</h2>
+                     <h2 className="text-lg font-medium text-center">Data Management</h2>
                       <Button
                         variant="secondary"
                         className="w-full"
