@@ -12,8 +12,15 @@ import React, {
 } from "react";
 import { usePodcast } from "./PodcastContext";
 import { useDownload } from "./DownloadContext";
+import { useThrottle } from "@/hooks/use-throttle";
 
 const HISTORY_STORAGE_KEY = "podcast_history";
+const PROGRESS_STORAGE_KEY = "podcast_progress";
+
+interface ProgressInfo {
+  progress: number;
+  duration: number;
+}
 
 interface PlayerContextType {
   currentTrack: Podcast | null;
@@ -34,6 +41,7 @@ interface PlayerContextType {
   addToQueue: (track: Podcast) => void;
   playbackRate: number;
   setPlaybackRate: (rate: number) => void;
+  getPodcastProgress: (trackId: string) => ProgressInfo | undefined;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -58,6 +66,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(1);
   const [history, setHistory] = useState<Podcast[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<string, ProgressInfo>>(
+    {},
+  );
   const [queue, setQueue] = useState<Podcast[]>([]);
   const [playbackRate, setPlaybackRateState] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -68,19 +79,24 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
 
+  // Load history and progress from localStorage on initial mount
   useEffect(() => {
     try {
       const storedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
       if (storedHistory) {
         setHistory(JSON.parse(storedHistory));
       }
+      const storedProgress = localStorage.getItem(PROGRESS_STORAGE_KEY);
+      if (storedProgress) {
+        setProgressMap(JSON.parse(storedProgress));
+      }
     } catch (error) {
-      console.error("Failed to load history from localStorage", error);
+      console.error("Failed to load data from localStorage", error);
     }
   }, []);
 
+  // Revoke blob URL on cleanup
   useEffect(() => {
-    // Revoke the old blob URL when the component unmounts or the track changes
     return () => {
       if (currentBlobUrl.current) {
         URL.revokeObjectURL(currentBlobUrl.current);
@@ -89,11 +105,37 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  const saveProgress = useThrottle(
+    (trackId: string, progress: number, duration: number) => {
+      if (!trackId || isNaN(progress) || isNaN(duration)) return;
+      const newProgressMap = { ...progressMap, [trackId]: { progress, duration } };
+      
+      // Reset progress if track is finished
+      if (duration > 0 && progress >= duration - 1) {
+         delete newProgressMap[trackId];
+      }
+
+      setProgressMap(newProgressMap);
+      try {
+        localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(newProgressMap));
+      } catch (error) {
+        console.error("Failed to save progress to localStorage", error);
+      }
+    },
+    5000,
+  );
+
+  const getPodcastProgress = useCallback(
+    (trackId: string) => {
+      return progressMap[trackId];
+    },
+    [progressMap],
+  );
+
   const setAudioSource = useCallback(
     async (track: Podcast) => {
       if (!audioRef.current) return;
 
-      // Revoke previous blob URL if it exists
       if (currentBlobUrl.current) {
         URL.revokeObjectURL(currentBlobUrl.current);
         currentBlobUrl.current = null;
@@ -103,27 +145,36 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       let sourceUrl: string;
 
       if (downloaded) {
-        // Create a new blob URL for the downloaded audio
         sourceUrl = URL.createObjectURL(downloaded.blob);
         currentBlobUrl.current = sourceUrl;
       } else {
-        // Stream from the original URL
         sourceUrl = track.audioUrl;
       }
+      
+      const savedProgress = getPodcastProgress(track.id);
 
       if (audioRef.current.src !== sourceUrl) {
         audioRef.current.src = sourceUrl;
-        setProgress(0);
       }
-      
-      audioRef.current.playbackRate = playbackRate;
 
-      audioRef.current
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch((e) => console.error("Playback failed", e));
+      const playPromise = audioRef.current.play();
+
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            if (savedProgress && savedProgress.progress > 0) {
+              audioRef.current!.currentTime = savedProgress.progress;
+            }
+            setIsPlaying(true);
+            audioRef.current!.playbackRate = playbackRate;
+          })
+          .catch((e) => {
+            console.error("Playback failed", e);
+            setIsPlaying(false);
+          });
+      }
     },
-    [getDownloadedPodcast, playbackRate],
+    [getDownloadedPodcast, playbackRate, getPodcastProgress],
   );
 
   const addToHistory = useCallback((track: Podcast) => {
@@ -131,14 +182,13 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       const newHistory = [
         track,
         ...prevHistory.filter((item) => item.id !== track.id),
-      ].slice(0, 50); // Keep history to a reasonable size
+      ].slice(0, 50);
 
       try {
         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(newHistory));
       } catch (error) {
         console.error("Failed to save history to localStorage", error);
       }
-
       return newHistory;
     });
   }, []);
@@ -161,7 +211,6 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
           addToHistory(trackToPlay);
           setAudioSource(trackToPlay);
         } else {
-          // If it's the same track, just play it
           audioRef.current
             ?.play()
             .then(() => setIsPlaying(true))
@@ -252,8 +301,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const setPlaybackRate = (rate: number) => {
     if (audioRef.current) {
       audioRef.current.playbackRate = rate;
-      setPlaybackRateState(rate);
     }
+    setPlaybackRateState(rate);
   };
 
   const addToQueue = (track: Podcast) => {
@@ -262,7 +311,12 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onTimeUpdate = () => {
     if (audioRef.current) {
-      setProgress(audioRef.current.currentTime);
+      const currentTime = audioRef.current.currentTime;
+      const currentDuration = audioRef.current.duration;
+      setProgress(currentTime);
+      if (currentTrack) {
+        saveProgress(currentTrack.id, currentTime, currentDuration);
+      }
     }
   };
 
@@ -285,7 +339,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         audio.removeEventListener("ended", nextTrack);
       };
     }
-  }, [nextTrack]);
+  }, [nextTrack, saveProgress]);
 
   const value = {
     currentTrack,
@@ -306,6 +360,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     addToQueue,
     playbackRate,
     setPlaybackRate,
+    getPodcastProgress,
   };
 
   return (

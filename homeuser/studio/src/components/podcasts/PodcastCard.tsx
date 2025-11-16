@@ -34,7 +34,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "../ui/button";
 import { CreatePlaylistDialog } from "../playlists/CreatePlaylistDialog";
 import { useDownload } from "@/context/DownloadContext";
-import { type MouseEvent } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
+import { Progress } from "../ui/progress";
 
 interface PodcastCardProps {
   podcast: Podcast;
@@ -49,7 +50,13 @@ export default function PodcastCard({
   playlistId,
   onRemove,
 }: PodcastCardProps) {
-  const { play, currentTrack, isPlaying, addToQueue } = usePlayer();
+  const {
+    play,
+    currentTrack,
+    isPlaying,
+    addToQueue,
+    getPodcastProgress,
+  } = usePlayer();
   const {
     playlists,
     addPodcastToPlaylist,
@@ -70,6 +77,18 @@ export default function PodcastCard({
   const currentPlaylist = playlistId ? getPlaylistById(playlistId) : null;
   const isDownloading = downloadingPodcasts.includes(podcast.id);
   const isDownloaded = downloadedPodcasts.some((p) => p.id === podcast.id);
+
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const savedProgress = getPodcastProgress(podcast.id);
+    if (savedProgress) {
+      setProgress(savedProgress.progress);
+      setDuration(savedProgress.duration);
+    }
+  }, [podcast.id, getPodcastProgress, currentTrack]);
+
 
   const userPlaylists = playlists.filter(
     (p) => !p.isPredefined && p.id !== FAVORITES_PLAYLIST_ID,
@@ -162,6 +181,9 @@ export default function PodcastCard({
     });
   };
 
+  const progressPercentage = duration > 0 ? (progress / duration) * 100 : 0;
+  const showProgressBar = progress > 1 && progress < duration - 1;
+
 
   return (
     <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
@@ -169,7 +191,7 @@ export default function PodcastCard({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-8 w-8 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
           onClick={handleToggleFavorite}
           aria-label={
             isFavorite ? "Remove from favorites" : "Add to favorites"
@@ -291,6 +313,12 @@ export default function PodcastCard({
               <div className="absolute bottom-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary/80 backdrop-blur-sm">
                 <Check className="h-3 w-3 text-primary-foreground" />
               </div>
+            )}
+            {showProgressBar && (
+              <Progress
+                value={progressPercentage}
+                className="absolute bottom-0 h-1 w-full rounded-none rounded-b-md"
+              />
             )}
           </div>
           <h3 className="h-12 font-semibold text-foreground line-clamp-2">

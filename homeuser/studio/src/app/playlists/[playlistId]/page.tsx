@@ -15,7 +15,7 @@ import { Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import *s React from "react";
+import * as React from "react";
 import {
   Select,
   SelectContent,
@@ -48,6 +48,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
   const playlist = getPlaylistById(playlistId);
 
   const podcastsInPlaylist = React.useMemo(() => {
+    if (!playlist) return [];
     let podcasts = getPodcastsForPlaylist(playlistId, allPodcasts);
 
     // Filter logic
@@ -66,11 +67,11 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
         podcasts.sort((a, b) => b.title.localeCompare(a.title));
         break;
       case "oldest":
-        // Assuming podcastIds in playlist are chronologically added
+        // This relies on the order in the original playlist which is chronological
         break;
       case "newest":
       default:
-        podcasts.reverse(); // Newest first
+        podcasts.reverse(); // Newest first by reversing the chronological add order
         break;
     }
     return podcasts;
@@ -80,6 +81,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
     sortOrder,
     searchTerm,
     getPodcastsForPlaylist,
+    playlist,
   ]);
 
   const handleToggleFavorite = () => {
@@ -136,11 +138,14 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
           <SidebarInset className="flex flex-1 flex-col">
             <ScrollArea className="h-full">
               <main className="p-4 sm:p-6 lg:p-8">
-                <div className="mb-6 flex items-start justify-between">
-                  <div>
+                <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                  <div className="flex-1">
                     <h1 className="font-headline text-3xl font-bold tracking-tight">
                       {playlist.name}
                     </h1>
+                    <p className="text-sm text-muted-foreground">
+                      {podcastsInPlaylist.length} episodes
+                    </p>
                     <div className="mt-4 flex gap-2">
                       <Button
                         variant="ghost"
@@ -169,7 +174,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
                       </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex w-full gap-2 md:w-auto">
                     <Input
                       placeholder="Filter in this playlist..."
                       value={searchTerm}
@@ -177,7 +182,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
                       className="w-full md:w-48"
                     />
                     <Select value={sortOrder} onValueChange={setSortOrder}>
-                      <SelectTrigger className="w-32">
+                      <SelectTrigger className="w-full md:w-32">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                       <SelectContent>
