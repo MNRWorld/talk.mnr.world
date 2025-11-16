@@ -6,7 +6,10 @@ export default function MobileHeader() {
   return (
     <header className="sticky top-0 z-40 grid grid-cols-3 items-center border-b border-border/50 bg-background/80 px-4 py-2 backdrop-blur-sm md:hidden">
       <div className="w-10" />
-      <Link href="/" className="flex items-center justify-center gap-2">
+      <Link
+        href="/"
+        className="flex items-center justify-center gap-2 rounded-full bg-secondary px-3 py-1"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 192 171.000002"
