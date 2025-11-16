@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -58,6 +61,12 @@ export function SearchDialog({ children }: { children: ReactNode }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="top-4 max-w-lg translate-y-0 overflow-hidden p-0">
+         <DialogHeader className="sr-only">
+          <DialogTitle>Search Podcasts</DialogTitle>
+          <DialogDescription>
+            Search for podcasts by title, artist, or category.
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex items-center gap-4 border-b p-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
