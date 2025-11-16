@@ -11,7 +11,7 @@ import { podcasts as allPodcasts } from "@/lib/podcasts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { cn } from "@/lib/utils";
-import *s React from "react";
+import * as React from "react";
 import type { Podcast } from "@/lib/types";
 import {
   Select,
