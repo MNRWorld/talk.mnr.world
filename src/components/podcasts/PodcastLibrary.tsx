@@ -41,7 +41,7 @@ export default function PodcastLibrary({
 
   return (
     <main
-      className={cn("p-4 sm:p-6 lg:p-8", "pb-28 md:pb-8")}
+      className={cn("p-4 sm:p-6 lg:p-8", "pb-24 md:pb-8")}
     >
       {showTitle && (
         <h1 className="font-headline mb-6 text-3xl font-bold tracking-tight">
