@@ -11,7 +11,7 @@ import React, {
   useEffect,
 } from "react";
 import { usePodcast } from "./PodcastContext";
-import { useDownload } from "./DownloadContext";
+import { useDownload } from "@/context/DownloadContext";
 import { useThrottle } from "@/hooks/use-throttle";
 
 const HISTORY_STORAGE_KEY = "podcast_history";
@@ -20,6 +20,11 @@ const PROGRESS_STORAGE_KEY = "podcast_progress";
 interface ProgressInfo {
   progress: number;
   duration: number;
+}
+
+interface SleepTimerInfo {
+  timeLeft: number | null;
+  isActive: boolean;
 }
 
 interface PlayerContextType {
@@ -42,6 +47,8 @@ interface PlayerContextType {
   playbackRate: number;
   setPlaybackRate: (rate: number) => void;
   getPodcastProgress: (trackId: string) => ProgressInfo | undefined;
+  sleepTimer: SleepTimerInfo;
+  setSleepTimer: (minutes: number | null) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -71,9 +78,15 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   );
   const [queue, setQueue] = useState<Podcast[]>([]);
   const [playbackRate, setPlaybackRateState] = useState(1);
+  const [sleepTimer, setSleepTimerState] = useState<SleepTimerInfo>({
+    timeLeft: null,
+    isActive: false,
+  });
   const audioRef = useRef<HTMLAudioElement>(null);
   const isPlayingRef = React.useRef(isPlaying);
   const currentBlobUrl = useRef<string | null>(null);
+  const sleepTimerId = useRef<NodeJS.Timeout | null>(null);
+  const sleepTimerIntervalId = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     isPlayingRef.current = isPlaying;
@@ -102,22 +115,31 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         URL.revokeObjectURL(currentBlobUrl.current);
         currentBlobUrl.current = null;
       }
+      if (sleepTimerId.current) clearTimeout(sleepTimerId.current);
+      if (sleepTimerIntervalId.current)
+        clearInterval(sleepTimerIntervalId.current);
     };
   }, []);
 
   const saveProgress = useThrottle(
     (trackId: string, progress: number, duration: number) => {
       if (!trackId || isNaN(progress) || isNaN(duration)) return;
-      const newProgressMap = { ...progressMap, [trackId]: { progress, duration } };
-      
+      const newProgressMap = {
+        ...progressMap,
+        [trackId]: { progress, duration },
+      };
+
       // Reset progress if track is finished
       if (duration > 0 && progress >= duration - 1) {
-         delete newProgressMap[trackId];
+        delete newProgressMap[trackId];
       }
 
       setProgressMap(newProgressMap);
       try {
-        localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(newProgressMap));
+        localStorage.setItem(
+          PROGRESS_STORAGE_KEY,
+          JSON.stringify(newProgressMap),
+        );
       } catch (error) {
         console.error("Failed to save progress to localStorage", error);
       }
@@ -131,6 +153,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [progressMap],
   );
+
+  const pause = useCallback(() => {
+    audioRef.current?.pause();
+    setIsPlaying(false);
+  }, []);
 
   const setAudioSource = useCallback(
     async (track: Podcast) => {
@@ -150,7 +177,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         sourceUrl = track.audioUrl;
       }
-      
+
       const savedProgress = getPodcastProgress(track.id);
 
       if (audioRef.current.src !== sourceUrl) {
@@ -220,11 +247,6 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [podcasts, currentTrack, addToHistory, setAudioSource],
   );
-
-  const pause = useCallback(() => {
-    audioRef.current?.pause();
-    setIsPlaying(false);
-  }, []);
 
   const togglePlay = useCallback(() => {
     const playlist = currentPlaylist || podcasts;
@@ -326,6 +348,48 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const setSleepTimer = useCallback(
+    (minutes: number | null) => {
+      if (sleepTimerId.current) {
+        clearTimeout(sleepTimerId.current);
+        sleepTimerId.current = null;
+      }
+      if (sleepTimerIntervalId.current) {
+        clearInterval(sleepTimerIntervalId.current);
+        sleepTimerIntervalId.current = null;
+      }
+
+      if (minutes === null) {
+        setSleepTimerState({ timeLeft: null, isActive: false });
+        return;
+      }
+
+      const endTime = Date.now() + minutes * 60 * 1000;
+      setSleepTimerState({ timeLeft: minutes * 60, isActive: true });
+
+      sleepTimerId.current = setTimeout(() => {
+        pause();
+        setSleepTimerState({ timeLeft: null, isActive: false });
+        if (sleepTimerIntervalId.current) {
+          clearInterval(sleepTimerIntervalId.current);
+        }
+      }, minutes * 60 * 1000);
+
+      sleepTimerIntervalId.current = setInterval(() => {
+        const newTimeLeft = Math.round((endTime - Date.now()) / 1000);
+        if (newTimeLeft > 0) {
+          setSleepTimerState({ timeLeft: newTimeLeft, isActive: true });
+        } else {
+          setSleepTimerState({ timeLeft: null, isActive: false });
+          if (sleepTimerIntervalId.current) {
+            clearInterval(sleepTimerIntervalId.current);
+          }
+        }
+      }, 1000);
+    },
+    [pause],
+  );
+
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
@@ -361,6 +425,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     playbackRate,
     setPlaybackRate,
     getPodcastProgress,
+    sleepTimer,
+    setSleepTimer,
   };
 
   return (

@@ -4,6 +4,7 @@
 import Image from "next/image";
 import {
   ChevronDown,
+  Moon,
   Pause,
   Play,
   SkipBack,
@@ -11,7 +12,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 
 import { usePlayer } from "@/context/PlayerContext";
@@ -19,6 +20,12 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import Overlay from "@/components/layout/Overlay";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 function formatTime(seconds: number) {
   if (isNaN(seconds)) return "0:00";
@@ -26,6 +33,9 @@ function formatTime(seconds: number) {
   const secs = Math.floor(seconds % 60);
   return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
 }
+
+const playbackRates = [1, 1.25, 1.5, 1.75, 2];
+const sleepTimerOptions = [15, 30, 45, 60];
 
 export default function Player() {
   const {
@@ -39,6 +49,10 @@ export default function Player() {
     seek,
     volume,
     setVolume,
+    playbackRate,
+    setPlaybackRate,
+    sleepTimer,
+    setSleepTimer,
   } = usePlayer();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -50,6 +64,17 @@ export default function Player() {
     setVolume(value[0]);
   };
 
+  const handleButtonClick =
+    (action: () => void) => (e: React.MouseEvent) => {
+      e.stopPropagation();
+      action();
+      const target = e.currentTarget;
+      target.classList.add("animate-squish");
+      setTimeout(() => {
+        target.classList.remove("animate-squish");
+      }, 300);
+    };
+
   const collapsedVariants = {
     hidden: { y: "100%", opacity: 0 },
     visible: { y: 0, opacity: 1 },
@@ -60,12 +85,35 @@ export default function Player() {
     visible: { y: 0, opacity: 1, scale: 1 },
   };
 
+  const sleepTimerDisplay = useMemo(() => {
+    if (sleepTimer.isActive && sleepTimer.timeLeft !== null) {
+      return formatTime(sleepTimer.timeLeft);
+    }
+    return null;
+  }, [sleepTimer]);
+
   if (!currentTrack) {
     return null;
   }
 
   return (
     <>
+      <style jsx global>{`
+        @keyframes squish {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(0.9);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+        .animate-squish {
+          animation: squish 0.3s ease-in-out;
+        }
+      `}</style>
       <Overlay isVisible={isExpanded} onClick={() => setIsExpanded(false)} />
       <motion.div
         className={cn(
@@ -183,24 +231,23 @@ export default function Player() {
                 </span>
               </div>
               <div
-                className={cn("flex w-full items-center justify-center", {
-                  "gap-2 sm:gap-4": !isExpanded,
-                  "gap-6": isExpanded,
-                })}
+                className={cn(
+                  "flex w-full items-center justify-center",
+                  { "gap-2 sm:gap-4": !isExpanded, "gap-6": isExpanded },
+                )}
               >
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevTrack();
-                  }}
+                  onClick={handleButtonClick(prevTrack)}
                   className={cn(
                     isExpanded ? "h-12 w-12" : "h-8 w-8 sm:h-10 sm:w-10",
                   )}
                 >
                   <SkipBack
-                    className={cn(isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5")}
+                    className={cn(
+                      isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5",
+                    )}
                   />
                 </Button>
                 <Button
@@ -210,10 +257,7 @@ export default function Player() {
                     "rounded-full bg-primary hover:bg-primary/90",
                     isExpanded ? "h-16 w-16" : "h-10 w-10 sm:h-12 sm:w-12",
                   )}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    togglePlay();
-                  }}
+                  onClick={handleButtonClick(togglePlay)}
                 >
                   {isPlaying ? (
                     <Pause
@@ -234,39 +278,91 @@ export default function Player() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextTrack();
-                  }}
+                  onClick={handleButtonClick(nextTrack)}
                   className={cn(
                     isExpanded ? "h-12 w-12" : "h-8 w-8 sm:h-10 sm:w-10",
                   )}
                 >
                   <SkipForward
-                    className={cn(isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5")}
+                    className={cn(
+                      isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5",
+                    )}
                   />
                 </Button>
               </div>
             </div>
 
             <div
-              className={cn("w-1/4 items-center justify-end gap-2", {
-                "hidden sm:flex": !isExpanded,
-                "flex w-full max-w-sm": isExpanded,
+              className={cn("flex w-full max-w-sm items-center gap-4", {
+                "hidden sm:flex sm:w-1/4 sm:justify-end": !isExpanded,
               })}
             >
-              {volume > 0 ? (
-                <Volume2 className="h-5 w-5" />
-              ) : (
-                <VolumeX className="h-5 w-5" />
+              {isExpanded && (
+                <div className="flex w-full items-center justify-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-24"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {playbackRate}x
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                      {playbackRates.map((rate) => (
+                        <DropdownMenuItem
+                          key={rate}
+                          onSelect={() => setPlaybackRate(rate)}
+                        >
+                          {rate}x
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-24"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Moon className="mr-2" />{" "}
+                        {sleepTimerDisplay || "Timer"}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuItem onSelect={() => setSleepTimer(null)}>
+                        Off
+                      </DropdownMenuItem>
+                      {sleepTimerOptions.map((minutes) => (
+                        <DropdownMenuItem
+                          key={minutes}
+                          onSelect={() => setSleepTimer(minutes)}
+                        >
+                          {minutes} minutes
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
-              <Slider
-                value={[volume]}
-                max={1}
-                step={0.01}
-                onValueChange={handleVolumeChange}
-                className="w-full flex-1"
-              />
+
+              <div className="flex w-full flex-1 items-center gap-2">
+                {volume > 0 ? (
+                  <Volume2 className="h-5 w-5" />
+                ) : (
+                  <VolumeX className="h-5 w-5" />
+                )}
+                <Slider
+                  value={[volume]}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                  className="w-full flex-1"
+                />
+              </div>
             </div>
           </div>
 
