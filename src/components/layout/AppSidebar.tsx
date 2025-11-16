@@ -83,7 +83,7 @@ export default function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 href="/categories"
-                isActive={pathname.startsWith("/categories")}
+                isActive={pathname.startsWith("/categories") || pathname.startsWith("/artists")}
               >
                 <Grid />
                 Categories

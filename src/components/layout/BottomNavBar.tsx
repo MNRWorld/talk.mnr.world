@@ -27,7 +27,7 @@ export default function BottomNavBar() {
         href="/categories"
         label="Categories"
         icon={Grid}
-        isActive={pathname.startsWith("/categories")}
+        isActive={pathname.startsWith("/categories") || pathname.startsWith("/artists")}
       />
       <NavItem
         href="/library"

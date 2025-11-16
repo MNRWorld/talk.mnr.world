@@ -10,11 +10,13 @@ import { podcasts } from "@/lib/podcasts";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 const Page = () => {
   const allCategories = Array.from(
     new Set(podcasts.flatMap((p) => p.categories)),
-  );
+  ).sort();
+  const allArtists = Array.from(new Set(podcasts.map((p) => p.artist))).sort();
 
   return (
     <SidebarProvider>
@@ -24,22 +26,50 @@ const Page = () => {
           <AppSidebar />
           <SidebarInset className="flex flex-1 flex-col">
             <ScrollArea className="h-full">
-              <main className={cn("p-4 sm:p-6 lg:p-8", "pb-24 md:pb-8")}>
-                <h1 className="font-headline mb-6 text-3xl font-bold tracking-tight">
-                  Categories
-                </h1>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                  {allCategories.map((category) => (
-                    <Link
-                      href={`/categories/${encodeURIComponent(category)}`}
-                      key={category}
-                      passHref
-                    >
-                      <Card className="flex aspect-video items-center justify-center bg-secondary p-4 text-center font-semibold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground">
-                        {category}
-                      </Card>
-                    </Link>
-                  ))}
+              <main
+                className={cn(
+                  "space-y-8 p-4 sm:p-6 lg:p-8",
+                  "pb-24 md:pb-8",
+                )}
+              >
+                <div>
+                  <h1 className="font-headline mb-6 text-3xl font-bold tracking-tight">
+                    Categories
+                  </h1>
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                    {allCategories.map((category) => (
+                      <Link
+                        href={`/categories/${encodeURIComponent(category)}`}
+                        key={category}
+                        passHref
+                      >
+                        <Card className="flex aspect-video items-center justify-center bg-secondary p-4 text-center font-semibold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground">
+                          {category}
+                        </Card>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h2 className="font-headline mb-6 text-3xl font-bold tracking-tight">
+                    Artists
+                  </h2>
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                    {allArtists.map((artist) => (
+                      <Link
+                        href={`/artists/${encodeURIComponent(artist)}`}
+                        key={artist}
+                        passHref
+                      >
+                        <Card className="flex aspect-video items-center justify-center bg-secondary p-4 text-center font-semibold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground">
+                          {artist}
+                        </Card>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </main>
             </ScrollArea>
