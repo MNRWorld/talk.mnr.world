@@ -55,7 +55,7 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
 
   return (
     <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
-       <div className="absolute left-2 top-2 z-10">
+       <div className="absolute left-3 top-4 z-10">
         <Button
           variant="ghost"
           size="icon"
@@ -71,7 +71,7 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
           />
         </Button>
       </div>
-      <div className="absolute right-2 top-2 z-10">
+      <div className="absolute right-3 top-4 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
