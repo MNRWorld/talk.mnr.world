@@ -1,15 +1,8 @@
+
 "use client";
 
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Library,
-  Plus,
-  Search,
-  Grid,
-  User,
-  ListMusic,
-} from "lucide-react";
+import { Home, Library, Plus, Search, Grid, User } from "lucide-react";
 import { AddPodcastDialog } from "../podcasts/AddPodcastDialog";
 import {
   Sidebar,
@@ -33,7 +26,7 @@ export default function AppSidebar() {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 192 171.000002"
             preserveAspectRatio="xMidYMid meet"
-            className="w-8 h-8"
+            className="h-8 w-8"
           >
             <path
               fill="#f41212"
@@ -44,7 +37,7 @@ export default function AppSidebar() {
               d="m2.14 50.25 68.58 118.16 19.42-11.26-47.23-81.41 72.2-0.16-14.84-25.57-98.12.22Z"
             />
           </svg>
-          <h1 className="text-xl font-bold font-headline">Talks</h1>
+          <h1 className="font-headline text-xl font-bold">Talks</h1>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -76,19 +69,10 @@ export default function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 href="/library"
-                isActive={pathname === "/library"}
+                isActive={pathname === "/library" || pathname.startsWith("/playlists")}
               >
                 <Library />
                 Your Library
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/playlists"
-                isActive={pathname.startsWith("/playlists")}
-              >
-                <ListMusic />
-                Playlists
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -98,7 +82,7 @@ export default function AppSidebar() {
         <SidebarGroup>
           <AddPodcastDialog>
             <button className="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-              <Plus className="w-5 h-5" />
+              <Plus className="h-5 w-5" />
               <span>Add Podcast</span>
             </button>
           </AddPodcastDialog>

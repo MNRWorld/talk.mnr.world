@@ -25,7 +25,7 @@ export default function LibraryPage() {
           <SidebarInset className="flex flex-1 flex-col">
             <ScrollArea className="h-full">
               <main className="p-4 sm:p-6 lg:p-8">
-                <div className="flex items-center justify-between mb-6">
+                <div className="mb-6 flex items-center justify-between">
                   <h1 className="font-headline text-3xl font-bold tracking-tight">
                     Your Library
                   </h1>
