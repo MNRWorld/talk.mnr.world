@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence } from "framer-motion";
 import { Camera, Clapperboard, Mic, User, TrendingUp } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,6 +33,10 @@ import { useUser } from "@/context/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { cn } from "@/lib/utils";
+import ListeningChart from "@/components/podcasts/ListeningChart";
+import { usePlaylist } from "@/context/PlaylistContext";
+import { usePodcast } from "@/context/PodcastContext";
+import CategorySection from "@/components/podcasts/CategorySection";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -60,6 +65,8 @@ const StatCard = ({
 export default function ProfilePage() {
   const { user, login, logout } = useUser();
   const { history } = usePlayer();
+  const { podcasts } = usePodcast();
+  const { getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID } = usePlaylist();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(
     user.avatar,
   );
@@ -73,6 +80,11 @@ export default function ProfilePage() {
       name: user.name,
     },
   });
+  
+  const favoritePodcasts = React.useMemo(() => 
+    getPodcastsForPlaylist(FAVORITES_PLAYLIST_ID, podcasts),
+    [getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID, podcasts]
+  );
 
   const stats = React.useMemo(() => {
     if (history.length === 0) {
@@ -136,6 +148,8 @@ export default function ProfilePage() {
       const userProfile = localStorage.getItem("guest_user_profile");
       const podcastHistory = localStorage.getItem("podcast_history");
       const podcastPlaylists = localStorage.getItem("podcast_playlists");
+      const listeningLog = localStorage.getItem("listening_log");
+
 
       const dataToExport = {
         userProfile: userProfile ? JSON.parse(userProfile) : null,
@@ -143,6 +157,7 @@ export default function ProfilePage() {
         podcastPlaylists: podcastPlaylists
           ? JSON.parse(podcastPlaylists)
           : null,
+        listeningLog: listeningLog ? JSON.parse(listeningLog) : null,
       };
 
       const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
@@ -198,6 +213,12 @@ export default function ProfilePage() {
             JSON.stringify(data.podcastPlaylists),
           );
         }
+        if (data.listeningLog) {
+           localStorage.setItem(
+            "listening_log",
+            JSON.stringify(data.listeningLog),
+          );
+        }
 
         toast({
           title: "Import Successful",
@@ -222,7 +243,10 @@ export default function ProfilePage() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen flex-col bg-background">
+       <div className="relative flex h-screen flex-col bg-background">
+         <Link href="/my-login" className="absolute right-2 top-2 z-50 text-muted-foreground opacity-50 hover:opacity-100" title="Super Admin Login">
+          ·
+        </Link>
         <MobileHeader />
         <div className="flex flex-1 overflow-hidden">
           <AppSidebar />
@@ -234,7 +258,7 @@ export default function ProfilePage() {
                   "pb-24 md:pb-8",
                 )}
               >
-                <div className="mx-auto max-w-md space-y-8">
+                <div className="mx-auto max-w-2xl space-y-8">
                   <h1 className="text-center font-headline text-3xl font-bold tracking-tight">
                     Edit Profile
                   </h1>
@@ -295,13 +319,13 @@ export default function ProfilePage() {
                   </Form>
                   
                   <Separator />
-
+                  
                   <div className="space-y-4">
                     <h2 className="text-center text-lg font-medium">Your Stats</h2>
                     {stats ? (
                        <div className="grid gap-4 md:grid-cols-3">
                         <StatCard
-                          title="Episodes Played"
+                          title="Audio Played"
                           value={stats.totalPlayed.toString()}
                           icon={<Clapperboard className="h-4 w-4 text-muted-foreground" />}
                         />
@@ -321,6 +345,17 @@ export default function ProfilePage() {
                     )}
                   </div>
 
+                  {favoritePodcasts.length > 0 && (
+                    <>
+                      <Separator />
+                      <CategorySection
+                        title="Favorite Audios"
+                        podcasts={favoritePodcasts}
+                      />
+                    </>
+                  )}
+                  
+                  <ListeningChart />
 
                   <Separator />
 
@@ -371,7 +406,3 @@ export default function ProfilePage() {
     </SidebarProvider>
   );
 }
-
-    
-
-    
