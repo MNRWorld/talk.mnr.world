@@ -6,14 +6,15 @@ import PlaylistCard from "./PlaylistCard";
 import { CreatePlaylistDialog } from "./CreatePlaylistDialog";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
+import { FAVORITES_PLAYLIST_ID } from "@/context/PlaylistContext";
 
 export default function PlaylistList() {
-  const { playlists, FAVORITES_PLAYLIST_ID } = usePlaylist();
+  const { playlists } = usePlaylist();
 
   const favoritesPlaylist = playlists.find(p => p.id === FAVORITES_PLAYLIST_ID);
   const userPlaylists = playlists
     .filter((p) => !p.isPredefined && p.id !== FAVORITES_PLAYLIST_ID)
-    .reverse();
+    .sort((a, b) => parseInt(b.id) - parseInt(a.id));
 
   const allUserPlaylists = [
     ...(favoritesPlaylist ? [favoritesPlaylist] : []), 
@@ -22,7 +23,7 @@ export default function PlaylistList() {
 
 
   if (allUserPlaylists.length === 0) {
-    return null; // Don't render anything if there are no user playlists
+    return null; 
   }
 
   return (

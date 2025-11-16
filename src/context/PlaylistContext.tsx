@@ -13,7 +13,7 @@ import predefinedPlaylistsData from "@/lib/predefined-playlists.json";
 
 
 const PLAYLIST_STORAGE_KEY = "podcast_playlists";
-const FAVORITES_PLAYLIST_ID = 'favorites';
+export const FAVORITES_PLAYLIST_ID = 'favorites';
 
 
 interface PlaylistContextType {
@@ -57,7 +57,6 @@ export const PlaylistProvider = ({
       const userPlaylists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
       const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
       
-      // Merge favorites from userPlaylists into predefinedPlaylists
       const enrichedPredefined = predefinedPlaylists.map(p => {
         const userVersion = userPlaylists.find((up: Playlist) => up.id === p.id);
         return userVersion ? { ...p, isFavorite: userVersion.isFavorite } : p;
@@ -65,26 +64,50 @@ export const PlaylistProvider = ({
       
       const userOnlyPlaylists = userPlaylists.filter((p: Playlist) => !predefinedPlaylists.some(pre => pre.id === p.id));
 
+      // Ensure Favorites playlist always exists
+      let favoritesPlaylist = userOnlyPlaylists.find(p => p.id === FAVORITES_PLAYLIST_ID);
+      if (!favoritesPlaylist) {
+        favoritesPlaylist = {
+          id: FAVORITES_PLAYLIST_ID,
+          name: "Favorites",
+          podcastIds: [],
+          isPredefined: false,
+          isFavorite: false,
+        };
+        // Add it to the front of user-only playlists
+        userOnlyPlaylists.unshift(favoritesPlaylist);
+      }
+
+
       setPlaylists([...enrichedPredefined, ...userOnlyPlaylists]);
     } catch (error) {
       console.error("Failed to load playlists from localStorage", error);
       const predefinedPlaylists: Playlist[] = predefinedPlaylistsData.map(p => ({...p, isPredefined: true}));
-      setPlaylists(predefinedPlaylists);
+       const favoritesPlaylist: Playlist = {
+        id: FAVORITES_PLAYLIST_ID,
+        name: "Favorites",
+        podcastIds: [],
+        isPredefined: false,
+        isFavorite: false,
+      };
+      setPlaylists([...predefinedPlaylists, favoritesPlaylist]);
     }
   }, []);
 
   const savePlaylists = (updatedPlaylists: Playlist[]) => {
     try {
-      // We only save user-created playlists and favorite status of predefined ones
       const playlistsToSave = updatedPlaylists.map(p => {
         if (p.isPredefined) {
-          return { id: p.id, isFavorite: p.isFavorite };
+          // Only save predefined if they are favorited
+          return p.isFavorite ? { id: p.id, isFavorite: p.isFavorite } : { id: p.id };
         }
+        // Save all user created playlists
         return p;
-      });
+      }).filter(p => !p.isPredefined || (p as Playlist).isFavorite); // Filter out non-favorited predefined playlists
+
       localStorage.setItem(
         PLAYLIST_STORAGE_KEY,
-        JSON.stringify(playlistsToSave.filter(p => !p.isPredefined || p.isFavorite)),
+        JSON.stringify(playlistsToSave),
       );
       setPlaylists(updatedPlaylists);
     } catch (error) {
@@ -122,7 +145,6 @@ export const PlaylistProvider = ({
     (playlistId: string, podcastId: string) => {
       const updatedPlaylists = playlists.map((playlist) => {
         if (playlist.id === playlistId && !playlist.isPredefined) {
-          // Avoid adding duplicates
           if (!playlist.podcastIds.includes(podcastId)) {
             return { ...playlist, podcastIds: [...playlist.podcastIds, podcastId] };
           }
@@ -193,12 +215,11 @@ export const PlaylistProvider = ({
           return p;
         });
       } else {
-        // Create the favorites playlist if it doesn't exist
         const newFavoritesPlaylist: Playlist = {
           id: FAVORITES_PLAYLIST_ID,
           name: "Favorites",
           podcastIds: [podcastId],
-          isPredefined: false, // Treat as a user playlist, but with special ID
+          isPredefined: false, 
           isFavorite: false,
         };
         updatedPlaylists = [...playlists, newFavoritesPlaylist];
