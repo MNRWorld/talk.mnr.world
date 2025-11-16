@@ -59,7 +59,7 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
+          className="h-8 w-8 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
           onClick={handleToggleFavorite}
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
@@ -76,7 +76,7 @@ export default function PodcastCard({ podcast, playlist }: PodcastCardProps) {
           <DropdownMenuTrigger asChild>
             <button
               aria-label="More options"
-              className="p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+              className="p-1 text-muted-foreground opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreVertical size={20} />
