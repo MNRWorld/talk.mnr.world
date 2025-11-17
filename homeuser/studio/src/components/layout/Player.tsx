@@ -4,6 +4,7 @@
 import Image from "next/image";
 import {
   ChevronDown,
+  Moon,
   Pause,
   Play,
   SkipBack,
@@ -11,7 +12,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 
 import { usePlayer } from "@/context/PlayerContext";
@@ -25,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { usePodcast } from "@/context/PodcastContext";
 
 function formatTime(seconds: number) {
   if (isNaN(seconds)) return "0:00";
@@ -34,6 +36,7 @@ function formatTime(seconds: number) {
 }
 
 const playbackRates = [1, 1.25, 1.5, 1.75, 2];
+const sleepTimerOptions = [15, 30, 45, 60];
 
 export default function Player() {
   const {
@@ -49,7 +52,10 @@ export default function Player() {
     setVolume,
     playbackRate,
     setPlaybackRate,
+    sleepTimer,
+    setSleepTimer,
   } = usePlayer();
+  const { podcasts } = usePodcast();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleProgressChange = (value: number[]) => {
@@ -80,6 +86,13 @@ export default function Player() {
     hidden: { y: "100%", opacity: 0, scale: 0.95 },
     visible: { y: 0, opacity: 1, scale: 1 },
   };
+
+  const sleepTimerDisplay = useMemo(() => {
+    if (sleepTimer.isActive && sleepTimer.timeLeft !== null) {
+      return formatTime(sleepTimer.timeLeft);
+    }
+    return null;
+  }, [sleepTimer]);
 
   if (!currentTrack) {
     return null;
@@ -246,7 +259,7 @@ export default function Player() {
                     "rounded-full bg-primary hover:bg-primary/90",
                     isExpanded ? "h-16 w-16" : "h-10 w-10 sm:h-12 sm:w-12",
                   )}
-                  onClick={handleButtonClick(togglePlay)}
+                  onClick={handleButtonClick(() => togglePlay(podcasts))}
                 >
                   {isPlaying ? (
                     <Pause
@@ -287,27 +300,55 @@ export default function Player() {
               })}
             >
               {isExpanded && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-24"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {playbackRate}x
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-                    {playbackRates.map((rate) => (
-                      <DropdownMenuItem
-                        key={rate}
-                        onSelect={() => setPlaybackRate(rate)}
+                <div className="flex w-full items-center justify-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-24"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        {rate}x
+                        {playbackRate}x
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                      {playbackRates.map((rate) => (
+                        <DropdownMenuItem
+                          key={rate}
+                          onSelect={() => setPlaybackRate(rate)}
+                        >
+                          {rate}x
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-24"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Moon className="mr-2" />{" "}
+                        {sleepTimerDisplay || "Timer"}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuItem onSelect={() => setSleepTimer(null)}>
+                        Off
                       </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      {sleepTimerOptions.map((minutes) => (
+                        <DropdownMenuItem
+                          key={minutes}
+                          onSelect={() => setSleepTimer(minutes)}
+                        >
+                          {minutes} minutes
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
 
               <div className="flex w-full flex-1 items-center gap-2">

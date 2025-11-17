@@ -10,7 +10,6 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { usePodcast } from "./PodcastContext";
 
 const HISTORY_STORAGE_KEY = "podcast_history";
 const PROGRESS_STORAGE_KEY = "podcast_progress";
@@ -61,13 +60,13 @@ type ListeningLog = Record<string, number>; // { 'YYYY-MM-DD': seconds }
 interface PlayerContextType {
   currentTrack: Podcast | null;
   isPlaying: boolean;
-  play: (trackId?: string, playlist?: Podcast[]) => void;
-  autoPlay: (trackId?: string, playlist?: Podcast[]) => void;
+  play: (trackId: string, playlist: Podcast[]) => void;
+  autoPlay: (trackId: string, playlist: Podcast[]) => void;
   pause: () => void;
-  togglePlay: () => void;
+  togglePlay: (playlist: Podcast[]) => void;
   nextTrack: () => void;
   prevTrack: () => void;
-  playRandom: () => void;
+  playRandom: (playlist: Podcast[]) => void;
   audioRef: React.RefObject<HTMLAudioElement>;
   progress: number;
   duration: number;
@@ -96,7 +95,6 @@ export const usePlayer = () => {
 };
 
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
-  const { podcasts } = usePodcast();
   const [currentTrack, setCurrentTrack] = useState<Podcast | null>(null);
   const [currentPlaylist, setCurrentPlaylist] = useState<Podcast[] | null>(
     null,
@@ -211,7 +209,6 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (audioRef.current.src !== sourceUrl) {
         audioRef.current.src = sourceUrl;
-        audioRef.current.load();
       }
       
       if (!shouldAutoPlay) {
@@ -257,18 +254,12 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
   
   const playInternal = useCallback(
-    (trackId?: string, playlist: Podcast[] = podcasts, shouldAutoPlay = true) => {
-      const playlistToUse = playlist && playlist.length > 0 ? playlist : podcasts;
+    (trackId: string, playlist: Podcast[], shouldAutoPlay = true) => {
+      const playlistToUse = playlist && playlist.length > 0 ? playlist : [];
       setCurrentPlaylist(playlistToUse);
 
-      let trackToPlay: Podcast | undefined | null = null;
-      if (trackId) {
-        trackToPlay = playlistToUse.find((p) => p.id === trackId);
-      } else {
-        trackToPlay =
-          currentTrack || (playlistToUse.length > 0 ? playlistToUse[0] : null);
-      }
-
+      const trackToPlay = playlistToUse.find((p) => p.id === trackId);
+      
       if (trackToPlay) {
         if (currentTrack?.id !== trackToPlay.id) {
           setCurrentTrack(trackToPlay);
@@ -285,20 +276,19 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     },
-    [podcasts, currentTrack, addToHistory, setAudioSource],
+    [currentTrack, addToHistory, setAudioSource],
   );
 
-  const play = useCallback((trackId?: string, playlist?: Podcast[]) => {
+  const play = useCallback((trackId: string, playlist: Podcast[]) => {
       playInternal(trackId, playlist, true);
   }, [playInternal]);
   
-  const autoPlay = useCallback((trackId?: string, playlist?: Podcast[]) => {
+  const autoPlay = useCallback((trackId: string, playlist: Podcast[]) => {
       playInternal(trackId, playlist, true);
   }, [playInternal]);
 
 
-  const togglePlay = useCallback(() => {
-    const playlist = currentPlaylist || podcasts;
+  const togglePlay = useCallback((playlist: Podcast[]) => {
     if (!currentTrack) {
       if (!playlist || playlist.length === 0) return;
       play(playlist[0].id, playlist);
@@ -308,16 +298,16 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (isPlaying) {
       pause();
     } else {
-      play();
+       play(currentTrack.id, currentPlaylist || playlist);
     }
-  }, [isPlaying, pause, play, currentTrack, podcasts, currentPlaylist]);
+  }, [isPlaying, pause, play, currentTrack, currentPlaylist]);
 
   const findCurrentTrackIndex = useCallback(() => {
-    const playlist = currentPlaylist || podcasts;
+    const playlist = currentPlaylist || [];
     return currentTrack
       ? playlist.findIndex((p) => p.id === currentTrack.id)
       : -1;
-  }, [currentTrack, podcasts, currentPlaylist]);
+  }, [currentTrack, currentPlaylist]);
 
   const playNextInQueue = useCallback(() => {
     if (queue.length > 0) {
@@ -332,7 +322,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const nextTrack = useCallback(() => {
     if (playNextInQueue()) return;
 
-    const playlist = currentPlaylist || podcasts;
+    const playlist = currentPlaylist || [];
     if (!playlist || playlist.length === 0) return;
     const currentIndex = findCurrentTrackIndex();
     if (currentIndex === -1) {
@@ -341,10 +331,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
     const nextIndex = (currentIndex + 1) % playlist.length;
     play(playlist[nextIndex].id, playlist);
-  }, [currentPlaylist, podcasts, play, findCurrentTrackIndex, playNextInQueue]);
+  }, [currentPlaylist, play, findCurrentTrackIndex, playNextInQueue]);
 
   const prevTrack = useCallback(() => {
-    const playlist = currentPlaylist || podcasts;
+    const playlist = currentPlaylist || [];
     if (!playlist || playlist.length === 0) return;
     const currentIndex = findCurrentTrackIndex();
     if (currentIndex === -1) {
@@ -353,14 +343,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
     const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
     play(playlist[prevIndex].id, playlist);
-  }, [currentPlaylist, podcasts, play, findCurrentTrackIndex]);
+  }, [currentPlaylist, play, findCurrentTrackIndex]);
 
-  const playRandom = useCallback(() => {
-    if (podcasts.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * podcasts.length);
-    const randomPodcast = podcasts[randomIndex];
-    play(randomPodcast.id, currentPlaylist || podcasts);
-  }, [podcasts, play, currentPlaylist]);
+  const playRandom = useCallback((playlist: Podcast[]) => {
+    if (playlist.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * playlist.length);
+    const randomPodcast = playlist[randomIndex];
+    play(randomPodcast.id, playlist);
+  }, [play]);
 
   const seek = (time: number) => {
     if (audioRef.current) {
@@ -481,7 +471,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         audio.removeEventListener("ended", nextTrack);
       };
     }
-  }, [nextTrack, onTimeUpdate]);
+  }, [nextTrack]);
 
   const value = {
     currentTrack,

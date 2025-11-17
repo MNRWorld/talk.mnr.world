@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Grid, Home, Library, Search, Shuffle } from "lucide-react";
+import { Grid, Home, Library, Search, Shuffle, User } from "lucide-react";
 import Link from "next/link";
 import {
   Sidebar,
@@ -20,6 +20,7 @@ import { ProfileDialog } from "../auth/ProfileDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { cn } from "@/lib/utils";
 import { usePlayer } from "@/context/PlayerContext";
+import { usePodcast } from "@/context/PodcastContext";
 
 function UserAvatar({ className }: { className?: string }) {
   const { user } = useUser();
@@ -35,13 +36,25 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
   const { playRandom } = usePlayer();
+  const { podcasts } = usePodcast();
 
-  const profileButtonContent = (
+  const loggedInProfileButton = (
     <div className="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
       <UserAvatar />
       <span className="truncate">{user.name}</span>
     </div>
   );
+
+  const loggedOutProfileButton = (
+     <div className="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+      <Avatar className="h-6 w-6">
+        <AvatarFallback>
+          <User className="h-4 w-4" />
+        </AvatarFallback>
+      </Avatar>
+      <span className="truncate">Login</span>
+    </div>
+  )
 
   return (
     <Sidebar>
@@ -62,7 +75,7 @@ export default function AppSidebar() {
               d="m2.14 50.25 68.58 118.16 19.42-11.26-47.23-81.41 72.2-0.16-14.84-25.57-98.12.22Z"
             />
           </svg>
-          <h1 className="font-headline text-xl font-bold">Talks</h1>
+          <h1 className="font-headline text-xl font-bold">Talk</h1>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -83,7 +96,7 @@ export default function AppSidebar() {
               </SearchDialog>
             </SidebarMenuItem>
              <SidebarMenuItem>
-              <SidebarMenuButton onClick={playRandom}>
+              <SidebarMenuButton onClick={() => playRandom(podcasts)}>
                 <Shuffle />
                 Surprise Me
               </SidebarMenuButton>
@@ -113,11 +126,11 @@ export default function AppSidebar() {
         <SidebarGroup>
           {user.isLoggedIn ? (
             <Link href="/profile" passHref>
-              {profileButtonContent}
+              {loggedInProfileButton}
             </Link>
           ) : (
             <ProfileDialog>
-              <button className="w-full">{profileButtonContent}</button>
+              <button className="w-full">{loggedOutProfileButton}</button>
             </ProfileDialog>
           )}
         </SidebarGroup>

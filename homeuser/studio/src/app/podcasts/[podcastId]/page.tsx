@@ -34,7 +34,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
 
   React.useEffect(() => {
     if (podcast) {
-      autoPlay(podcast.id);
+      autoPlay(podcast.id, allPodcasts);
     }
   }, [podcast, autoPlay]);
 

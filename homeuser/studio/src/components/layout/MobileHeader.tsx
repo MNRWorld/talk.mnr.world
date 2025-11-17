@@ -2,13 +2,15 @@
 "use client";
 
 import Link from "next/link";
-import { User, Shuffle } from "lucide-react";
+import { User, Shuffle, Info } from "lucide-react";
 import { Button } from "../ui/button";
 import { useUser } from "@/context/UserContext";
 import { ProfileDialog } from "../auth/ProfileDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { cn } from "@/lib/utils";
 import { usePlayer } from "@/context/PlayerContext";
+import { DisclaimerDialog } from "./DisclaimerDialog";
+import { usePodcast } from "@/context/PodcastContext";
 
 
 function UserAvatar({ className }: { className?: string }) {
@@ -24,15 +26,19 @@ function UserAvatar({ className }: { className?: string }) {
 export default function MobileHeader() {
   const { user } = useUser();
   const { playRandom } = usePlayer();
+  const { podcasts } = usePodcast();
 
   const profileButtonContent = (
      <Button variant="ghost" size="icon" className="rounded-full">
-      {user.isLoggedIn ? (
         <UserAvatar />
-      ) : (
-        <User />
-      )}
-      <span className="sr-only">Profile</span>
+        <span className="sr-only">Profile</span>
+    </Button>
+  );
+  
+  const loginButtonContent = (
+     <Button variant="ghost" size="icon" className="rounded-full">
+        <User className="h-5 w-5" />
+        <span className="sr-only">Login</span>
     </Button>
   );
 
@@ -58,14 +64,24 @@ export default function MobileHeader() {
               d="m2.14 50.25 68.58 118.16 19.42-11.26-47.23-81.41 72.2-0.16-14.84-25.57-98.12.22Z"
             />
           </svg>
-          <h1 className="text-xl font-bold font-headline">Talks</h1>
+          <h1 className="text-xl font-bold font-headline">Talk</h1>
         </Link>
         <div className="flex items-center gap-1 rounded-full bg-transparent p-1">
+          <DisclaimerDialog>
+             <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-full"
+              >
+                Disclaimer
+              </Button>
+            </DisclaimerDialog>
+            <span className="text-muted-foreground">।</span>
            <Button
             variant="ghost"
             size="icon"
             className="rounded-full"
-            onClick={playRandom}
+            onClick={() => playRandom(podcasts)}
           >
             <Shuffle className="h-5 w-5" />
             <span className="sr-only">Surprise Me</span>
@@ -77,7 +93,7 @@ export default function MobileHeader() {
               </Link>
             ) : (
               <ProfileDialog>
-                {profileButtonContent}
+                {loginButtonContent}
               </ProfileDialog>
             )}
         </div>
