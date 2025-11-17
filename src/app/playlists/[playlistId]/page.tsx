@@ -42,7 +42,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
   const { podcasts: allPodcasts } = usePodcast();
   const { toast } = useToast();
 
-  const [sortOrder, setSortOrder] = React.useState("newest");
+  const [sortOrder, setSortOrder] = React.useState("oldest");
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const playlist = getPlaylistById(playlistId);
@@ -66,12 +66,12 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
       case "z-a":
         podcasts.sort((a, b) => b.title.localeCompare(a.title));
         break;
-      case "oldest":
-        // This relies on the order in the original playlist which is chronological
-        break;
       case "newest":
-      default:
         podcasts.reverse(); // Newest first by reversing the chronological add order
+        break;
+      case "oldest":
+      default:
+        // This relies on the order in the original playlist which is chronological
         break;
     }
     return podcasts;
@@ -187,8 +187,8 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="newest">Newest Added</SelectItem>
                         <SelectItem value="oldest">Oldest Added</SelectItem>
+                        <SelectItem value="newest">Newest Added</SelectItem>
                         <SelectItem value="a-z">A-Z</SelectItem>
                         <SelectItem value="z-a">Z-A</SelectItem>
                       </SelectContent>
