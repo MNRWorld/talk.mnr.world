@@ -1,5 +1,68 @@
 [
   {
+    "id": "11",
+    "title": "Journey to the Light - 07",
+    "artist": ["Baseera"],
+    "categories": ["Story", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-7_Baseera.png",
+    "coverArtHint": "Thinkable Story",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-7_Baseera.opus"
+  },
+  {
+    "id": "10",
+    "title": "Journey to the Light - 06",
+    "artist": ["Baseera"],
+    "categories": ["Story", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-6_Baseera.png",
+    "coverArtHint": "Thinkable Story",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-6_Baseera.opus"
+  },
+  {
+    "id": "9",
+    "title": "Journey to the Light - 05",
+    "artist": ["Baseera"],
+    "categories": ["Story", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-5_Baseera.png",
+    "coverArtHint": "Thinkable Story",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-5_Baseera.opus"
+  },
+  {
+    "id": "8",
+    "title": "Journey to the Light - 04",
+    "artist": ["Baseera"],
+    "categories": ["Story", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-4_Baseera.png",
+    "coverArtHint": "Thinkable Story",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-4_Baseera.opus"
+  },
+  {
+    "id": "7",
+    "title": "Journey to the Light - 03",
+    "artist": ["Baseera"],
+    "categories": ["Story", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-3_Baseera.png",
+    "coverArtHint": "Thinkable Story",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-3_Baseera.opus"
+  },
+  {
+    "id": "6",
+    "title": "Journey to the Light - 02",
+    "artist": ["Baseera"],
+    "categories": ["Story", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-2_Baseera.png",
+    "coverArtHint": "Thinkable Story",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-2_Baseera.opus"
+  },
+  {
+    "id": "5",
+    "title": "Journey to the Light - 01",
+    "artist": ["Baseera"],
+    "categories": ["Story", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-1_Baseera.png",
+    "coverArtHint": "Thinkable Story",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-1_Baseera.opus"
+  },
+  {
     "id": "4",
     "title": "Maula Ya Salli Wa Sallim",
     "artist": ["Dr Muhammad Ibrahim", "Mahmud Huzaifa"],
@@ -11,7 +74,8 @@
   {
     "id": "3",
     "title": "Allahu Allahu Tumi Jalle Jalalu",
-    "artist": ["Dr Muhammad Ibrahim", "Mahmud Huzaifa"],
+    "artist": ["Dr Muhammad Ibrahim", "Mahmud Huzaifa", "Mazharul Islam",
+"Moeen Uddin"],
     "categories": ["Nasheed"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Nasheed/Dr%20Muhammad%20Ibrahim/Allahu_Allahu_Tumi_Jalle_Jalalu_Dr_Muhammad_Ibrahim_and_Mahmud_Huzaifa.png",
     "coverArtHint": "Nasheed",
