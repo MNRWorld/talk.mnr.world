@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -8,6 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { usePlayer } from "@/context/PlayerContext";
 import { Button } from "@/components/ui/button";
