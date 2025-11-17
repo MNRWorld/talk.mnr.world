@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 import { podcasts as allPodcasts } from "@/lib/podcasts";
 import { usePlayer } from "@/context/PlayerContext";
@@ -27,6 +28,9 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
   const { podcastId } = params;
   const { play, autoPlay } = usePlayer();
   const podcast = allPodcasts.find((p) => p.id === podcastId);
+
+  const searchParams = useSearchParams();
+  const isEmbedView = searchParams.get("embed") === "true";
 
   useEffect(() => {
     if (podcast) {
@@ -56,6 +60,35 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
           <BottomNavBar />
         </div>
       </SidebarProvider>
+    );
+  }
+
+  if (isEmbedView) {
+    return (
+       <div className="relative flex h-screen flex-col bg-background">
+        <div className="flex flex-1 flex-col items-center justify-center gap-8 overflow-hidden p-8">
+            <div className="relative w-full aspect-square max-w-sm shrink-0">
+                <Image
+                  src={podcast.coverArt}
+                  alt={podcast.title}
+                  fill
+                  className="rounded-md object-cover"
+                />
+            </div>
+             <div className="w-full max-w-sm text-center">
+                <h3 className="text-2xl font-bold">
+                  {podcast.title}
+                </h3>
+                <p className="text-base text-muted-foreground">
+                  {podcast.artist}
+                </p>
+             </div>
+        </div>
+        <AnimatePresence>
+          <Player />
+        </AnimatePresence>
+        <BottomNavBar />
+      </div>
     );
   }
 
