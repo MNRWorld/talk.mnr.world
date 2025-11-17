@@ -68,11 +68,10 @@ export default function MobileHeader() {
           <DisclaimerDialog>
              <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 className="rounded-full"
               >
-                <Info className="h-5 w-5" />
-                <span className="sr-only">Disclaimer</span>
+                Disclaimer
               </Button>
             </DisclaimerDialog>
            <Button
