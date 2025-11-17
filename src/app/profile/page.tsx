@@ -322,7 +322,7 @@ export default function ProfilePage() {
                   <div className="space-y-4">
                     <h2 className="text-center text-lg font-medium">Your Stats</h2>
                     {stats ? (
-                       <div className="grid gap-4 md:grid-cols-3">
+                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <StatCard
                           title="Audio Played"
                           value={stats.totalPlayed.toString()}
@@ -405,3 +405,5 @@ export default function ProfilePage() {
     </SidebarProvider>
   );
 }
+
+    
