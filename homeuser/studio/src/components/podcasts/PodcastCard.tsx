@@ -8,9 +8,6 @@ import {
   Heart,
   Plus,
   Trash2,
-  Download,
-  Loader,
-  Check,
   ListPlus,
   Share2,
 } from "lucide-react";
@@ -33,7 +30,6 @@ import { usePlaylist } from "@/context/PlaylistContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "../ui/button";
 import { CreatePlaylistDialog } from "../playlists/CreatePlaylistDialog";
-import { useDownload } from "@/context/DownloadContext";
 import { type MouseEvent, useEffect, useState } from "react";
 import { Progress } from "../ui/progress";
 
@@ -65,19 +61,11 @@ export default function PodcastCard({
     FAVORITES_PLAYLIST_ID,
     getPlaylistById,
   } = usePlaylist();
-  const {
-    downloadPodcast,
-    deleteDownloadedPodcast,
-    downloadedPodcasts,
-    downloadingPodcasts,
-  } = useDownload();
   const { toast } = useToast();
   const isActive = currentTrack?.id === podcast.id;
   const isFavorite = isFavoritePodcast(podcast.id);
   const currentPlaylist = playlistId ? getPlaylistById(playlistId) : null;
-  const isDownloading = downloadingPodcasts.includes(podcast.id);
-  const isDownloaded = downloadedPodcasts.some((p) => p.id === podcast.id);
-
+  
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -123,41 +111,6 @@ export default function PodcastCard({
         description: `"${podcast.title}" has been removed from the playlist.`,
       });
     }
-  };
-
-  const handleDownload = async (e: MouseEvent) => {
-    e.stopPropagation();
-    if (isDownloaded || isDownloading) {
-      return;
-    }
-    toast({
-      title: "Starting download...",
-      description: `"${podcast.title}" is being downloaded.`,
-    });
-    try {
-      await downloadPodcast(podcast);
-      toast({
-        title: "Download Complete",
-        description: `"${podcast.title}" has been saved for offline listening.`,
-      });
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Download Failed",
-        description:
-          "Could not download the podcast. Please try again later.",
-      });
-    }
-  };
-
-  const handleDeleteDownload = (e: MouseEvent) => {
-    e.stopPropagation();
-    deleteDownloadedPodcast(podcast.id);
-    toast({
-      title: "Download Removed",
-      description: `"${podcast.title}" has been removed from your device.`,
-    });
   };
 
   const handleAddToQueue = (e: MouseEvent) => {
@@ -225,27 +178,7 @@ export default function PodcastCard({
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
-
-            {isDownloading ? (
-              <DropdownMenuItem disabled>
-                <Loader className="mr-2 h-4 w-4 animate-spin" />
-                Downloading...
-              </DropdownMenuItem>
-            ) : isDownloaded ? (
-              <DropdownMenuItem
-                onClick={handleDeleteDownload}
-                className="text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Download
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
+            
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
@@ -307,11 +240,6 @@ export default function PodcastCard({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               data-ai-hint={podcast.coverArtHint}
             />
-            {isDownloaded && (
-              <div className="absolute bottom-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary/80 backdrop-blur-sm">
-                <Check className="h-3 w-3 text-primary-foreground" />
-              </div>
-            )}
             {showProgressBar && (
               <Progress
                 value={progressPercentage}
