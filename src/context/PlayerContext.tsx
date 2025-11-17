@@ -11,7 +11,6 @@ import React, {
   useEffect,
 } from "react";
 import { usePodcast } from "./PodcastContext";
-import { useDownload } from "./DownloadContext";
 
 const HISTORY_STORAGE_KEY = "podcast_history";
 const PROGRESS_STORAGE_KEY = "podcast_progress";
@@ -98,7 +97,6 @@ export const usePlayer = () => {
 
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const { podcasts } = usePodcast();
-  const { getDownloadedPodcast } = useDownload();
   const [currentTrack, setCurrentTrack] = useState<Podcast | null>(null);
   const [currentPlaylist, setCurrentPlaylist] = useState<Podcast[] | null>(
     null,
@@ -121,7 +119,6 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const lastTimeUpdate = useRef(0);
   const isPlayingRef = React.useRef(isPlaying);
-  const currentBlobUrl = useRef<string | null>(null);
   const sleepTimerId = useRef<NodeJS.Timeout | null>(null);
   const sleepTimerIntervalId = useRef<NodeJS.Timeout | null>(null);
 
@@ -149,13 +146,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  // Revoke blob URL on cleanup
+  // Cleanup timers
   useEffect(() => {
     return () => {
-      if (currentBlobUrl.current) {
-        URL.revokeObjectURL(currentBlobUrl.current);
-        currentBlobUrl.current = null;
-      }
       if (sleepTimerId.current) clearTimeout(sleepTimerId.current);
       if (sleepTimerIntervalId.current)
         clearInterval(sleepTimerIntervalId.current);
@@ -213,26 +206,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     async (track: Podcast, shouldAutoPlay = true) => {
       if (!audioRef.current) return;
 
-      if (currentBlobUrl.current) {
-        URL.revokeObjectURL(currentBlobUrl.current);
-        currentBlobUrl.current = null;
-      }
-
-      const downloaded = await getDownloadedPodcast(track.id);
-      let sourceUrl: string;
-
-      if (downloaded) {
-        sourceUrl = URL.createObjectURL(downloaded.blob);
-        currentBlobUrl.current = sourceUrl;
-      } else {
-        sourceUrl = track.audioUrl;
-      }
-
+      const sourceUrl = track.audioUrl;
       const savedProgress = getPodcastProgress(track.id);
 
       if (audioRef.current.src !== sourceUrl) {
         audioRef.current.src = sourceUrl;
-        audioRef.current.load();
       }
       
       if (!shouldAutoPlay) {
@@ -258,7 +236,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
           });
       }
     },
-    [getDownloadedPodcast, playbackRate, getPodcastProgress],
+    [playbackRate, getPodcastProgress],
   );
 
   const addToHistory = useCallback((track: Podcast) => {
@@ -538,3 +516,5 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     </PlayerContext.Provider>
   );
 };
+
+    
