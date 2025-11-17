@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ListMusic, Lock, MoreVertical, Trash2 } from "lucide-react";
+import { Heart, ListMusic, Lock, MoreVertical, Share2, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { usePodcast } from "@/context/PodcastContext";
@@ -15,6 +15,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -71,6 +72,17 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
     });
   };
 
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/playlists/${playlist.id}`;
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "Link Copied",
+      description: "Playlist link has been copied to your clipboard.",
+    });
+  };
+
   return (
     <>
       <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
@@ -92,8 +104,8 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
             </Button>
           </div>
         )}
-        {!playlist.isPredefined && playlist.id !== FAVORITES_PLAYLIST_ID && (
-          <div className="absolute right-2 top-2 z-10">
+        
+        <div className="absolute right-2 top-2 z-10">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -114,14 +126,24 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
                 }}
                 align="end"
               >
-                <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Delete</span>
+                <DropdownMenuItem onClick={handleShare}>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  <span>Share</span>
                 </DropdownMenuItem>
+                
+                {!playlist.isPredefined && playlist.id !== FAVORITES_PLAYLIST_ID && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      <span>Delete</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        )}
+
         <Link href={`/playlists/${playlist.id}`} passHref className="block h-full">
           <CardContent className="p-4">
             <div className="relative mb-4 aspect-square">
