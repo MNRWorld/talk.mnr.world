@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { ListMusic, X, GripVertical } from "lucide-react";
+import { ListMusic, X, ChevronUp, ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -15,23 +15,24 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Reorder } from "framer-motion";
+import * as React from "react";
 
 export function QueueSheet({ children }: { children: React.ReactNode }) {
   const {
     currentTrack,
     queue,
-    reorderQueue,
     playTrackFromQueue,
     removeFromQueue,
+    moveTrackInQueue,
   } = usePlayer();
 
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent
+        side="bottom"
         onClick={(e) => e.stopPropagation()}
-        className="flex flex-col"
+        className="flex h-[60vh] flex-col rounded-t-lg"
       >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
@@ -50,7 +51,7 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                   <div
                     className={cn(
                       "group flex items-center gap-4 rounded-md p-2",
-                      "bg-primary/10 border border-primary",
+                      "border border-primary bg-primary/10",
                     )}
                   >
                     <Image
@@ -65,7 +66,7 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                         {currentTrack.title}
                       </p>
                       <p className="truncate text-sm text-primary/80">
-                        {currentTrack.artist.join(", ")}
+                         {Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}
                       </p>
                     </div>
                   </div>
@@ -77,20 +78,31 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
               )}
 
               {queue.length > 0 ? (
-                <Reorder.Group
-                  axis="y"
-                  values={queue}
-                  onReorder={reorderQueue}
-                  className="space-y-2"
-                >
-                  {queue.map((track) => (
-                    <Reorder.Item
+                <div className="space-y-2">
+                  {queue.map((track, index) => (
+                    <div
                       key={track.id}
-                      value={track}
                       className="group flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-secondary"
                     >
-                      <div className="cursor-grab text-muted-foreground">
-                        <GripVertical className="h-5 w-5" />
+                      <div className="flex flex-col">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          disabled={index === 0}
+                          onClick={() => moveTrackInQueue(track.id, "up")}
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          disabled={index === queue.length - 1}
+                          onClick={() => moveTrackInQueue(track.id, "down")}
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
                       </div>
                       <button
                         className="flex flex-1 items-center gap-4 overflow-hidden text-left"
@@ -104,11 +116,9 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                           className="h-12 w-12 rounded-md"
                         />
                         <div className="flex-1 overflow-hidden">
-                          <p className="truncate font-semibold">
-                            {track.title}
-                          </p>
+                          <p className="truncate font-semibold">{track.title}</p>
                           <p className="truncate text-sm text-muted-foreground">
-                            {track.artist.join(", ")}
+                             {Array.isArray(track.artist) ? track.artist.join(", ") : track.artist}
                           </p>
                         </div>
                       </button>
@@ -120,9 +130,9 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                       >
                         <X className="h-4 w-4" />
                       </Button>
-                    </Reorder.Item>
+                    </div>
                   ))}
-                </Reorder.Group>
+                </div>
               ) : (
                 <div className="flex h-48 items-center justify-center text-center">
                   <p className="text-muted-foreground">The queue is empty.</p>
