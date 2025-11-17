@@ -26,6 +26,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { usePodcast } from "@/context/PodcastContext";
 
 function formatTime(seconds: number) {
@@ -97,6 +102,25 @@ export default function Player() {
   if (!currentTrack) {
     return null;
   }
+  
+  const VolumeControl = (
+    <div className="flex w-full flex-1 items-center gap-2">
+      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setVolume(volume > 0 ? 0 : 0.5)}>
+        {volume > 0 ? (
+          <Volume2 className="h-5 w-5" />
+        ) : (
+          <VolumeX className="h-5 w-5" />
+        )}
+      </Button>
+      <Slider
+        value={[volume]}
+        max={1}
+        step={0.01}
+        onValueChange={handleVolumeChange}
+        className="w-full flex-1"
+      />
+    </div>
+  )
 
   return (
     <>
@@ -201,7 +225,7 @@ export default function Player() {
                     "text-base": isExpanded,
                   })}
                 >
-                  {currentTrack.artist.join(", ")}
+                  {currentTrack.artist}
                 </p>
               </div>
             </div>
@@ -259,7 +283,7 @@ export default function Player() {
                     "rounded-full bg-primary hover:bg-primary/90",
                     isExpanded ? "h-16 w-16" : "h-10 w-10 sm:h-12 sm:w-12",
                   )}
-                  onClick={handleButtonClick(() => togglePlay())}
+                  onClick={handleButtonClick(() => togglePlay(podcasts))}
                 >
                   {isPlaying ? (
                     <Pause
@@ -295,8 +319,9 @@ export default function Player() {
             </div>
 
             <div
-              className={cn("flex w-full max-w-sm items-center gap-4", {
+              className={cn("flex w-full items-center gap-4", {
                 "hidden sm:flex sm:w-1/4 sm:justify-end": !isExpanded,
+                "max-w-sm justify-center": isExpanded,
               })}
             >
               {isExpanded && (
@@ -348,22 +373,24 @@ export default function Player() {
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  
+                  <div className="sm:hidden">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                           <Button variant="outline" size="icon" onClick={(e) => e.stopPropagation()}>
+                             {volume > 0 ? <Volume2 /> : <VolumeX />}
+                           </Button>
+                        </PopoverTrigger>
+                        <PopoverContent onClick={(e) => e.stopPropagation()} className="w-48 p-2">
+                           {VolumeControl}
+                        </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
               )}
 
-              <div className="flex w-full flex-1 items-center gap-2">
-                {volume > 0 ? (
-                  <Volume2 className="h-5 w-5" />
-                ) : (
-                  <VolumeX className="h-5 w-5" />
-                )}
-                <Slider
-                  value={[volume]}
-                  max={1}
-                  step={0.01}
-                  onValueChange={handleVolumeChange}
-                  className="w-full flex-1"
-                />
+              <div className="hidden sm:flex w-full flex-1 items-center gap-2">
+                 {VolumeControl}
               </div>
             </div>
           </div>
