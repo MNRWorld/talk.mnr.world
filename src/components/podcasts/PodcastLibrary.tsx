@@ -79,7 +79,7 @@ export default function PodcastLibrary({
         categoryMap.get(category)?.push(podcast);
       });
     });
-    const otherCategories = Array.from(categoryMap.entries()).filter(([key]) => key !== "Quran");
+    const otherCategories = Array.from(categoryMap.entries()).filter(([key]) => key !== "Quran" && key !== "Nasheed");
     setShuffledCategories(shuffleArray(otherCategories));
   }, [podcasts]);
 
