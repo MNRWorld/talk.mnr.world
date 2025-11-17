@@ -60,7 +60,7 @@ export const PlaylistProvider = ({
       
       const enrichedPredefined = predefinedPlaylists.map(p => {
         const userVersion = userPlaylists.find((up: Playlist) => up.id === p.id);
-        return userVersion ? { ...p, isFavorite: userVersion.isFavorite } : p;
+        return userVersion ? { ...p, isFavorite: userVersion.isFavorite, podcastIds: p.podcastIds } : p;
       });
       
       let userOnlyPlaylists = userPlaylists.filter((p: Playlist) => !predefinedPlaylists.some(pre => pre.id === p.id));
@@ -97,13 +97,24 @@ export const PlaylistProvider = ({
   const savePlaylists = (updatedPlaylists: Playlist[]) => {
     try {
       const playlistsToSave = updatedPlaylists.map(p => {
+        const playlistData: Partial<Playlist> = { id: p.id };
         if (p.isPredefined) {
           // Only save predefined if they are favorited
-          return p.isFavorite ? { id: p.id, isFavorite: p.isFavorite } : { id: p.id };
+          if (p.isFavorite) {
+            playlistData.isFavorite = true;
+          } else {
+             // Don't save if not favorited and predefined
+            return null;
+          }
+        } else {
+          // Save all user created playlists' data
+           playlistData.name = p.name;
+           playlistData.podcastIds = p.podcastIds || [];
+           playlistData.isFavorite = p.isFavorite;
         }
-        // Save all user created playlists
-        return p;
-      }).filter(p => !p.isPredefined || (p as Playlist).isFavorite); // Filter out non-favorited predefined playlists
+        return playlistData;
+      }).filter(Boolean);
+
 
       localStorage.setItem(
         PLAYLIST_STORAGE_KEY,
@@ -175,7 +186,7 @@ export const PlaylistProvider = ({
   const getPodcastsForPlaylist = useCallback(
     (playlistId: string, allPodcasts: Podcast[]) => {
       const playlist = playlists.find((p) => p.id === playlistId);
-      if (!playlist) return [];
+      if (!playlist || !playlist.podcastIds) return [];
       return playlist.podcastIds
         .map((id) => allPodcasts.find((p) => p.id === id))
         .filter((p): p is Podcast => !!p);
@@ -206,7 +217,7 @@ export const PlaylistProvider = ({
   const isFavoritePodcast = useCallback(
     (podcastId: string) => {
       const favoritesPlaylist = playlists.find(p => p.id === FAVORITES_PLAYLIST_ID);
-      return favoritesPlaylist?.podcastIds.includes(podcastId) ?? false;
+      return favoritesPlaylist?.podcastIds?.includes(podcastId) ?? false;
     },
     [playlists],
   );
