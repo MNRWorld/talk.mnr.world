@@ -65,49 +65,24 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
 
   if (isEmbedView) {
     return (
-      <div className="relative flex h-screen flex-col bg-background">
-        <div className="flex flex-1 items-center justify-center overflow-hidden">
-          <main className="w-full p-4 sm:p-6 lg:p-8">
-            <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 md:flex-row md:items-start">
-              <div className="relative aspect-square w-full max-w-xs shrink-0">
+       <div className="relative flex h-screen flex-col bg-background">
+        <div className="flex flex-1 flex-col items-center justify-center gap-8 overflow-hidden p-8">
+            <div className="relative w-full aspect-square max-w-sm shrink-0">
                 <Image
                   src={podcast.coverArt}
                   alt={podcast.title}
                   fill
-                  className="rounded-lg object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="rounded-md object-cover"
                 />
-              </div>
-              <div className="flex flex-col items-center text-center md:items-start md:text-left">
-                <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Podcast
-                </p>
-                <h1 className="mt-2 font-headline text-4xl font-bold tracking-tight">
-                  {podcast.title}
-                </h1>
-                <h2 className="mt-4 text-xl font-medium text-muted-foreground">
-                  {podcast.artist}
-                </h2>
-                <div className="mt-6 flex flex-wrap justify-center gap-2 md:justify-start">
-                  {podcast.categories.map((category) => (
-                    <div
-                      key={category}
-                      className="rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground"
-                    >
-                      {category}
-                    </div>
-                  ))}
-                </div>
-                <Button
-                  onClick={() => play(podcast.id)}
-                  className="mt-8 h-12 rounded-full px-8 text-lg"
-                >
-                  <Play className="mr-2 h-5 w-5 fill-current" />
-                  Play
-                </Button>
-              </div>
             </div>
-          </main>
+             <div className="w-full max-w-sm text-center">
+                <h3 className="text-2xl font-bold">
+                  {podcast.title}
+                </h3>
+                <p className="text-base text-muted-foreground">
+                  {podcast.artist}
+                </p>
+             </div>
         </div>
         <AnimatePresence>
           <Player />
