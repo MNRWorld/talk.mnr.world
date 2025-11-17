@@ -15,15 +15,63 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Reorder } from "framer-motion";
+import { Reorder, useDragControls } from "framer-motion";
+import * as React from "react";
+
+function QueueItem({ track }: { track: ReturnType<typeof usePlayer>["queue"][0] }) {
+  const { playTrackFromQueue, removeFromQueue } = usePlayer();
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      key={track.id}
+      value={track}
+      dragListener={false}
+      dragControls={dragControls}
+      className="group flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-secondary"
+    >
+      <div
+        onPointerDown={(e) => dragControls.start(e)}
+        className="cursor-grab text-muted-foreground"
+      >
+        <GripVertical className="h-5 w-5" />
+      </div>
+      <button
+        className="flex flex-1 items-center gap-4 overflow-hidden text-left"
+        onClick={() => playTrackFromQueue(track.id)}
+      >
+        <Image
+          src={track.coverArt}
+          alt={track.title}
+          width={48}
+          height={48}
+          className="h-12 w-12 rounded-md"
+        />
+        <div className="flex-1 overflow-hidden">
+          <p className="truncate font-semibold">{track.title}</p>
+          <p className="truncate text-sm text-muted-foreground">
+            {Array.isArray(track.artist) ? track.artist.join(", ") : track.artist}
+          </p>
+        </div>
+      </button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+        onClick={() => removeFromQueue(track.id)}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </Reorder.Item>
+  );
+}
+
 
 export function QueueSheet({ children }: { children: React.ReactNode }) {
   const {
     currentTrack,
     queue,
     reorderQueue,
-    playTrackFromQueue,
-    removeFromQueue,
   } = usePlayer();
 
   return (
@@ -66,7 +114,7 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                         {currentTrack.title}
                       </p>
                       <p className="truncate text-sm text-primary/80">
-                        {currentTrack.artist.join(", ")}
+                         {Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}
                       </p>
                     </div>
                   </div>
@@ -85,43 +133,7 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                   className="space-y-2"
                 >
                   {queue.map((track) => (
-                    <Reorder.Item
-                      key={track.id}
-                      value={track}
-                      className="group flex items-center gap-2 rounded-md p-2 transition-colors hover:bg-secondary"
-                    >
-                      <div className="cursor-grab text-muted-foreground">
-                        <GripVertical className="h-5 w-5" />
-                      </div>
-                      <button
-                        className="flex flex-1 items-center gap-4 overflow-hidden text-left"
-                        onClick={() => playTrackFromQueue(track.id)}
-                      >
-                        <Image
-                          src={track.coverArt}
-                          alt={track.title}
-                          width={48}
-                          height={48}
-                          className="h-12 w-12 rounded-md"
-                        />
-                        <div className="flex-1 overflow-hidden">
-                          <p className="truncate font-semibold">
-                            {track.title}
-                          </p>
-                          <p className="truncate text-sm text-muted-foreground">
-                            {track.artist.join(", ")}
-                          </p>
-                        </div>
-                      </button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                        onClick={() => removeFromQueue(track.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </Reorder.Item>
+                    <QueueItem key={track.id} track={track} />
                   ))}
                 </Reorder.Group>
               ) : (
