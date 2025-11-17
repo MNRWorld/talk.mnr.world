@@ -6,10 +6,9 @@ import { PodcastProvider } from "@/context/PodcastContext";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { PlaylistProvider } from "@/context/PlaylistContext";
 import { UserProvider } from "@/context/UserContext";
-import { DownloadProvider } from "@/context/DownloadContext";
 
 export const metadata: Metadata = {
-  title: "MNR Talks",
+  title: "MNR Talk",
   description: "Your personalized audio library.",
 };
 
@@ -25,14 +24,12 @@ export default function RootLayout({
       <body className={`${inter.variable} font-body antialiased`}>
         <UserProvider>
           <PodcastProvider>
-            <DownloadProvider>
-              <PlaylistProvider>
-                <PlayerProvider>
-                  {children}
-                  <Toaster />
-                </PlayerProvider>
-              </PlaylistProvider>
-            </DownloadProvider>
+            <PlaylistProvider>
+              <PlayerProvider>
+                {children}
+                <Toaster />
+              </PlayerProvider>
+            </PlaylistProvider>
           </PodcastProvider>
         </UserProvider>
       </body>
