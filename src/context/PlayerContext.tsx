@@ -72,6 +72,8 @@ interface PlayerContextType {
   progress: number;
   duration: number;
   seek: (time: number) => void;
+  seekForward: () => void;
+  seekBackward: () => void;
   volume: number;
   setVolume: (volume: number) => void;
   history: Podcast[];
@@ -368,6 +370,20 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const seekForward = () => {
+    if (audioRef.current) {
+      const newTime = Math.min(audioRef.current.currentTime + 10, duration);
+      seek(newTime);
+    }
+  };
+
+  const seekBackward = () => {
+    if (audioRef.current) {
+      const newTime = Math.max(audioRef.current.currentTime - 10, 0);
+      seek(newTime);
+    }
+  };
+
   const setVolume = (vol: number) => {
     if (audioRef.current) {
       audioRef.current.volume = vol;
@@ -480,7 +496,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         audio.removeEventListener("ended", nextTrack);
       };
     }
-  }, [nextTrack, onTimeUpdate]);
+  }, [nextTrack]);
 
   const value = {
     currentTrack,
@@ -496,6 +512,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     progress,
     duration,
     seek,
+    seekForward,
+    seekBackward,
     volume,
     setVolume,
     history,

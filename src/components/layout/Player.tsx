@@ -7,6 +7,8 @@ import {
   Moon,
   Pause,
   Play,
+  RotateCcw,
+  RotateCw,
   SkipBack,
   SkipForward,
   Volume2,
@@ -59,6 +61,8 @@ export default function Player() {
     setPlaybackRate,
     sleepTimer,
     setSleepTimer,
+    seekForward,
+    seekBackward,
   } = usePlayer();
   const { podcasts } = usePodcast();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -225,7 +229,7 @@ export default function Player() {
                     "text-base": isExpanded,
                   })}
                 >
-                  {currentTrack.artist}
+                  {currentTrack.artist.join(", ")}
                 </p>
               </div>
             </div>
@@ -259,10 +263,10 @@ export default function Player() {
               <div
                 className={cn(
                   "flex w-full items-center justify-center",
-                  { "gap-2 sm:gap-4": !isExpanded, "gap-6": isExpanded },
+                  { "gap-1 sm:gap-2": !isExpanded, "gap-2": isExpanded },
                 )}
               >
-                <Button
+                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={handleButtonClick(prevTrack)}
@@ -271,6 +275,20 @@ export default function Player() {
                   )}
                 >
                   <SkipBack
+                    className={cn(
+                      isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5",
+                    )}
+                  />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleButtonClick(seekBackward)}
+                  className={cn(
+                    isExpanded ? "h-12 w-12" : "h-8 w-8 sm:h-10 sm:w-10",
+                  )}
+                >
+                  <RotateCcw
                     className={cn(
                       isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5",
                     )}
@@ -300,6 +318,20 @@ export default function Player() {
                       )}
                     />
                   )}
+                </Button>
+                 <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleButtonClick(seekForward)}
+                  className={cn(
+                    isExpanded ? "h-12 w-12" : "h-8 w-8 sm:h-10 sm:w-10",
+                  )}
+                >
+                  <RotateCw
+                    className={cn(
+                      isExpanded ? "h-6 w-6" : "h-4 w-4 sm:h-5 sm:w-5",
+                    )}
+                  />
                 </Button>
                 <Button
                   variant="ghost"
@@ -414,3 +446,5 @@ export default function Player() {
     </>
   );
 }
+
+    
