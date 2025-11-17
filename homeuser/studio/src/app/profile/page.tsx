@@ -64,7 +64,7 @@ const StatCard = ({
 
 export default function ProfilePage() {
   const { user, login, logout } = useUser();
-  const { history } = usePlayer();
+  const { history, listeningLog } = usePlayer();
   const { podcasts } = usePodcast();
   const { getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID } = usePlaylist();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(
@@ -80,8 +80,8 @@ export default function ProfilePage() {
       name: user.name,
     },
   });
-  
-  const favoritePodcasts = React.useMemo(() => 
+
+  const favoritePodcasts = React.useMemo(() =>
     getPodcastsForPlaylist(FAVORITES_PLAYLIST_ID, podcasts),
     [getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID, podcasts]
   );
