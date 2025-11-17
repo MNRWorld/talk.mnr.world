@@ -87,6 +87,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
+        <BottomNavBar />
       </div>
     );
   }
