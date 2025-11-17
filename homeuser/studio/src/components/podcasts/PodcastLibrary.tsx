@@ -3,18 +3,36 @@
 
 import { usePodcast } from "@/context/PodcastContext";
 import PodcastCard from "./PodcastCard";
-import { usePlayer } from "@/context/PlayerContext";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
-import type { MyAudio, MyPlaylist, Podcast } from "@/lib/types";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import type { Podcast } from "@/lib/types";
 import { usePlaylist } from "@/context/PlaylistContext";
 import PlaylistCard from "../playlists/PlaylistCard";
 import CategorySection from "./CategorySection";
-import { useUser } from "@/context/UserContext";
+import { Loader2 } from "lucide-react";
 
-import myPlaylistsData from "@/lib/myplaylist.json";
-import myAudioData from "@/lib/myaudio.json";
+const INITIAL_VISIBLE_CATEGORIES = 10;
+const CATEGORY_INCREMENT = 10;
 
+// Fisher-Yates (aka Knuth) Shuffle
+function shuffleArray<T>(array: T[]): T[] {
+  if (typeof window === "undefined") {
+    // Return original array on server
+    return array;
+  }
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
+const Loader = () => (
+  <div className="flex items-center justify-center py-8">
+    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+  </div>
+);
 
 export default function PodcastLibrary({
   showTitle = true,
@@ -23,25 +41,20 @@ export default function PodcastLibrary({
 }) {
   const { podcasts } = usePodcast();
   const { playlists } = usePlaylist();
-  const { user } = useUser();
+  const [visibleCategories, setVisibleCategories] = useState(
+    INITIAL_VISIBLE_CATEGORIES,
+  );
+  const [shuffledCategories, setShuffledCategories] = useState<[string, Podcast[]][]>([]);
+  const loaderRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const predefinedPlaylists = useMemo(() => {
     return [...playlists.filter((p) => p.isPredefined)].sort((a, b) =>
       b.id.localeCompare(a.id),
     );
   }, [playlists]);
-  
-  const myPlaylists = useMemo(() => myPlaylistsData as MyPlaylist[], []);
-  const myAudios = useMemo(() => myAudioData as MyAudio[], []);
 
-  const getMyAudiosForPlaylist = (playlist: MyPlaylist): MyAudio[] => {
-    return playlist.podcastIds
-      .map((id) => myAudios.find((a) => a.id === id))
-      .filter((a): a is MyAudio => !!a);
-  };
-
-
-  const categories = useMemo(() => {
+  const quranCategory = useMemo(() => {
     const categoryMap = new Map<string, Podcast[]>();
     podcasts.forEach((podcast) => {
       podcast.categories.forEach((category) => {
@@ -51,8 +64,65 @@ export default function PodcastLibrary({
         categoryMap.get(category)?.push(podcast);
       });
     });
-    return Array.from(categoryMap.entries());
+    const allCategories = Array.from(categoryMap.entries());
+    const quranIndex = allCategories.findIndex(([key]) => key === "Quran");
+    return quranIndex > -1 ? allCategories[quranIndex] : null;
   }, [podcasts]);
+  
+  useEffect(() => {
+     const categoryMap = new Map<string, Podcast[]>();
+    podcasts.forEach((podcast) => {
+      podcast.categories.forEach((category) => {
+        if (!categoryMap.has(category)) {
+          categoryMap.set(category, []);
+        }
+        categoryMap.get(category)?.push(podcast);
+      });
+    });
+    const otherCategories = Array.from(categoryMap.entries()).filter(([key]) => key !== "Quran");
+    setShuffledCategories(shuffleArray(otherCategories));
+  }, [podcasts]);
+
+
+  const displayedCategories = useMemo(() => {
+    return shuffledCategories.slice(0, visibleCategories);
+  }, [shuffledCategories, visibleCategories]);
+
+  const hasMoreCategories = visibleCategories < shuffledCategories.length;
+
+  const loadMoreCategories = useCallback(() => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setTimeout(() => {
+      setVisibleCategories(
+        (prev) => prev + CATEGORY_INCREMENT,
+      );
+      setIsLoading(false);
+    }, 500); // Simulate network delay
+  }, [isLoading]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreCategories && !isLoading) {
+          loadMoreCategories();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    const loader = loaderRef.current;
+    if (loader) {
+      observer.observe(loader);
+    }
+
+    return () => {
+      if (loader) {
+        observer.unobserve(loader);
+      }
+    };
+  }, [hasMoreCategories, isLoading, loadMoreCategories]);
+
 
   return (
     <main
@@ -64,23 +134,6 @@ export default function PodcastLibrary({
         </h1>
       )}
       <div className="space-y-8">
-        
-        {user.isSuperAdmin && myPlaylists.length > 0 && (
-           <section>
-            <h2 className="font-headline mb-4 text-2xl font-bold tracking-tight">
-              My Personal Playlist
-            </h2>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-              {myPlaylists.map((playlist) => (
-                <PlaylistCard key={playlist.id} playlist={{
-                  ...playlist,
-                  isPredefined: true // Treat as predefined to hide delete option
-                }} />
-              ))}
-            </div>
-          </section>
-        )}
-
         <CategorySection title="Recently Added" podcasts={podcasts} />
 
         {predefinedPlaylists.length > 0 && (
@@ -98,13 +151,26 @@ export default function PodcastLibrary({
           </section>
         )}
 
-        {categories.map(([category, categoryPodcasts]) => (
+        {quranCategory && (
+           <CategorySection
+            key={quranCategory[0]}
+            title={quranCategory[0]}
+            podcasts={quranCategory[1]}
+          />
+        )}
+
+        {displayedCategories.map(([category, categoryPodcasts]) => (
           <CategorySection
             key={category}
             title={category}
             podcasts={categoryPodcasts}
           />
         ))}
+
+        <div ref={loaderRef}>
+           {hasMoreCategories && <Loader />}
+        </div>
+
       </div>
     </main>
   );
