@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Playlist, Podcast } from "@/lib/types";
@@ -8,7 +9,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import predefinedPlaylistsData from "@/lib/predefined-playlists.json";
+import predefinedPlaylistsData from "@/lib/playlist.json";
 
 
 const PLAYLIST_STORAGE_KEY = "podcast_playlists";
