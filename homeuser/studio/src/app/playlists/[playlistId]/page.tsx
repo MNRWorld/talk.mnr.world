@@ -26,13 +26,13 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface PlaylistPageProps {
-  params: {
+  params: Promise<{
     playlistId: string;
-  };
+  }>;
 }
 
 const PlaylistPage = ({ params }: PlaylistPageProps) => {
-  const { playlistId } = params;
+  const { playlistId } = React.use(params);
   const {
     getPlaylistById,
     getPodcastsForPlaylist,
@@ -97,7 +97,8 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
   };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const shareUrl = `${window.location.origin}/playlists/${playlistId}`;
+    navigator.clipboard.writeText(shareUrl);
     toast({
       title: "Link Copied",
       description: "Playlist link has been copied to your clipboard.",

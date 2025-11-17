@@ -23,13 +23,14 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     categoryName: string;
-  };
+  }>;
 }
 
 const CategoryPage = ({ params }: CategoryPageProps) => {
-  const categoryName = decodeURIComponent(params.categoryName);
+  const { categoryName: encodedCategoryName } = React.use(params);
+  const categoryName = decodeURIComponent(encodedCategoryName);
 
   const [sortOrder, setSortOrder] = React.useState("newest");
   const [searchTerm, setSearchTerm] = React.useState("");

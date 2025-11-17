@@ -23,13 +23,14 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface ArtistPageProps {
-  params: {
+  params: Promise<{
     artistName: string;
-  };
+  }>;
 }
 
 const ArtistPage = ({ params }: ArtistPageProps) => {
-  const artistName = decodeURIComponent(params.artistName);
+  const { artistName: encodedArtistName } = React.use(params);
+  const artistName = decodeURIComponent(encodedArtistName);
 
   const [sortOrder, setSortOrder] = React.useState("newest");
   const [searchTerm, setSearchTerm] = React.useState("");
