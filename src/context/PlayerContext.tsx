@@ -123,6 +123,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const [listeningLog, setListeningLog] = useState<ListeningLog>({});
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playPromiseController = useRef<AbortController | null>(null);
   const lastTimeUpdate = useRef(0);
   const isPlayingRef = React.useRef(isPlaying);
   const sleepTimerId = useRef<NodeJS.Timeout | null>(null);
@@ -203,6 +204,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const pause = useCallback(() => {
+    if (playPromiseController.current) {
+      playPromiseController.current.abort();
+    }
     audioRef.current?.pause();
     setIsPlaying(false);
   }, []);
@@ -224,27 +228,39 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         setIsPlaying(false);
         return;
       }
+      
+      if (playPromiseController.current) {
+        playPromiseController.current.abort();
+      }
+      playPromiseController.current = new AbortController();
+      const { signal } = playPromiseController.current;
 
-      const playPromise = audioRef.current.play();
 
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            if (
-              savedProgress &&
-              savedProgress.progress > 0 &&
-              audioRef.current!.src === sourceUrl
-            ) {
-              audioRef.current!.currentTime = savedProgress.progress;
-            }
-            setIsPlaying(true);
-            audioRef.current!.playbackRate = playbackRate;
-            lastTimeUpdate.current = Date.now();
-          })
-          .catch((e) => {
-            console.error("Playback failed", e);
-            setIsPlaying(false);
-          });
+      try {
+        await audioRef.current.play();
+         if (signal.aborted) {
+          return;
+        }
+        
+        if (
+          savedProgress &&
+          savedProgress.progress > 0 &&
+          audioRef.current!.src === sourceUrl
+        ) {
+          audioRef.current!.currentTime = savedProgress.progress;
+        }
+        setIsPlaying(true);
+        audioRef.current!.playbackRate = playbackRate;
+        lastTimeUpdate.current = Date.now();
+      } catch (e: any) {
+        if (e.name !== 'AbortError') {
+          console.error("Playback failed", e);
+          setIsPlaying(false);
+        }
+      } finally {
+        if (!signal.aborted) {
+          playPromiseController.current = null;
+        }
       }
     },
     [playbackRate, getPodcastProgress],
@@ -303,13 +319,28 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
           addToHistory(trackToPlay);
           setAudioSource(trackToPlay, shouldAutoPlay);
         } else if (shouldAutoPlay) {
+           if (playPromiseController.current) {
+            playPromiseController.current.abort();
+          }
+          playPromiseController.current = new AbortController();
+          const { signal } = playPromiseController.current;
+
           audioRef.current
             ?.play()
             .then(() => {
+               if (signal.aborted) return;
               setIsPlaying(true);
               lastTimeUpdate.current = Date.now();
             })
-            .catch((e) => console.error("Playback failed", e));
+            .catch((e) => {
+              if (e.name !== 'AbortError') {
+                 console.error("Playback failed", e)
+              }
+            }).finally(() => {
+               if (!signal.aborted) {
+                playPromiseController.current = null;
+              }
+            });
         }
       }
     },
@@ -394,7 +425,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const closePlayer = useCallback(() => {
     if (audioRef.current) {
-      audioRef.current.pause();
+      pause();
       audioRef.current.src = "";
     }
     setCurrentTrack(null);
@@ -403,7 +434,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     setCurrentPlaylist(null);
     setProgress(0);
     setDuration(0);
-  }, []);
+  }, [pause]);
 
   const seek = (time: number) => {
     if (audioRef.current) {
