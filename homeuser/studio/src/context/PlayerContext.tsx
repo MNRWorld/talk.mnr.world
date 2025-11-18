@@ -56,6 +56,8 @@ interface SleepTimerInfo {
 }
 
 type ListeningLog = Record<string, number>; // { 'YYYY-MM-DD': seconds }
+type RepeatMode = 'off' | 'one' | 'all';
+
 
 interface PlayerContextType {
   currentTrack: Podcast | null;
@@ -66,7 +68,7 @@ interface PlayerContextType {
   togglePlay: () => void;
   nextTrack: () => void;
   prevTrack: () => void;
-  playRandom: () => void;
+  playRandom: (podcasts: Podcast[]) => void;
   closePlayer: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
   progress: number;
@@ -89,6 +91,8 @@ interface PlayerContextType {
   sleepTimer: SleepTimerInfo;
   setSleepTimer: (minutes: number | null) => void;
   listeningLog: ListeningLog;
+  repeatMode: RepeatMode;
+  toggleRepeatMode: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -117,12 +121,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   );
   const [queue, setQueue] = useState<Podcast[]>([]);
   const [playbackRate, setPlaybackRateState] = useState(1);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');
   const [sleepTimer, setSleepTimerState] = useState<SleepTimerInfo>({
     timeLeft: null,
     isActive: false,
   });
   const [listeningLog, setListeningLog] = useState<ListeningLog>({});
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playPromiseController = useRef<AbortController | null>(null);
   const lastTimeUpdate = useRef(0);
   const isPlayingRef = React.useRef(isPlaying);
   const sleepTimerId = useRef<NodeJS.Timeout | null>(null);
@@ -203,6 +209,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const pause = useCallback(() => {
+    if (playPromiseController.current) {
+      playPromiseController.current.abort();
+    }
     audioRef.current?.pause();
     setIsPlaying(false);
   }, []);
@@ -224,27 +233,39 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         setIsPlaying(false);
         return;
       }
+      
+      if (playPromiseController.current) {
+        playPromiseController.current.abort();
+      }
+      playPromiseController.current = new AbortController();
+      const { signal } = playPromiseController.current;
 
-      const playPromise = audioRef.current.play();
 
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            if (
-              savedProgress &&
-              savedProgress.progress > 0 &&
-              audioRef.current!.src === sourceUrl
-            ) {
-              audioRef.current!.currentTime = savedProgress.progress;
-            }
-            setIsPlaying(true);
-            audioRef.current!.playbackRate = playbackRate;
-            lastTimeUpdate.current = Date.now();
-          })
-          .catch((e) => {
-            console.error("Playback failed", e);
-            setIsPlaying(false);
-          });
+      try {
+        await audioRef.current.play();
+         if (signal.aborted) {
+          return;
+        }
+        
+        if (
+          savedProgress &&
+          savedProgress.progress > 0 &&
+          audioRef.current!.src === sourceUrl
+        ) {
+          audioRef.current!.currentTime = savedProgress.progress;
+        }
+        setIsPlaying(true);
+        audioRef.current!.playbackRate = playbackRate;
+        lastTimeUpdate.current = Date.now();
+      } catch (e: any) {
+        if (e.name !== 'AbortError') {
+          console.error("Playback failed", e);
+          setIsPlaying(false);
+        }
+      } finally {
+        if (!signal.aborted) {
+          playPromiseController.current = null;
+        }
       }
     },
     [playbackRate, getPodcastProgress],
@@ -295,21 +316,37 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (trackToPlay) {
         const newPlaylist = playlistToUse.slice(startFromIndex);
-        setCurrentPlaylist(newPlaylist);
-        setQueue(newPlaylist.slice(1));
+        setCurrentPlaylist(playlistToUse);
+        setQueue(playlistToUse.slice(startFromIndex + 1));
+
 
         if (currentTrack?.id !== trackToPlay.id) {
           setCurrentTrack(trackToPlay);
           addToHistory(trackToPlay);
           setAudioSource(trackToPlay, shouldAutoPlay);
         } else if (shouldAutoPlay) {
+           if (playPromiseController.current) {
+            playPromiseController.current.abort();
+          }
+          playPromiseController.current = new AbortController();
+          const { signal } = playPromiseController.current;
+
           audioRef.current
             ?.play()
             .then(() => {
+               if (signal.aborted) return;
               setIsPlaying(true);
               lastTimeUpdate.current = Date.now();
             })
-            .catch((e) => console.error("Playback failed", e));
+            .catch((e) => {
+              if (e.name !== 'AbortError') {
+                 console.error("Playback failed", e)
+              }
+            }).finally(() => {
+               if (!signal.aborted) {
+                playPromiseController.current = null;
+              }
+            });
         }
       }
     },
@@ -352,40 +389,35 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       : -1;
   }, [currentTrack, podcasts, currentPlaylist]);
 
-  const playNextInQueue = useCallback(() => {
+  const nextTrack = useCallback(() => {
     if (queue.length > 0) {
       const nextTrackInQueue = queue[0];
       setQueue((prev) => prev.slice(1));
-      play(nextTrackInQueue.id, [nextTrackInQueue, ...queue.slice(1)]);
-      return true;
+      play(nextTrackInQueue.id, currentPlaylist || podcasts);
+      return;
     }
-    return false;
-  }, [queue, play]);
-
-  const nextTrack = useCallback(() => {
-    if (playNextInQueue()) return;
-
-    // If queue is empty, do nothing
-  }, [playNextInQueue]);
+    
+    if (repeatMode === 'all' && currentPlaylist && currentPlaylist.length > 0) {
+      play(currentPlaylist[0].id, currentPlaylist);
+    }
+  }, [queue, play, currentPlaylist, podcasts, repeatMode]);
 
   const prevTrack = useCallback(() => {
     const playlist = currentPlaylist || podcasts;
     if (!playlist || playlist.length === 0) return;
+    
     const currentIndex = findCurrentTrackIndex();
 
-    // Find the original full playlist from which `currentPlaylist` was derived
-    const originalPlaylist = podcasts;
-    const originalIndex = originalPlaylist.findIndex(
-      (p) => p.id === currentTrack?.id,
-    );
-
-    if (originalIndex > 0) {
-      const prevTrackId = originalPlaylist[originalIndex - 1].id;
-      play(prevTrackId, originalPlaylist);
+    if (currentIndex > 0) {
+      const prevTrackId = playlist[currentIndex - 1].id;
+      play(prevTrackId, playlist);
+    } else if (repeatMode === 'all') {
+      const lastTrackId = playlist[playlist.length - 1].id;
+      play(lastTrackId, playlist);
     }
-  }, [currentPlaylist, podcasts, play, findCurrentTrackIndex, currentTrack]);
+  }, [currentPlaylist, podcasts, play, findCurrentTrackIndex, currentTrack, repeatMode]);
 
-  const playRandom = useCallback(() => {
+  const playRandom = useCallback((podcasts: Podcast[]) => {
     if (podcasts.length === 0) return;
     const randomIndex = Math.floor(Math.random() * podcasts.length);
     const randomPodcast = podcasts[randomIndex];
@@ -394,7 +426,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const closePlayer = useCallback(() => {
     if (audioRef.current) {
-      audioRef.current.pause();
+      pause();
       audioRef.current.src = "";
     }
     setCurrentTrack(null);
@@ -403,7 +435,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     setCurrentPlaylist(null);
     setProgress(0);
     setDuration(0);
-  }, []);
+  }, [pause]);
 
   const seek = (time: number) => {
     if (audioRef.current) {
@@ -454,7 +486,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
       setCurrentTrack(trackToPlay);
       setQueue(newQueue);
-      setCurrentPlaylist([trackToPlay, ...newQueue]);
+      setCurrentPlaylist([trackToPlay, ...newQueue, ...(currentPlaylist || [])]);
       addToHistory(trackToPlay);
       setAudioSource(trackToPlay, true);
     }
@@ -477,6 +509,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       newQueue.splice(newIndex, 0, movedTrack);
       
       return newQueue;
+    });
+  };
+
+  const toggleRepeatMode = () => {
+    setRepeatMode(prev => {
+      if (prev === 'off') return 'all';
+      if (prev === 'all') return 'one';
+      return 'off';
     });
   };
 
@@ -513,6 +553,16 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       setDuration(audioRef.current.duration);
     }
   };
+  
+  const handleTrackEnd = () => {
+    if (repeatMode === 'one' && currentTrack) {
+      seek(0);
+      play();
+    } else {
+      nextTrack();
+    }
+  };
+
 
   const setSleepTimer = useCallback(
     (minutes: number | null) => {
@@ -564,7 +614,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       audio.addEventListener("play", () => (lastTimeUpdate.current = Date.now()));
       audio.addEventListener("pause", onTimeUpdate); // Log remaining time on pause
       audio.addEventListener("loadedmetadata", onLoadedMetadata);
-      audio.addEventListener("ended", nextTrack);
+      audio.addEventListener("ended", handleTrackEnd);
 
       return () => {
         audio.removeEventListener("timeupdate", throttledTimeUpdate);
@@ -574,10 +624,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         );
         audio.removeEventListener("pause", onTimeUpdate);
         audio.removeEventListener("loadedmetadata", onLoadedMetadata);
-        audio.removeEventListener("ended", nextTrack);
+        audio.removeEventListener("ended", handleTrackEnd);
       };
     }
-  }, [nextTrack]);
+  }, [handleTrackEnd]);
 
   const value = {
     currentTrack,
@@ -611,6 +661,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     sleepTimer,
     setSleepTimer,
     listeningLog,
+    repeatMode,
+    toggleRepeatMode,
   };
 
   return (

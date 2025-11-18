@@ -15,6 +15,8 @@ import {
   VolumeX,
   ListMusic,
   X,
+  Repeat,
+  Repeat1,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -66,6 +68,8 @@ export default function Player() {
     seekForward,
     seekBackward,
     closePlayer,
+    repeatMode,
+    toggleRepeatMode,
   } = usePlayer();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -127,6 +131,11 @@ export default function Player() {
       />
     </div>
   )
+
+  const RepeatButtonIcon = useMemo(() => {
+    if (repeatMode === 'one') return Repeat1;
+    return Repeat;
+  }, [repeatMode]);
 
   return (
     <>
@@ -247,7 +256,7 @@ export default function Player() {
                     "text-base": isExpanded,
                   })}
                 >
-                  {currentTrack.artist.join(", ")}
+                  {Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}
                 </p>
               </div>
             </div>
@@ -405,7 +414,7 @@ export default function Player() {
                         className="h-10 w-24"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Moon className="mr-2" />{" "}
+                        <Moon className="mr-2 h-4 w-4" />{" "}
                         {sleepTimerDisplay || "Timer"}
                       </Button>
                     </DropdownMenuTrigger>
@@ -424,10 +433,22 @@ export default function Player() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleRepeatMode();
+                    }}
+                    className={cn("h-10 w-10", repeatMode !== 'off' && "text-primary bg-primary/10")}
+                  >
+                    <RepeatButtonIcon className="h-5 w-5" />
+                  </Button>
+
                   <div className="sm:hidden">
                     <Popover>
                         <PopoverTrigger asChild>
-                           <Button variant="outline" size="icon" className="h-10 w-8" onClick={(e) => e.stopPropagation()}>
+                           <Button variant="outline" size="icon" className="h-10 w-10" onClick={(e) => e.stopPropagation()}>
                              {volume > 0 ? <Volume2 /> : <VolumeX />}
                            </Button>
                         </PopoverTrigger>
@@ -466,7 +487,7 @@ export default function Player() {
               {isExpanded && (
                 <QueueSheet>
                   <Button variant="outline" className="w-full">
-                    <ListMusic className="mr-2" />
+                    <ListMusic className="mr-2 h-4 w-4" />
                     Playlist
                   </Button>
                 </QueueSheet>
