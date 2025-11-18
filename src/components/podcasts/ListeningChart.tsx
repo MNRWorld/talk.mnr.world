@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { format, subDays } from "date-fns";
 
 import { usePlayer } from "@/context/PlayerContext";
@@ -74,7 +74,15 @@ export default function ListeningChart() {
               }}
               className="h-[200px] w-full max-w-full"
             >
-              <BarChart accessibilityLayer data={chartData} barCategoryGap="20%">
+              <LineChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                }}
+              >
+                <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="date"
                   tickLine={false}
@@ -92,8 +100,19 @@ export default function ListeningChart() {
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="minutes" fill="var(--color-minutes)" radius={8} />
-              </BarChart>
+                <Line
+                  dataKey="minutes"
+                  type="monotone"
+                  stroke="var(--color-minutes)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: "var(--color-minutes)",
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              </LineChart>
             </ChartContainer>
           </div>
         </CardContent>
