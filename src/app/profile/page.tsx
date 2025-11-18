@@ -359,7 +359,9 @@ export default function ProfilePage() {
                     </>
                   )}
 
-                  <ListeningChart />
+                  <div className="hidden md:block">
+                    <ListeningChart />
+                  </div>
 
                   <Separator />
 
@@ -411,5 +413,3 @@ export default function ProfilePage() {
     </SidebarProvider>
   );
 }
-
-    
