@@ -359,9 +359,7 @@ export default function ProfilePage() {
                     </>
                   )}
 
-                  <div className="hidden md:block">
-                    <ListeningChart />
-                  </div>
+                  <ListeningChart />
 
                   <Separator />
 

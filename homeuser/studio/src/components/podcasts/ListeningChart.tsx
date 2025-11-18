@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { format, subDays } from "date-fns";
 
 import { usePlayer } from "@/context/PlayerContext";
@@ -19,6 +19,25 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Separator } from "../ui/separator";
+import { Progress } from "../ui/progress";
+
+const DailyActivityBars = ({ data }: { data: { date: string, minutes: number }[] }) => {
+  const maxMinutes = Math.max(...data.map(d => d.minutes), 1); // Avoid division by zero
+
+  return (
+    <div className="space-y-3">
+      {data.map(({ date, minutes }) => (
+        <div key={date} className="grid grid-cols-4 items-center gap-2">
+          <span className="col-span-1 text-sm text-muted-foreground">{date}</span>
+          <div className="col-span-2">
+            <Progress value={(minutes / maxMinutes) * 100} className="h-2" />
+          </div>
+          <span className="col-span-1 text-right text-sm font-medium">{minutes}m</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function ListeningChart() {
   const { listeningLog } = usePlayer();
@@ -63,8 +82,8 @@ export default function ListeningChart() {
             You listened for a total of {totalMinutes} minutes in the last 5 days.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex justify-center">
+        <CardContent className="p-2 pt-0 md:p-6">
+          <div className="hidden md:block">
             <ChartContainer
               config={{
                 minutes: {
@@ -74,7 +93,15 @@ export default function ListeningChart() {
               }}
               className="h-[200px] w-full max-w-full"
             >
-              <BarChart accessibilityLayer data={chartData} barCategoryGap="20%">
+              <LineChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                }}
+              >
+                <CartesianGrid vertical={false} />
                 <XAxis
                   dataKey="date"
                   tickLine={false}
@@ -92,9 +119,23 @@ export default function ListeningChart() {
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="minutes" fill="var(--color-minutes)" radius={8} />
-              </BarChart>
+                <Line
+                  dataKey="minutes"
+                  type="monotone"
+                  stroke="var(--color-minutes)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: "var(--color-minutes)",
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              </LineChart>
             </ChartContainer>
+          </div>
+          <div className="md:hidden">
+             <DailyActivityBars data={chartData} />
           </div>
         </CardContent>
       </Card>
