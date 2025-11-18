@@ -97,7 +97,8 @@ export default function ProfilePage() {
     const categoryCounts = new Map<string, number>();
 
     history.forEach((podcast) => {
-      podcast.artist.forEach(artist => {
+      const artists = Array.isArray(podcast.artist) ? podcast.artist : [podcast.artist];
+      artists.forEach(artist => {
         artistCounts.set(artist, (artistCounts.get(artist) || 0) + 1);
       });
 
@@ -348,6 +349,8 @@ export default function ProfilePage() {
                     )}
                   </div>
                   
+                  <ListeningChart />
+
                   {favoritePodcasts.length > 0 && (
                     <>
                       <Separator />
@@ -357,8 +360,6 @@ export default function ProfilePage() {
                       />
                     </>
                   )}
-
-                  <ListeningChart />
 
                   <Separator />
 
