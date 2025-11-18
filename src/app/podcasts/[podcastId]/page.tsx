@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Play } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
-import { podcasts as allPodcasts } from "@/lib/podcasts";
 import { usePlayer } from "@/context/PlayerContext";
 import AppSidebar from "@/components/layout/AppSidebar";
 import BottomNavBar from "@/components/layout/BottomNavBar";

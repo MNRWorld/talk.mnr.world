@@ -184,7 +184,7 @@ export default function Player() {
           <div
             className={cn("flex items-center", {
               "h-full justify-between px-4 sm:px-6": !isExpanded,
-              "flex-1 flex-col justify-center gap-8 px-8": isExpanded,
+              "flex-1 flex-col justify-center gap-4 px-8 pt-4 pb-2": isExpanded,
             })}
           >
             <div
@@ -229,7 +229,7 @@ export default function Player() {
                     "text-base": isExpanded,
                   })}
                 >
-                  {currentTrack.artist}
+                  {Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}
                 </p>
               </div>
             </div>
@@ -455,5 +455,3 @@ export default function Player() {
     </>
   );
 }
-
-    
