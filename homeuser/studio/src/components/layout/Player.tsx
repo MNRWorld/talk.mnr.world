@@ -14,6 +14,7 @@ import {
   Volume2,
   VolumeX,
   ListMusic,
+  X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -64,6 +65,7 @@ export default function Player() {
     setSleepTimer,
     seekForward,
     seekBackward,
+    closePlayer,
   } = usePlayer();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -109,7 +111,7 @@ export default function Player() {
   
   const VolumeControl = (
     <div className="flex w-full flex-1 items-center gap-2">
-      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setVolume(volume > 0 ? 0 : 0.5)}>
+      <Button variant="ghost" size="icon" className="h-10 w-8" onClick={() => setVolume(volume > 0 ? 0 : 0.5)}>
         {volume > 0 ? (
           <Volume2 className="h-5 w-5" />
         ) : (
@@ -194,22 +196,37 @@ export default function Player() {
                 "w-full flex-col": isExpanded,
               })}
             >
-              <motion.div
-                layoutId="player-image"
-                className={cn(
-                  "relative shrink-0",
-                  isExpanded
-                    ? "w-full aspect-square max-w-sm"
-                    : "h-12 w-12 sm:h-16 sm:w-16",
-                )}
-              >
-                <Image
-                  src={currentTrack.coverArt}
-                  alt={currentTrack.title}
-                  fill
-                  className="rounded-md object-cover"
-                />
-              </motion.div>
+              <div className="relative flex items-center">
+                 {!isExpanded && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute -left-10 z-10 h-8 w-8 rounded-full sm:hidden"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closePlayer();
+                      }}
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  )}
+                <motion.div
+                  layoutId="player-image"
+                  className={cn(
+                    "relative shrink-0",
+                    isExpanded
+                      ? "w-full aspect-square max-w-sm"
+                      : "h-12 w-12 sm:h-16 sm:w-16",
+                  )}
+                >
+                  <Image
+                    src={currentTrack.coverArt}
+                    alt={currentTrack.title}
+                    fill
+                    className="rounded-md object-cover"
+                  />
+                </motion.div>
+              </div>
               <div
                 className={cn("w-full overflow-hidden", {
                   "hidden sm:block": !isExpanded,
@@ -353,7 +370,7 @@ export default function Player() {
 
             <div
               className={cn("flex w-full items-center gap-4", {
-                "hidden sm:flex sm:w-1/4 sm:justify-end": !isExpanded,
+                "flex w-1/4 justify-end": !isExpanded,
                 "max-w-sm justify-center": isExpanded,
               })}
             >
@@ -410,7 +427,7 @@ export default function Player() {
                   <div className="sm:hidden">
                     <Popover>
                         <PopoverTrigger asChild>
-                           <Button variant="outline" size="icon" onClick={(e) => e.stopPropagation()}>
+                           <Button variant="outline" size="icon" className="h-10 w-8" onClick={(e) => e.stopPropagation()}>
                              {volume > 0 ? <Volume2 /> : <VolumeX />}
                            </Button>
                         </PopoverTrigger>
@@ -426,6 +443,26 @@ export default function Player() {
                  {VolumeControl}
               </div>
               
+              {!isExpanded && (
+                 <div className="flex flex-col items-center gap-0 sm:hidden">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                             {volume > 0 ? <Volume2 className="h-5 w-5"/> : <VolumeX className="h-5 w-5"/>}
+                           </Button>
+                        </PopoverTrigger>
+                        <PopoverContent side="top" onClick={(e) => e.stopPropagation()} className="w-48 p-2 mb-2">
+                           {VolumeControl}
+                        </PopoverContent>
+                    </Popover>
+                     <QueueSheet>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                           <ListMusic className="h-5 w-5" />
+                        </Button>
+                     </QueueSheet>
+                 </div>
+              )}
+
               {isExpanded && (
                 <QueueSheet>
                   <Button variant="outline" className="w-full">
