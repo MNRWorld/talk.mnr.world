@@ -148,6 +148,7 @@ export default function Player() {
       <motion.div
         className={cn(
           "fixed left-0 right-0 z-50 border-t border-border/50 bg-card/80 backdrop-blur-sm",
+          "md:scale-90 md:origin-bottom",
           isExpanded
             ? "bottom-0 top-0 h-screen pb-16 md:pb-0"
             : "bottom-16 h-24 md:bottom-0",
@@ -184,7 +185,7 @@ export default function Player() {
           <div
             className={cn("flex items-center", {
               "h-full justify-between px-4 sm:px-6": !isExpanded,
-              "flex-1 flex-col justify-center gap-4 px-8 pt-4 pb-2": isExpanded,
+              "flex-1 flex-col justify-center gap-8 px-8": isExpanded,
             })}
           >
             <div
@@ -362,7 +363,7 @@ export default function Player() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-8"
+                        className="w-24"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {playbackRate}x
