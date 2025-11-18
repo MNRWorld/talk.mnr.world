@@ -380,7 +380,7 @@ export default function Player() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-24"
+                        className="h-10 w-24"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {playbackRate}x
@@ -402,7 +402,7 @@ export default function Player() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-24"
+                        className="h-10 w-24"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Moon className="mr-2" />{" "}
