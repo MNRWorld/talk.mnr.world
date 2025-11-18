@@ -1,5 +1,13 @@
-
 [
+  {
+    "id": "12",
+    "title": "Quran Majeed - The Book That Contains the Unknown Truths of Humanity | Shaykh Ahmadullah & Mahmudul Hasan Sohag",
+    "artist": ["Mahmudul Hasan Sohag", "Shaykh Ahmadullah"],
+    "categories": ["Rokomari Boikotha", "Podcast"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Rokomari%20Boikotha/Quran_Majeed-The_Book_That_Contains_the_Unknown_Truths_of_Humanity_by_Shaykh_Ahmadullah_and_Mahmudul_Hasan_Sohag.png",
+    "coverArtHint": "Rokomari Boikotha Podcast",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Rokomari%20Boikotha/Quran_Majeed-The_Book_That_Contains_the_Unknown_Truths_of_Humanity_by_Shaykh_Ahmadullah_and_Mahmudul_Hasan_Sohag.opus"
+  },
   {
     "id": "11",
     "title": "Journey to the Light - 07",
@@ -87,7 +95,7 @@
     "title": "Allahu Allahu",
     "artist": ["Dr Muhammad Ibrahim"],
     "categories": ["Nasheed"],
-    "coverArt": "https://stream.mnr.world/0:/Talk/Nasheed/Dr%20Muhammad%20Ibrahim/Allahu_Allahu_Dr_Muhammad_Ibrahim.png",
+"coverArt": "https://stream.mnr.world/0:/Talk/Nasheed/Dr%20Muhammad%20Ibrahim/Allahu_Allahu_Dr_Muhammad_Ibrahim.png",
     "coverArtHint": "Nasheed",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Nasheed/Dr%20Muhammad%20Ibrahim/Allahu_Allahu_Dr_Muhammad_Ibrahim.opus"
   },
