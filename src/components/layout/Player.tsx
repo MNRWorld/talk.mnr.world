@@ -14,6 +14,7 @@ import {
   Volume2,
   VolumeX,
   ListMusic,
+  X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -64,6 +65,7 @@ export default function Player() {
     setSleepTimer,
     seekForward,
     seekBackward,
+    closePlayer,
   } = usePlayer();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -109,7 +111,7 @@ export default function Player() {
   
   const VolumeControl = (
     <div className="flex w-full flex-1 items-center gap-2">
-      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setVolume(volume > 0 ? 0 : 0.5)}>
+      <Button variant="ghost" size="icon" className="h-10 w-8" onClick={() => setVolume(volume > 0 ? 0 : 0.5)}>
         {volume > 0 ? (
           <Volume2 className="h-5 w-5" />
         ) : (
@@ -194,22 +196,37 @@ export default function Player() {
                 "w-full flex-col": isExpanded,
               })}
             >
-              <motion.div
-                layoutId="player-image"
-                className={cn(
-                  "relative shrink-0",
-                  isExpanded
-                    ? "w-full aspect-square max-w-sm"
-                    : "h-12 w-12 sm:h-16 sm:w-16",
-                )}
-              >
-                <Image
-                  src={currentTrack.coverArt}
-                  alt={currentTrack.title}
-                  fill
-                  className="rounded-md object-cover"
-                />
-              </motion.div>
+              <div className="relative flex items-center">
+                <motion.div
+                  layoutId="player-image"
+                  className={cn(
+                    "relative shrink-0",
+                    isExpanded
+                      ? "w-full aspect-square max-w-sm"
+                      : "h-12 w-12 sm:h-16 sm:w-16",
+                  )}
+                >
+                  <Image
+                    src={currentTrack.coverArt}
+                    alt={currentTrack.title}
+                    fill
+                    className="rounded-md object-cover"
+                  />
+                   {!isExpanded && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute -right-2 -top-2 z-10 h-6 w-6 rounded-full bg-card/80 p-1 sm:hidden"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        closePlayer();
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </motion.div>
+              </div>
               <div
                 className={cn("w-full overflow-hidden", {
                   "hidden sm:block": !isExpanded,
@@ -363,7 +380,7 @@ export default function Player() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-24"
+                        className="h-10 w-8"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {playbackRate}x
@@ -385,7 +402,7 @@ export default function Player() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-24"
+                        className="h-10 w-24"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Moon className="mr-2" />{" "}
@@ -410,7 +427,7 @@ export default function Player() {
                   <div className="sm:hidden">
                     <Popover>
                         <PopoverTrigger asChild>
-                           <Button variant="outline" size="icon" onClick={(e) => e.stopPropagation()}>
+                           <Button variant="outline" size="icon" className="h-10 w-10" onClick={(e) => e.stopPropagation()}>
                              {volume > 0 ? <Volume2 /> : <VolumeX />}
                            </Button>
                         </PopoverTrigger>
