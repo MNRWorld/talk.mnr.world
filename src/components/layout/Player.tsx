@@ -230,7 +230,7 @@ export default function Player() {
                     "text-base": isExpanded,
                   })}
                 >
-                  {currentTrack.artist.join(", ")}
+                  {Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}
                 </p>
               </div>
             </div>
@@ -352,13 +352,13 @@ export default function Player() {
             </div>
 
             <div
-              className={cn("flex w-full items-center justify-end gap-2", {
-                "w-1/3 sm:w-1/4": !isExpanded,
-                "w-full max-w-sm": isExpanded,
+              className={cn("flex w-full items-center gap-4", {
+                "hidden sm:flex sm:w-1/4 sm:justify-end": !isExpanded,
+                "max-w-sm justify-center": isExpanded,
               })}
             >
               {isExpanded && (
-                <>
+                <div className="flex w-full items-center justify-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -388,7 +388,7 @@ export default function Player() {
                         className="w-24"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Moon className="mr-2 h-4 w-4" />{" "}
+                        <Moon className="mr-2" />{" "}
                         {sleepTimerDisplay || "Timer"}
                       </Button>
                     </DropdownMenuTrigger>
@@ -406,40 +406,30 @@ export default function Player() {
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </>
+                  
+                  <div className="sm:hidden">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                           <Button variant="outline" size="icon" onClick={(e) => e.stopPropagation()}>
+                             {volume > 0 ? <Volume2 /> : <VolumeX />}
+                           </Button>
+                        </PopoverTrigger>
+                        <PopoverContent side="top" onClick={(e) => e.stopPropagation()} className="w-48 p-2">
+                           {VolumeControl}
+                        </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
               )}
-              
-              <div className="w-full max-w-xs">
-                <Popover>
-                    <PopoverTrigger asChild>
-                       <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} className={cn(!isExpanded && "hidden sm:flex")}>
-                         {volume > 0 ? <Volume2 /> : <VolumeX />}
-                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent side="top" onClick={(e) => e.stopPropagation()} className="w-48 p-2">
-                       {VolumeControl}
-                    </PopoverContent>
-                </Popover>
-              </div>
-              
-              
-              <div className="sm:hidden">
-                <Popover>
-                    <PopoverTrigger asChild>
-                       <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
-                         {volume > 0 ? <Volume2 /> : <VolumeX />}
-                       </Button>
-                    </PopoverTrigger>
-                    <PopoverContent side="top" onClick={(e) => e.stopPropagation()} className="w-48 p-2">
-                       {VolumeControl}
-                    </PopoverContent>
-                </Popover>
-              </div>
 
+              <div className="hidden sm:flex w-full flex-1 items-center gap-2">
+                 {VolumeControl}
+              </div>
+              
               {isExpanded && (
                 <QueueSheet>
                   <Button variant="outline" className="w-full">
-                    <ListMusic className="mr-2 h-4 w-4" />
+                    <ListMusic className="mr-2" />
                     Playlist
                   </Button>
                 </QueueSheet>
