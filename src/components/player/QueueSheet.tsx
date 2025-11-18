@@ -2,14 +2,13 @@
 "use client";
 
 import Image from "next/image";
-import { ListMusic, X, ChevronUp, ChevronDown, Save } from "lucide-react";
+import { ListMusic, X, ChevronUp, ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetFooter,
 } from "@/components/ui/sheet";
 import { usePlayer } from "@/context/PlayerContext";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import * as React from "react";
-import { SaveQueueDialog } from "../playlists/SaveQueueDialog";
 
 export function QueueSheet({ children }: { children: React.ReactNode }) {
   const {
@@ -28,11 +26,9 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
     moveTrackInQueue,
   } = usePlayer();
 
-  const hasQueue = (currentTrack || queue.length > 0);
-
   return (
     <Sheet>
-      <SheetTrigger asChild>{children}</SheetTrigger>
+      <SheetTrigger asChild onClick={(e) => e.stopPropagation()}>{children}</SheetTrigger>
       <SheetContent
         side="bottom"
         onClick={(e) => e.stopPropagation()}
@@ -70,7 +66,7 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                         {currentTrack.title}
                       </p>
                       <p className="truncate text-sm text-primary/80">
-                         {currentTrack.artist.join(", ")}
+                         {Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}
                       </p>
                     </div>
                   </div>
@@ -83,9 +79,6 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
 
               {queue.length > 0 ? (
                 <div className="space-y-2">
-                  <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
-                    Playlist
-                  </h3>
                   {queue.map((track, index) => (
                     <div
                       key={track.id}
@@ -125,7 +118,7 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
                         <div className="flex-1 overflow-hidden">
                           <p className="truncate font-semibold">{track.title}</p>
                           <p className="truncate text-sm text-muted-foreground">
-                             {track.artist.join(", ")}
+                             {Array.isArray(track.artist) ? track.artist.join(", ") : track.artist}
                           </p>
                         </div>
                       </button>
@@ -148,14 +141,6 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
             </div>
           </ScrollArea>
         </div>
-         <SheetFooter className="pt-4">
-          <SaveQueueDialog>
-            <Button className="w-full" disabled={!hasQueue}>
-              <Save className="mr-2 h-4 w-4" />
-              Save as Playlist
-            </Button>
-          </SaveQueueDialog>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

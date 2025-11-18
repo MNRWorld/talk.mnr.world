@@ -353,7 +353,7 @@ export default function Player() {
 
             <div
               className={cn("flex w-full items-center gap-4", {
-                "hidden sm:flex sm:w-1/4 sm:justify-end": !isExpanded,
+                "flex w-1/4 justify-end": !isExpanded,
                 "max-w-sm justify-center": isExpanded,
               })}
             >
@@ -426,6 +426,26 @@ export default function Player() {
                  {VolumeControl}
               </div>
               
+              {!isExpanded && (
+                 <div className="flex items-center gap-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                           <Button variant="ghost" size="icon" className="h-8 w-8 sm:hidden" onClick={(e) => e.stopPropagation()}>
+                             {volume > 0 ? <Volume2 className="h-5 w-5"/> : <VolumeX className="h-5 w-5"/>}
+                           </Button>
+                        </PopoverTrigger>
+                        <PopoverContent side="top" onClick={(e) => e.stopPropagation()} className="w-48 p-2">
+                           {VolumeControl}
+                        </PopoverContent>
+                    </Popover>
+                     <QueueSheet>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 sm:hidden" onClick={(e) => e.stopPropagation()}>
+                           <ListMusic className="h-5 w-5" />
+                        </Button>
+                     </QueueSheet>
+                 </div>
+              )}
+
               {isExpanded && (
                 <QueueSheet>
                   <Button variant="outline" className="w-full">
