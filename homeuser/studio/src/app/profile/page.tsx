@@ -37,6 +37,7 @@ import ListeningChart from "@/components/podcasts/ListeningChart";
 import { usePlaylist } from "@/context/PlaylistContext";
 import { usePodcast } from "@/context/PodcastContext";
 import CategorySection from "@/components/podcasts/CategorySection";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -73,6 +74,7 @@ export default function ProfilePage() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const importFileInputRef = React.useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -95,7 +97,11 @@ export default function ProfilePage() {
     const categoryCounts = new Map<string, number>();
 
     history.forEach((podcast) => {
-      artistCounts.set(podcast.artist, (artistCounts.get(podcast.artist) || 0) + 1);
+      const artists = Array.isArray(podcast.artist) ? podcast.artist : [podcast.artist];
+      artists.forEach(artist => {
+        artistCounts.set(artist, (artistCounts.get(artist) || 0) + 1);
+      });
+
       podcast.categories.forEach((category) => {
         categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
       });
@@ -255,7 +261,8 @@ export default function ProfilePage() {
                   "pb-24 md:pb-8",
                 )}
               >
-                <div className="mx-auto max-w-2xl space-y-8">
+               <div className="mx-auto max-w-2xl">
+                <div className="space-y-8">
                   <h1 className="text-center font-headline text-3xl font-bold tracking-tight">
                     Edit Profile
                   </h1>
@@ -320,7 +327,7 @@ export default function ProfilePage() {
                   <div className="space-y-4">
                     <h2 className="text-center text-lg font-medium">Your Stats</h2>
                     {stats ? (
-                       <div className="grid gap-4 md:grid-cols-3">
+                       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <StatCard
                           title="Audio Played"
                           value={stats.totalPlayed.toString()}
@@ -391,6 +398,7 @@ export default function ProfilePage() {
                     Logout
                   </Button>
                 </div>
+                </div>
               </main>
             </ScrollArea>
           </SidebarInset>
@@ -403,3 +411,7 @@ export default function ProfilePage() {
     </SidebarProvider>
   );
 }
+
+    
+
+    
