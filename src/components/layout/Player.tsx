@@ -191,8 +191,8 @@ export default function Player() {
             })}
           >
             <div
-              className={cn("flex items-center gap-4", {
-                "w-1/3 sm:w-1/4": !isExpanded,
+              className={cn("flex gap-4", {
+                "w-1/3 sm:w-1/4 items-center": !isExpanded,
                 "w-full flex-col": isExpanded,
               })}
             >
