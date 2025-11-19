@@ -69,7 +69,8 @@ interface PlayerContextType {
   nextTrack: () => void;
   prevTrack: () => void;
   playRandom: (podcasts: Podcast[]) => void;
-  shuffleQueue: () => void;
+  toggleShuffle: () => void;
+  isShuffled: boolean;
   closePlayer: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
   progress: number;
@@ -123,6 +124,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     {},
   );
   const [queue, setQueue] = useState<Podcast[]>([]);
+  const [originalQueue, setOriginalQueue] = useState<Podcast[]>([]);
+  const [isShuffled, setIsShuffled] = useState(false);
   const [playbackRate, setPlaybackRateState] = useState(1);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("off");
   const [sleepTimer, setSleepTimerState] = useState<SleepTimerInfo>({
@@ -318,9 +321,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (trackToPlay) {
-        const newPlaylist = playlistToUse.slice(startFromIndex);
+        const newQueue = playlistToUse.slice(startFromIndex + 1);
         setCurrentPlaylist(playlistToUse);
-        setQueue(playlistToUse.slice(startFromIndex + 1));
+        setQueue(newQueue);
+        setOriginalQueue(newQueue); // Store original order
+        setIsShuffled(false); // Reset shuffle state
 
 
         if (currentTrack?.id !== trackToPlay.id) {
@@ -395,7 +400,13 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const nextTrack = useCallback(() => {
     if (queue.length > 0) {
       const nextTrackInQueue = queue[0];
-      setQueue((prev) => prev.slice(1));
+      const newQueue = queue.slice(1);
+      
+      if(isShuffled) {
+        setOriginalQueue(prev => prev.filter(t => t.id !== nextTrackInQueue.id));
+      }
+      setQueue(newQueue);
+
       play(nextTrackInQueue.id, currentPlaylist || podcasts);
       return;
     }
@@ -405,7 +416,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       const nextIndex = (currentIndex + 1) % currentPlaylist.length;
       play(currentPlaylist[nextIndex].id, currentPlaylist);
     }
-  }, [queue, play, currentPlaylist, podcasts, repeatMode, findCurrentTrackIndex]);
+  }, [queue, play, currentPlaylist, podcasts, repeatMode, findCurrentTrackIndex, isShuffled]);
 
   const prevTrack = useCallback(() => {
     const playlist = currentPlaylist || podcasts;
@@ -429,17 +440,21 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     play(randomPodcast.id, podcastsToShuffle);
   }, [play]);
 
-  const shuffleQueue = useCallback(() => {
-    setQueue(prevQueue => {
-      const newQueue = [...prevQueue];
+  const toggleShuffle = useCallback(() => {
+    if (isShuffled) {
+      setQueue(originalQueue);
+      setIsShuffled(false);
+    } else {
+      const shuffled = [...queue];
       // Fisher-Yates (aka Knuth) Shuffle
-      for (let i = newQueue.length - 1; i > 0; i--) {
+      for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [newQueue[i], newQueue[j]] = [newQueue[j], newQueue[i]];
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
-      return newQueue;
-    });
-  }, []);
+      setQueue(shuffled);
+      setIsShuffled(true);
+    }
+  }, [isShuffled, queue, originalQueue]);
 
 
   const closePlayer = useCallback(() => {
@@ -496,7 +511,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addToQueue = (track: Podcast) => {
     if (!queue.find((t) => t.id === track.id) && currentTrack?.id !== track.id) {
-      setQueue((prev) => [...prev, track]);
+       const newQueue = [...queue, track];
+       setQueue(newQueue);
+       if (!isShuffled) {
+         setOriginalQueue(newQueue);
+       }
     }
   };
 
@@ -508,6 +527,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
       setCurrentTrack(trackToPlay);
       setQueue(newQueue);
+      setOriginalQueue(newQueue);
+      setIsShuffled(false);
       setCurrentPlaylist([trackToPlay, ...newQueue, ...(currentPlaylist || [])]);
       addToHistory(trackToPlay);
       setAudioSource(trackToPlay, true);
@@ -515,23 +536,34 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const removeFromQueue = (trackId: string) => {
-    setQueue((prev) => prev.filter((t) => t.id !== trackId));
+    const newQueue = queue.filter((t) => t.id !== trackId);
+    setQueue(newQueue);
+     if (!isShuffled) {
+        setOriginalQueue(newQueue);
+     } else {
+        setOriginalQueue(originalQueue.filter((t) => t.id !== trackId));
+     }
   };
   
   const moveTrackInQueue = (trackId: string, direction: "up" | "down") => {
-    setQueue(prevQueue => {
-      const index = prevQueue.findIndex(t => t.id === trackId);
-      if (index === -1) return prevQueue;
+    const reorder = (list: Podcast[]) => {
+      const index = list.findIndex(t => t.id === trackId);
+      if (index === -1) return list;
 
-      const newIndex = direction === "up" ? index - 1 : index + 1;
-      if (newIndex < 0 || newIndex >= prevQueue.length) return prevQueue;
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+      if (newIndex < 0 || newIndex >= list.length) return list;
       
-      const newQueue = [...prevQueue];
-      const [movedTrack] = newQueue.splice(index, 1);
-      newQueue.splice(newIndex, 0, movedTrack);
+      const newList = [...list];
+      const [movedTrack] = newList.splice(index, 1);
+      newList.splice(newIndex, 0, movedTrack);
       
-      return newQueue;
-    });
+      return newList;
+    }
+
+    setQueue(prev => reorder(prev));
+    if (!isShuffled) {
+       setOriginalQueue(prev => reorder(prev));
+    }
   };
 
   const toggleRepeatMode = () => {
@@ -661,7 +693,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     nextTrack,
     prevTrack,
     playRandom,
-    shuffleQueue,
+    toggleShuffle,
+    isShuffled,
     closePlayer,
     audioRef,
     progress,
