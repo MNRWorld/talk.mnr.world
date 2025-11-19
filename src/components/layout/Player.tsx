@@ -204,8 +204,8 @@ const ExpandedPlayerMobile = () => {
         />
       </motion.div>
       <div className="w-full overflow-hidden text-center">
-        <h3 className="text-2xl font-bold">{currentTrack.title}</h3>
-        <p className="text-base text-muted-foreground">{Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}</p>
+        <h3 className="text-2xl font-bold line-clamp-none">{currentTrack.title}</h3>
+        <p className="truncate text-base text-muted-foreground">{Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}</p>
       </div>
 
       <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-4">
@@ -321,7 +321,7 @@ const ExpandedPlayerDesktop = () => {
 
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         <div className="w-full overflow-hidden text-center">
-          <h3 className="text-2xl font-bold">{currentTrack.title}</h3>
+          <h3 className="text-2xl font-bold line-clamp-none">{currentTrack.title}</h3>
           <p className="truncate text-base text-muted-foreground">{Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}</p>
         </div>
         
@@ -334,7 +334,7 @@ const ExpandedPlayerDesktop = () => {
           <PlayerControls isExpanded={true} />
         </div>
 
-        <div className="flex w-full items-center justify-between gap-2">
+        <div className="flex w-full items-center justify-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="h-10 w-10" onClick={(e) => e.stopPropagation()}>
@@ -375,8 +375,9 @@ const ExpandedPlayerDesktop = () => {
               <RepeatButtonIcon className="h-5 w-5" />
             </Button>
             <QueueSheet>
-              <Button variant="outline" size="icon" className="h-10 w-10">
-                <ListMusic className="h-5 w-5" />
+              <Button variant="outline" className="h-10 w-auto px-4">
+                <ListMusic className="mr-2 h-5 w-5" />
+                Playlist
               </Button>
             </QueueSheet>
         </div>
