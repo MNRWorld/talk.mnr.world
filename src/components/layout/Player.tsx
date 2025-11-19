@@ -178,8 +178,6 @@ const ExpandedPlayerMobile = () => {
     setSleepTimer,
     toggleRepeatMode,
     repeatMode,
-    toggleShuffle,
-    isShuffled,
     volume,
     setVolume,
   } = usePlayer();
@@ -251,7 +249,7 @@ const ExpandedPlayerMobile = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="h-10 flex-grow" onClick={(e) => e.stopPropagation()}>
-                  <Moon className="mr-2 h-4 w-4" /> {sleepTimerDisplay || "Timer"}
+                  <Moon className="mr-2 h-4 w-4" /> {sleepTimerDisplay || ""}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
@@ -272,14 +270,16 @@ const ExpandedPlayerMobile = () => {
             >
               <RepeatButtonIcon className="h-5 w-5" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={(e) => { e.stopPropagation(); toggleShuffle(); }}
-              className={cn("h-10 w-10", isShuffled && "text-primary bg-primary/10")}
-            >
-              <Shuffle className="h-5 w-5" />
-            </Button>
+             <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-10 w-10" onClick={(e) => e.stopPropagation()}>
+                    <Volume2 className="h-5 w-5"/>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent side="top" onClick={(e) => e.stopPropagation()} className="w-48 p-2 mb-2">
+                  {VolumeControl}
+                </PopoverContent>
+            </Popover>
             <QueueSheet>
               <Button variant="outline" size="icon" className="h-10 w-10">
                 <ListMusic className="h-5 w-5" />

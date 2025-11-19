@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { ListMusic, X, ChevronUp, ChevronDown } from "lucide-react";
+import { ListMusic, X, ChevronUp, ChevronDown, Shuffle } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -24,6 +24,8 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
     playTrackFromQueue,
     removeFromQueue,
     moveTrackInQueue,
+    toggleShuffle,
+    isShuffled,
   } = usePlayer();
 
   return (
@@ -34,11 +36,19 @@ export function QueueSheet({ children }: { children: React.ReactNode }) {
         onClick={(e) => e.stopPropagation()}
         className="flex h-[60vh] flex-col rounded-t-lg"
       >
-        <SheetHeader>
+        <SheetHeader className="flex-row items-center justify-between">
           <SheetTitle className="flex items-center gap-2">
             <ListMusic />
             Playlist
           </SheetTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => { e.stopPropagation(); toggleShuffle(); }}
+            className={cn("h-8 w-8", isShuffled && "text-primary bg-primary/10")}
+          >
+            <Shuffle className="h-5 w-5" />
+          </Button>
         </SheetHeader>
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-full pr-4">
