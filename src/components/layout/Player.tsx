@@ -523,20 +523,9 @@ export default function Player() {
              <div className="flex h-full items-center justify-between px-4 sm:px-6">
                 <div className="flex w-1/3 items-center gap-4 sm:w-1/4">
                   <div className="relative flex items-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -left-10 z-10 h-8 w-8 rounded-full sm:hidden"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        closePlayer();
-                      }}
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
                     <motion.div
                       layoutId="player-image"
-                      className="relative h-12 w-12 shrink-0 sm:h-16 sm:w-16"
+                      className="group relative h-12 w-12 shrink-0 sm:h-16 sm:w-16"
                     >
                       <Image
                         src={currentTrack.coverArt}
@@ -544,6 +533,17 @@ export default function Player() {
                         fill
                         className="rounded-md object-cover"
                       />
+                       <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -right-2 -top-2 z-10 h-6 w-6 rounded-full bg-card/80 p-1 text-muted-foreground opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closePlayer();
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </motion.div>
                   </div>
                   <div className="hidden w-full overflow-hidden sm:block">
