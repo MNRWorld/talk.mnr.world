@@ -20,7 +20,7 @@ export function DisclaimerDialog({ children }: { children: ReactNode }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+        <DialogHeader className="text-center sm:text-center">
           <DialogTitle>Disclaimer</DialogTitle>
           <DialogDescription>
             এখানে ব্যবহৃত সব অডিও শুধুমাত্র দাওয়াহ ও শিক্ষামূলক উদ্দেশ্যে
@@ -28,7 +28,7 @@ export function DisclaimerDialog({ children }: { children: ReactNode }) {
             অসুবিধা থাকলে অনুগ্রহ করে আমাদের সাথে যোগাযোগ করুন: mail@mnr.world
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+        <DialogFooter className="sm:justify-center">
           <Button onClick={() => setOpen(false)}>Close</Button>
         </DialogFooter>
       </DialogContent>
