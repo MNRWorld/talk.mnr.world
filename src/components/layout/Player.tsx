@@ -180,6 +180,8 @@ const ExpandedPlayerMobile = () => {
     repeatMode,
     toggleShuffle,
     isShuffled,
+    volume,
+    setVolume,
   } = usePlayer();
   
   const sleepTimerDisplay = useMemo(() => {
@@ -193,6 +195,15 @@ const ExpandedPlayerMobile = () => {
     if (repeatMode === 'one') return Repeat1;
     return Repeat;
   }, [repeatMode]);
+
+  const VolumeControl = (
+    <div className="flex w-full items-center gap-2">
+      <Button variant="ghost" size="icon" className="h-10 w-8" onClick={() => setVolume(volume > 0 ? 0 : 0.5)}>
+        {volume > 0 ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+      </Button>
+      <Slider value={[volume]} max={1} step={0.01} onValueChange={(v) => setVolume(v[0])} className="w-full flex-1" />
+    </div>
+  );
 
   if (!currentTrack) return null;
 
@@ -275,6 +286,7 @@ const ExpandedPlayerMobile = () => {
               </Button>
             </QueueSheet>
         </div>
+        {VolumeControl}
       </div>
     </div>
   );
@@ -365,7 +377,7 @@ const ExpandedPlayerDesktop = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 flex-grow" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" className="h-10 w-20" onClick={(e) => e.stopPropagation()}>
                   <Moon className="mr-2 h-4 w-4" /> {sleepTimerDisplay || "Timer"}
                 </Button>
               </DropdownMenuTrigger>
