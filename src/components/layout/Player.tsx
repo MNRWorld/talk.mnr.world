@@ -178,7 +178,7 @@ const ExpandedPlayerMobile = () => {
     setSleepTimer,
     toggleRepeatMode,
     repeatMode,
-    playRandomFromCurrentPlaylist
+    shuffleQueue
   } = usePlayer();
   
   const sleepTimerDisplay = useMemo(() => {
@@ -263,7 +263,7 @@ const ExpandedPlayerMobile = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={(e) => { e.stopPropagation(); playRandomFromCurrentPlaylist(); }}
+              onClick={(e) => { e.stopPropagation(); shuffleQueue(); }}
               className="h-10 w-10"
             >
               <Shuffle className="h-5 w-5" />
@@ -293,7 +293,7 @@ const ExpandedPlayerDesktop = () => {
     repeatMode,
     volume,
     setVolume,
-    playRandomFromCurrentPlaylist
+    shuffleQueue,
   } = usePlayer();
 
   const sleepTimerDisplay = useMemo(() => {
@@ -388,7 +388,7 @@ const ExpandedPlayerDesktop = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={(e) => { e.stopPropagation(); playRandomFromCurrentPlaylist(); }}
+              onClick={(e) => { e.stopPropagation(); shuffleQueue(); }}
               className="h-10 w-10"
             >
               <Shuffle className="h-5 w-5" />

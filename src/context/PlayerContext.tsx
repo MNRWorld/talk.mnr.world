@@ -69,7 +69,7 @@ interface PlayerContextType {
   nextTrack: () => void;
   prevTrack: () => void;
   playRandom: (podcasts: Podcast[]) => void;
-  playRandomFromCurrentPlaylist: () => void;
+  shuffleQueue: () => void;
   closePlayer: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
   progress: number;
@@ -429,19 +429,17 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     play(randomPodcast.id, podcastsToShuffle);
   }, [play]);
 
-  const playRandomFromCurrentPlaylist = useCallback(() => {
-    const playlist = currentPlaylist || podcasts;
-    if (!playlist || playlist.length < 1) return;
-
-    let playlistToShuffle = playlist;
-    if (playlist.length > 1) {
-      playlistToShuffle = playlist.filter(p => p.id !== currentTrack?.id);
-    }
-    
-    const randomIndex = Math.floor(Math.random() * playlistToShuffle.length);
-    const randomPodcast = playlistToShuffle[randomIndex];
-    play(randomPodcast.id, playlist);
-  }, [currentPlaylist, podcasts, play, currentTrack]);
+  const shuffleQueue = useCallback(() => {
+    setQueue(prevQueue => {
+      const newQueue = [...prevQueue];
+      // Fisher-Yates (aka Knuth) Shuffle
+      for (let i = newQueue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newQueue[i], newQueue[j]] = [newQueue[j], newQueue[i]];
+      }
+      return newQueue;
+    });
+  }, []);
 
 
   const closePlayer = useCallback(() => {
@@ -663,7 +661,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     nextTrack,
     prevTrack,
     playRandom,
-    playRandomFromCurrentPlaylist,
+    shuffleQueue,
     closePlayer,
     audioRef,
     progress,
