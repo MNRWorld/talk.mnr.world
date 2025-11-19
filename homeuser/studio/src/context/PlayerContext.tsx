@@ -76,6 +76,7 @@ interface PlayerContextType {
   seek: (time: number) => void;
   seekForward: () => void;
   seekBackward: () => void;
+  handleProgressChange: (value: number[]) => void;
   volume: number;
   setVolume: (volume: number) => void;
   history: Podcast[];
@@ -444,6 +445,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const handleProgressChange = (value: number[]) => {
+    seek(value[0]);
+  };
+
   const seekForward = () => {
     if (audioRef.current) {
       const newTime = Math.min(audioRef.current.currentTime + 10, duration);
@@ -646,6 +651,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     seek,
     seekForward,
     seekBackward,
+    handleProgressChange,
     volume,
     setVolume,
     history,
