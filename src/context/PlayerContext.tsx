@@ -69,6 +69,7 @@ interface PlayerContextType {
   nextTrack: () => void;
   prevTrack: () => void;
   playRandom: (podcasts: Podcast[]) => void;
+  playRandomFromCurrentPlaylist: () => void;
   closePlayer: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
   progress: number;
@@ -421,12 +422,25 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentPlaylist, podcasts, play, findCurrentTrackIndex, repeatMode]);
 
-  const playRandom = useCallback((podcasts: Podcast[]) => {
-    if (podcasts.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * podcasts.length);
-    const randomPodcast = podcasts[randomIndex];
-    play(randomPodcast.id, podcasts);
-  }, [podcasts, play]);
+  const playRandom = useCallback((podcastsToShuffle: Podcast[]) => {
+    if (podcastsToShuffle.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * podcastsToShuffle.length);
+    const randomPodcast = podcastsToShuffle[randomIndex];
+    play(randomPodcast.id, podcastsToShuffle);
+  }, [play]);
+
+  const playRandomFromCurrentPlaylist = useCallback(() => {
+    const playlist = currentPlaylist || podcasts;
+    if (!playlist || playlist.length === 0) return;
+
+    const playlistToShuffle = playlist.filter(p => p.id !== currentTrack?.id);
+    const effectivePlaylist = playlistToShuffle.length > 0 ? playlistToShuffle : playlist;
+    
+    const randomIndex = Math.floor(Math.random() * effectivePlaylist.length);
+    const randomPodcast = effectivePlaylist[randomIndex];
+    play(randomPodcast.id, playlist);
+  }, [currentPlaylist, podcasts, play, currentTrack]);
+
 
   const closePlayer = useCallback(() => {
     if (audioRef.current) {
@@ -647,6 +661,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     nextTrack,
     prevTrack,
     playRandom,
+    playRandomFromCurrentPlaylist,
     closePlayer,
     audioRef,
     progress,

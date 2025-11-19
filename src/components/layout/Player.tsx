@@ -17,6 +17,7 @@ import {
   X,
   Repeat,
   Repeat1,
+  Shuffle,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -176,7 +177,8 @@ const ExpandedPlayerMobile = () => {
     sleepTimer,
     setSleepTimer,
     toggleRepeatMode,
-    repeatMode
+    repeatMode,
+    playRandomFromCurrentPlaylist
   } = usePlayer();
   
   const sleepTimerDisplay = useMemo(() => {
@@ -258,6 +260,14 @@ const ExpandedPlayerMobile = () => {
             >
               <RepeatButtonIcon className="h-5 w-5" />
             </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={(e) => { e.stopPropagation(); playRandomFromCurrentPlaylist(); }}
+              className="h-10 w-10"
+            >
+              <Shuffle className="h-5 w-5" />
+            </Button>
             <QueueSheet>
               <Button variant="outline" size="icon" className="h-10 w-10">
                 <ListMusic className="h-5 w-5" />
@@ -283,6 +293,7 @@ const ExpandedPlayerDesktop = () => {
     repeatMode,
     volume,
     setVolume,
+    playRandomFromCurrentPlaylist
   } = usePlayer();
 
   const sleepTimerDisplay = useMemo(() => {
@@ -373,6 +384,14 @@ const ExpandedPlayerDesktop = () => {
               className={cn("h-10 w-10", repeatMode !== 'off' && "text-primary bg-primary/10")}
             >
               <RepeatButtonIcon className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={(e) => { e.stopPropagation(); playRandomFromCurrentPlaylist(); }}
+              className="h-10 w-10"
+            >
+              <Shuffle className="h-5 w-5" />
             </Button>
             <QueueSheet>
               <Button variant="outline" className="h-10 w-auto px-4">
