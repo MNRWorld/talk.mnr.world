@@ -28,7 +28,7 @@ interface PodcastPageProps {
 
 const PodcastPage = ({ params }: PodcastPageProps) => {
   const { podcastId } = React.use(params);
-  const { play, autoPlay } = usePlayer();
+  const { play, autoPlay, isExpanded } = usePlayer();
   const { podcasts: allPodcasts } = usePodcast();
   const podcast = allPodcasts.find((p) => p.id === podcastId);
 
@@ -90,7 +90,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
           <AnimatePresence>
             <Player />
           </AnimatePresence>
-          <BottomNavBar />
+          {!isExpanded && <BottomNavBar />}
         </div>
       </SidebarProvider>
     );
@@ -116,7 +116,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     );
   }
@@ -183,7 +183,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

@@ -62,6 +62,8 @@ type RepeatMode = "off" | "one" | "all";
 interface PlayerContextType {
   currentTrack: Podcast | null;
   isPlaying: boolean;
+  isExpanded: boolean;
+  setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
   play: (trackId?: string, playlist?: Podcast[]) => void;
   autoPlay: (trackId?: string, playlist?: Podcast[]) => void;
   pause: () => void;
@@ -116,6 +118,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     null,
   );
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(1);
@@ -686,6 +689,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const value = {
     currentTrack,
     isPlaying,
+    isExpanded,
+    setIsExpanded,
     play,
     autoPlay,
     pause,

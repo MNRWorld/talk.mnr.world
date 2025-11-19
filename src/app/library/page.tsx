@@ -16,8 +16,10 @@ import PlaylistList from "@/components/playlists/PlaylistList";
 import PredefinedPlaylistSection from "@/components/playlists/PredefinedPlaylistSection";
 import { cn } from "@/lib/utils";
 import CategorySection from "@/components/podcasts/CategorySection";
+import { usePlayer } from "@/context/PlayerContext";
 
 export default function LibraryPage() {
+  const { isExpanded } = usePlayer();
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col bg-background">
@@ -57,7 +59,7 @@ export default function LibraryPage() {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

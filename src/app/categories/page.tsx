@@ -13,8 +13,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { usePlayer } from "@/context/PlayerContext";
 
 const Page = () => {
+  const { isExpanded } = usePlayer();
   const allCategories = Array.from(
     new Set(podcasts.flatMap((p) => p.categories)),
   ).sort();
@@ -92,7 +94,7 @@ const Page = () => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

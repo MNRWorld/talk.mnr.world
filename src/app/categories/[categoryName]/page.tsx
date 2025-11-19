@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { usePlayer } from "@/context/PlayerContext";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -31,6 +32,7 @@ interface CategoryPageProps {
 const CategoryPage = ({ params }: CategoryPageProps) => {
   const { categoryName: encodedCategoryName } = React.use(params);
   const categoryName = decodeURIComponent(encodedCategoryName);
+  const { isExpanded } = usePlayer();
 
   const [sortOrder, setSortOrder] = React.useState("newest");
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -112,7 +114,7 @@ const CategoryPage = ({ params }: CategoryPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { usePlayer } from "@/context/PlayerContext";
 
 interface ArtistPageProps {
   params: Promise<{
@@ -31,6 +32,7 @@ interface ArtistPageProps {
 const ArtistPage = ({ params }: ArtistPageProps) => {
   const { artistName: encodedArtistName } = React.use(params);
   const artistName = decodeURIComponent(encodedArtistName);
+  const { isExpanded } = usePlayer();
 
   const [sortOrder, setSortOrder] = React.useState("newest");
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -110,7 +112,7 @@ const ArtistPage = ({ params }: ArtistPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

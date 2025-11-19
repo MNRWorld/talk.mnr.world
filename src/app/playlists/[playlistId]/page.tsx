@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { usePlayer } from "@/context/PlayerContext";
 
 interface PlaylistPageProps {
   params: Promise<{
@@ -33,6 +34,7 @@ interface PlaylistPageProps {
 
 const PlaylistPage = ({ params }: PlaylistPageProps) => {
   const { playlistId } = React.use(params);
+  const { isExpanded } = usePlayer();
   const {
     getPlaylistById,
     getPodcastsForPlaylist,
@@ -124,7 +126,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
           <AnimatePresence>
             <Player />
           </AnimatePresence>
-          <BottomNavBar />
+          {!isExpanded && <BottomNavBar />}
         </div>
       </SidebarProvider>
     );
@@ -221,7 +223,7 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

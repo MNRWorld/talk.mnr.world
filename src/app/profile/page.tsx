@@ -65,7 +65,7 @@ const StatCard = ({
 
 export default function ProfilePage() {
   const { user, login, logout } = useUser();
-  const { history, listeningLog } = usePlayer();
+  const { history, listeningLog, isExpanded } = usePlayer();
   const { podcasts } = usePodcast();
   const { getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID } = usePlaylist();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(
@@ -406,7 +406,7 @@ export default function ProfilePage() {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

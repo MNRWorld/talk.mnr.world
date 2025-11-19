@@ -1,3 +1,5 @@
+
+"use client";
 import { AnimatePresence } from "framer-motion";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import Player from "@/components/layout/Player";
@@ -6,8 +8,10 @@ import AppSidebar from "@/components/layout/AppSidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
+import { usePlayer } from "@/context/PlayerContext";
 
 export default function Home() {
+  const { isExpanded } = usePlayer();
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col bg-background">
@@ -23,7 +27,7 @@ export default function Home() {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );
