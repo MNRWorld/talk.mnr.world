@@ -17,6 +17,7 @@ import {
   X,
   Repeat,
   Repeat1,
+  Shuffle,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
@@ -176,7 +177,9 @@ const ExpandedPlayerMobile = () => {
     sleepTimer,
     setSleepTimer,
     toggleRepeatMode,
-    repeatMode
+    repeatMode,
+    toggleShuffle,
+    isShuffled,
   } = usePlayer();
   
   const sleepTimerDisplay = useMemo(() => {
@@ -195,7 +198,7 @@ const ExpandedPlayerMobile = () => {
 
   return (
     <div className="flex flex-1 flex-col justify-center gap-8 px-8">
-      <motion.div layoutId="player-image" className="relative aspect-square w-full max-w-sm mx-auto">
+      <motion.div layoutId="player-image" className="relative mx-auto aspect-square w-full max-w-sm">
         <Image
           src={currentTrack.coverArt}
           alt={currentTrack.title}
@@ -204,11 +207,11 @@ const ExpandedPlayerMobile = () => {
         />
       </motion.div>
       <div className="w-full overflow-hidden text-center">
-        <h3 className="truncate text-2xl font-bold">{currentTrack.title}</h3>
-        <p className="truncate text-base text-muted-foreground">{currentTrack.artist.join(", ")}</p>
+        <h3 className="text-2xl font-bold line-clamp-none">{currentTrack.title}</h3>
+        <p className="truncate text-base text-muted-foreground">{Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}</p>
       </div>
 
-      <div className="flex w-full max-w-sm flex-col items-center justify-center gap-4 mx-auto">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-4">
         <div className="flex w-full items-center gap-4">
           <span className="w-10 text-right text-xs text-muted-foreground">{formatTime(progress)}</span>
           <Slider value={[progress]} max={duration} step={1} onValueChange={handleProgressChange} className="w-full" />
@@ -217,11 +220,11 @@ const ExpandedPlayerMobile = () => {
         <PlayerControls isExpanded={true} />
       </div>
       
-      <div className="max-w-sm w-full mx-auto space-y-4">
+      <div className="mx-auto w-full max-w-sm space-y-4">
         <div className="flex w-full items-center justify-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 w-24" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" className="h-10 flex-grow" onClick={(e) => e.stopPropagation()}>
                   {playbackRate}x
                 </Button>
               </DropdownMenuTrigger>
@@ -236,7 +239,7 @@ const ExpandedPlayerMobile = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 w-24" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" className="h-10 flex-grow" onClick={(e) => e.stopPropagation()}>
                   <Moon className="mr-2 h-4 w-4" /> {sleepTimerDisplay || "Timer"}
                 </Button>
               </DropdownMenuTrigger>
@@ -258,12 +261,20 @@ const ExpandedPlayerMobile = () => {
             >
               <RepeatButtonIcon className="h-5 w-5" />
             </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={(e) => { e.stopPropagation(); toggleShuffle(); }}
+              className={cn("h-10 w-10", isShuffled && "text-primary bg-primary/10")}
+            >
+              <Shuffle className="h-5 w-5" />
+            </Button>
+            <QueueSheet>
+              <Button variant="outline" size="icon" className="h-10 w-10">
+                <ListMusic className="h-5 w-5" />
+              </Button>
+            </QueueSheet>
         </div>
-        <QueueSheet>
-          <Button variant="outline" className="w-full">
-            <ListMusic className="mr-2 h-4 w-4" /> Playlist
-          </Button>
-        </QueueSheet>
       </div>
     </div>
   );
@@ -283,6 +294,8 @@ const ExpandedPlayerDesktop = () => {
     repeatMode,
     volume,
     setVolume,
+    toggleShuffle,
+    isShuffled,
   } = usePlayer();
 
   const sleepTimerDisplay = useMemo(() => {
@@ -309,7 +322,7 @@ const ExpandedPlayerDesktop = () => {
   if (!currentTrack) return null;
 
   return (
-    <div className="flex h-full w-full items-center justify-evenly p-8">
+    <div className="flex h-full w-full items-center justify-center gap-16 p-8">
        <motion.div layoutId="player-image" className="relative aspect-square w-full max-w-sm">
         <Image
           src={currentTrack.coverArt}
@@ -321,11 +334,11 @@ const ExpandedPlayerDesktop = () => {
 
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         <div className="w-full overflow-hidden text-center">
-          <h3 className="truncate text-2xl font-bold">{currentTrack.title}</h3>
-          <p className="truncate text-base text-muted-foreground">{currentTrack.artist.join(", ")}</p>
+          <h3 className="text-2xl font-bold line-clamp-none">{currentTrack.title}</h3>
+          <p className="truncate text-base text-muted-foreground">{Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}</p>
         </div>
         
-        <div className="w-full flex flex-col items-center justify-center gap-2">
+        <div className="flex w-full flex-col items-center justify-center gap-2">
            <div className="flex w-full items-center gap-4">
             <span className="w-10 text-right text-xs text-muted-foreground">{formatTime(progress)}</span>
             <Slider value={[progress]} max={duration} step={1} onValueChange={handleProgressChange} className="w-full" />
@@ -334,10 +347,10 @@ const ExpandedPlayerDesktop = () => {
           <PlayerControls isExpanded={true} />
         </div>
 
-        <div className="w-full flex items-center justify-between gap-2">
+        <div className="flex w-full items-center justify-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 w-24" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" className="h-10 w-10" onClick={(e) => e.stopPropagation()}>
                   {playbackRate}x
                 </Button>
               </DropdownMenuTrigger>
@@ -374,13 +387,22 @@ const ExpandedPlayerDesktop = () => {
             >
               <RepeatButtonIcon className="h-5 w-5" />
             </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={(e) => { e.stopPropagation(); toggleShuffle(); }}
+              className={cn("h-10 w-10", isShuffled && "text-primary bg-primary/10")}
+            >
+              <Shuffle className="h-5 w-5" />
+            </Button>
+            <QueueSheet>
+               <Button variant="outline" className="h-10 w-auto px-4">
+                <ListMusic className="mr-2 h-5 w-5" />
+                Playlist
+              </Button>
+            </QueueSheet>
         </div>
         {VolumeControl}
-        <QueueSheet>
-          <Button variant="outline" className="w-full">
-            <ListMusic className="mr-2 h-4 w-4" /> Playlist
-          </Button>
-        </QueueSheet>
       </div>
     </div>
   );
@@ -392,11 +414,14 @@ export default function Player() {
     currentTrack,
     progress,
     duration,
-    seek,
     volume,
     setVolume,
     closePlayer,
     handleProgressChange,
+    toggleRepeatMode,
+    repeatMode,
+    toggleShuffle,
+    isShuffled,
   } = usePlayer();
   const [isExpanded, setIsExpanded] = useState(false);
   const isMobile = useIsMobile();
@@ -416,13 +441,18 @@ export default function Player() {
     visible: { y: 0, opacity: 1, scale: 1 },
   };
 
+  const RepeatButtonIcon = useMemo(() => {
+    if (repeatMode === 'one') return Repeat1;
+    return Repeat;
+  }, [repeatMode]);
+
   if (!currentTrack) {
     return null;
   }
   
   const VolumeControl = (
     <div className="flex w-full flex-1 items-center gap-2">
-      <Button variant="ghost" size="icon" className="h-10 w-8" onClick={() => setVolume(volume > 0 ? 0 : 0.5)}>
+      <Button variant="ghost" size="icon" className="h-10 w-8" onClick={(e) => {e.stopPropagation(); setVolume(volume > 0 ? 0 : 0.5)}}>
         {volume > 0 ? (
           <Volume2 className="h-5 w-5" />
         ) : (
@@ -434,6 +464,7 @@ export default function Player() {
         max={1}
         step={0.01}
         onValueChange={handleVolumeChange}
+        onClick={(e) => e.stopPropagation()}
         className="w-full flex-1"
       />
     </div>
@@ -480,7 +511,7 @@ export default function Player() {
       >
         <div className="flex h-full flex-col">
           {isExpanded && (
-            <div className={cn("flex-shrink-0 p-4", isMobile ? "md:hidden" : "absolute right-0 top-0 hidden md:block")}>
+            <div className={cn("absolute right-0 top-0 z-10 p-4")}>
               <Button
                 variant="ghost"
                 size="icon"
@@ -499,22 +530,11 @@ export default function Player() {
             isMobile ? <ExpandedPlayerMobile /> : <ExpandedPlayerDesktop />
           ) : (
              <div className="flex h-full items-center justify-between px-4 sm:px-6">
-                <div className="flex w-1/3 sm:w-1/4 items-center gap-4">
+                <div className="flex w-1/3 items-center gap-4 sm:w-1/4">
                   <div className="relative flex items-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -left-10 z-10 h-8 w-8 rounded-full sm:hidden"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        closePlayer();
-                      }}
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
                     <motion.div
                       layoutId="player-image"
-                      className="relative h-12 w-12 shrink-0 sm:h-16 sm:w-16"
+                      className="group relative h-12 w-12 shrink-0 sm:h-16 sm:w-16"
                     >
                       <Image
                         src={currentTrack.coverArt}
@@ -522,6 +542,17 @@ export default function Player() {
                         fill
                         className="rounded-md object-cover"
                       />
+                       <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -right-2 -top-2 z-10 h-6 w-6 rounded-full bg-card/80 p-1 text-muted-foreground backdrop-blur-sm transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closePlayer();
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </motion.div>
                   </div>
                   <div className="hidden w-full overflow-hidden sm:block">
@@ -545,6 +576,7 @@ export default function Player() {
                       step={1}
                       onValueChange={handleProgressChange}
                       className="w-full"
+                      onClick={(e) => e.stopPropagation()}
                     />
                     <span className="w-10 text-xs text-muted-foreground">
                       {formatTime(duration)}
@@ -553,9 +585,30 @@ export default function Player() {
                   <PlayerControls isExpanded={false} />
                 </div>
 
-                <div className="flex w-1/4 justify-end items-center gap-4">
+                <div className="flex w-1/4 items-center justify-end gap-2">
                   <div className="hidden w-full flex-1 items-center gap-2 sm:flex">
                     {VolumeControl}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => { e.stopPropagation(); toggleRepeatMode(); }}
+                      className={cn("h-10 w-10", repeatMode !== 'off' && "text-primary bg-primary/10")}
+                    >
+                      <RepeatButtonIcon className="h-5 w-5" />
+                    </Button>
+                     <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => { e.stopPropagation(); toggleShuffle(); }}
+                      className={cn("h-10 w-10", isShuffled && "text-primary bg-primary/10")}
+                    >
+                      <Shuffle className="h-5 w-5" />
+                    </Button>
+                    <QueueSheet>
+                      <Button variant="ghost" size="icon" className="h-10 w-10" onClick={(e) => e.stopPropagation()}>
+                        <ListMusic className="h-5 w-5" />
+                      </Button>
+                    </QueueSheet>
                   </div>
                   
                   <div className="flex flex-col items-center gap-0 sm:hidden">
