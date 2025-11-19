@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Grid, Home, Library, Search, Shuffle, User } from "lucide-react";
+import { Grid, Home, Library, Search, Shuffle, User, Info } from "lucide-react";
 import Link from "next/link";
 import {
   Sidebar,
@@ -132,6 +132,7 @@ export default function AppSidebar() {
                 size="sm"
                 className="w-full justify-start text-sm"
               >
+                <Info className="mr-2 h-4 w-4" />
                 Disclaimer
               </Button>
             </DisclaimerDialog>
