@@ -30,15 +30,18 @@ export function SearchDialog({ children }: { children: ReactNode }) {
     if (searchQuery.length > 2) {
       const lowerCaseQuery = searchQuery.toLowerCase();
       const results = podcasts.filter(
-        (podcast) =>
-          podcast.title.toLowerCase().includes(lowerCaseQuery) ||
-          podcast.artist.some((artist) =>
-            artist.toLowerCase().includes(lowerCaseQuery),
-          ) ||
+        (podcast) => {
+          const artistMatch = Array.isArray(podcast.artist)
+            ? podcast.artist.some(artist => artist.toLowerCase().includes(lowerCaseQuery))
+            : podcast.artist?.toLowerCase().includes(lowerCaseQuery);
+
+          return podcast.title.toLowerCase().includes(lowerCaseQuery) ||
+          artistMatch ||
           podcast.categories.some((cat) =>
             cat.toLowerCase().includes(lowerCaseQuery),
           ) ||
-          podcast.coverArtHint.toLowerCase().includes(lowerCaseQuery),
+          podcast.coverArtHint.toLowerCase().includes(lowerCaseQuery)
+        }
       );
       setSearchResults(results);
     } else {
@@ -95,7 +98,7 @@ export function SearchDialog({ children }: { children: ReactNode }) {
                   <div className="flex-1">
                     <h3 className="font-semibold">{podcast.title}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {podcast.artist.join(", ")}
+                      {Array.isArray(podcast.artist) ? podcast.artist.join(", ") : podcast.artist || "Unknown Artist"}
                     </p>
                   </div>
                   <Button

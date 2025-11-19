@@ -195,6 +195,9 @@ const ExpandedPlayerMobile = () => {
   }, [repeatMode]);
 
   if (!currentTrack) return null;
+  
+  const artistText = Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : (currentTrack.artist || "Unknown Artist");
+
 
   return (
     <div className="flex flex-1 flex-col justify-center gap-8 px-8">
@@ -208,7 +211,7 @@ const ExpandedPlayerMobile = () => {
       </motion.div>
       <div className="w-full overflow-hidden text-center">
         <h3 className="text-2xl font-bold line-clamp-3">{currentTrack.title}</h3>
-        <p className="truncate text-base text-muted-foreground">{Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}</p>
+        <p className="truncate text-base text-muted-foreground">{artistText}</p>
       </div>
 
       <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-4">
@@ -320,6 +323,9 @@ const ExpandedPlayerDesktop = () => {
   );
 
   if (!currentTrack) return null;
+  
+  const artistText = Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : (currentTrack.artist || "Unknown Artist");
+
 
   return (
     <div className="flex h-full w-full items-center justify-center gap-16 p-8">
@@ -335,7 +341,7 @@ const ExpandedPlayerDesktop = () => {
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         <div className="w-full overflow-hidden text-center">
           <h3 className="text-2xl font-bold line-clamp-none">{currentTrack.title}</h3>
-          <p className="truncate text-base text-muted-foreground">{Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}</p>
+          <p className="truncate text-base text-muted-foreground">{artistText}</p>
         </div>
         
         <div className="flex w-full flex-col items-center justify-center gap-2">
@@ -469,6 +475,9 @@ export default function Player() {
       />
     </div>
   )
+  
+  const artistText = Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : (currentTrack.artist || "Unknown Artist");
+
 
   return (
     <>
@@ -560,7 +569,7 @@ export default function Player() {
                       {currentTrack.title}
                     </h3>
                     <p className="truncate text-xs text-muted-foreground">
-                      {Array.isArray(currentTrack.artist) ? currentTrack.artist.join(", ") : currentTrack.artist}
+                      {artistText}
                     </p>
                   </div>
                 </div>
@@ -637,5 +646,3 @@ export default function Player() {
     </>
   );
 }
-
-    

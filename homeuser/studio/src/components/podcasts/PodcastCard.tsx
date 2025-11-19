@@ -140,6 +140,9 @@ export default function PodcastCard({
   const progressPercentage = duration > 0 ? (progress / duration) * 100 : 0;
   const showProgressBar = progress > 1 && progress < duration - 1;
 
+  const artistText = Array.isArray(podcast.artist)
+    ? podcast.artist.join(", ")
+    : podcast.artist || "Unknown Artist";
 
   return (
     <Card className="group relative w-full overflow-hidden border-none bg-card shadow-lg transition-colors duration-300 hover:bg-secondary/80">
@@ -256,7 +259,7 @@ export default function PodcastCard({
             {podcast.title}
           </h3>
           <p className="h-5 text-sm text-muted-foreground line-clamp-1">
-            {podcast.artist.join(", ")}
+            {artistText}
           </p>
           <div className="mt-2 flex h-6 flex-wrap gap-1 overflow-hidden">
             {podcast.categories.slice(0, 2).map((category) => (
