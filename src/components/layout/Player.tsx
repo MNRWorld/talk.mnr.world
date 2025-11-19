@@ -204,7 +204,7 @@ const ExpandedPlayerMobile = () => {
         />
       </motion.div>
       <div className="w-full overflow-hidden text-center">
-        <h3 className="truncate text-2xl font-bold">{currentTrack.title}</h3>
+        <h3 className="text-2xl font-bold">{currentTrack.title}</h3>
         <p className="truncate text-base text-muted-foreground">{currentTrack.artist.join(", ")}</p>
       </div>
 
@@ -321,7 +321,7 @@ const ExpandedPlayerDesktop = () => {
 
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         <div className="w-full overflow-hidden text-center">
-          <h3 className="truncate text-2xl font-bold">{currentTrack.title}</h3>
+          <h3 className="text-2xl font-bold">{currentTrack.title}</h3>
           <p className="truncate text-base text-muted-foreground">{currentTrack.artist.join(", ")}</p>
         </div>
         
@@ -584,5 +584,3 @@ export default function Player() {
     </>
   );
 }
-
-    
