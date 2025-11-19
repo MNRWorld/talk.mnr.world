@@ -431,13 +431,15 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const playRandomFromCurrentPlaylist = useCallback(() => {
     const playlist = currentPlaylist || podcasts;
-    if (!playlist || playlist.length === 0) return;
+    if (!playlist || playlist.length < 1) return;
 
-    const playlistToShuffle = playlist.filter(p => p.id !== currentTrack?.id);
-    const effectivePlaylist = playlistToShuffle.length > 0 ? playlistToShuffle : playlist;
+    let playlistToShuffle = playlist;
+    if (playlist.length > 1) {
+      playlistToShuffle = playlist.filter(p => p.id !== currentTrack?.id);
+    }
     
-    const randomIndex = Math.floor(Math.random() * effectivePlaylist.length);
-    const randomPodcast = effectivePlaylist[randomIndex];
+    const randomIndex = Math.floor(Math.random() * playlistToShuffle.length);
+    const randomPodcast = playlistToShuffle[randomIndex];
     play(randomPodcast.id, playlist);
   }, [currentPlaylist, podcasts, play, currentTrack]);
 
