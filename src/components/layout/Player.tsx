@@ -221,7 +221,7 @@ const ExpandedPlayerMobile = () => {
         <div className="flex w-full items-center justify-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 w-24" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" className="h-10 flex-1" onClick={(e) => e.stopPropagation()}>
                   {playbackRate}x
                 </Button>
               </DropdownMenuTrigger>
@@ -236,7 +236,7 @@ const ExpandedPlayerMobile = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 w-24" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" className="h-10 flex-1" onClick={(e) => e.stopPropagation()}>
                   <Moon className="mr-2 h-4 w-4" /> {sleepTimerDisplay || "Timer"}
                 </Button>
               </DropdownMenuTrigger>
@@ -258,12 +258,12 @@ const ExpandedPlayerMobile = () => {
             >
               <RepeatButtonIcon className="h-5 w-5" />
             </Button>
+            <QueueSheet>
+              <Button variant="outline" size="icon" className="h-10 w-10">
+                <ListMusic className="h-5 w-5" />
+              </Button>
+            </QueueSheet>
         </div>
-        <QueueSheet>
-          <Button variant="outline" className="w-full">
-            <ListMusic className="mr-2 h-4 w-4" /> Playlist
-          </Button>
-        </QueueSheet>
       </div>
     </div>
   );
@@ -374,13 +374,13 @@ const ExpandedPlayerDesktop = () => {
             >
               <RepeatButtonIcon className="h-5 w-5" />
             </Button>
+            <QueueSheet>
+              <Button variant="outline" size="icon" className="h-10 w-10">
+                <ListMusic className="h-5 w-5" />
+              </Button>
+            </QueueSheet>
         </div>
         {VolumeControl}
-        <QueueSheet>
-          <Button variant="outline" className="w-full">
-            <ListMusic className="mr-2 h-4 w-4" /> Playlist
-          </Button>
-        </QueueSheet>
       </div>
     </div>
   );
