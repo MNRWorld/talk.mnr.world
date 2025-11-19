@@ -90,7 +90,7 @@ export default function AppSidebar() {
             <SidebarMenuItem>
               <SearchDialog>
                 <button className="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                  <Search />
+                  <Search className="h-[11px] w-[11px]" />
                   <span>Search</span>
                 </button>
               </SearchDialog>
