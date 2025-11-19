@@ -15,6 +15,7 @@ import { usePodcast } from "./PodcastContext";
 const HISTORY_STORAGE_KEY = "podcast_history";
 const PROGRESS_STORAGE_KEY = "podcast_progress";
 const LISTENING_LOG_KEY = "listening_log";
+const PLAYER_VOLUME_KEY = "player_volume";
 
 // --- useThrottle Hook ---
 function useThrottle<T extends (...args: any[]) => any>(
@@ -161,6 +162,16 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       const storedLog = localStorage.getItem(LISTENING_LOG_KEY);
       if (storedLog) {
         setListeningLog(JSON.parse(storedLog));
+      }
+      const storedVolume = localStorage.getItem(PLAYER_VOLUME_KEY);
+      if (storedVolume) {
+        const parsedVolume = parseFloat(storedVolume);
+        if (!isNaN(parsedVolume)) {
+          setVolumeState(parsedVolume);
+          if (audioRef.current) {
+            audioRef.current.volume = parsedVolume;
+          }
+        }
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
@@ -502,6 +513,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (audioRef.current) {
       audioRef.current.volume = vol;
       setVolumeState(vol);
+      try {
+        localStorage.setItem(PLAYER_VOLUME_KEY, vol.toString());
+      } catch (error) {
+        console.error("Failed to save volume to localStorage", error);
+      }
     }
   };
 
@@ -672,6 +688,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       audio.addEventListener("pause", onTimeUpdate); // Log remaining time on pause
       audio.addEventListener("loadedmetadata", onLoadedMetadata);
       audio.addEventListener("ended", handleTrackEnd);
+      audio.volume = volume;
 
       return () => {
         audio.removeEventListener("timeupdate", throttledTimeUpdate);
@@ -684,7 +701,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         audio.removeEventListener("ended", handleTrackEnd);
       };
     }
-  }, [handleTrackEnd]);
+  }, [handleTrackEnd, volume]);
 
   const value = {
     currentTrack,
