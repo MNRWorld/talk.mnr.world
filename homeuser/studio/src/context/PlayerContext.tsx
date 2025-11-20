@@ -15,6 +15,7 @@ import { usePodcast } from "./PodcastContext";
 const HISTORY_STORAGE_KEY = "podcast_history";
 const PROGRESS_STORAGE_KEY = "podcast_progress";
 const LISTENING_LOG_KEY = "listening_log";
+const PLAYER_VOLUME_KEY = "player_volume";
 
 // --- useThrottle Hook ---
 function useThrottle<T extends (...args: any[]) => any>(
@@ -56,12 +57,14 @@ interface SleepTimerInfo {
 }
 
 type ListeningLog = Record<string, number>; // { 'YYYY-MM-DD': seconds }
-type RepeatMode = 'off' | 'one' | 'all';
+type RepeatMode = "off" | "one" | "all";
 
 
 interface PlayerContextType {
   currentTrack: Podcast | null;
   isPlaying: boolean;
+  isExpanded: boolean;
+  setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
   play: (trackId?: string, playlist?: Podcast[]) => void;
   autoPlay: (trackId?: string, playlist?: Podcast[]) => void;
   pause: () => void;
@@ -69,6 +72,8 @@ interface PlayerContextType {
   nextTrack: () => void;
   prevTrack: () => void;
   playRandom: (podcasts: Podcast[]) => void;
+  toggleShuffle: () => void;
+  isShuffled: boolean;
   closePlayer: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
   progress: number;
@@ -93,6 +98,7 @@ interface PlayerContextType {
   setSleepTimer: (minutes: number | null) => void;
   listeningLog: ListeningLog;
   repeatMode: RepeatMode;
+  setRepeatMode: React.Dispatch<React.SetStateAction<RepeatMode>>;
   toggleRepeatMode: () => void;
 }
 
@@ -113,6 +119,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     null,
   );
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(1);
@@ -121,8 +128,10 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     {},
   );
   const [queue, setQueue] = useState<Podcast[]>([]);
+  const [originalQueue, setOriginalQueue] = useState<Podcast[]>([]);
+  const [isShuffled, setIsShuffled] = useState(false);
   const [playbackRate, setPlaybackRateState] = useState(1);
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>("off");
   const [sleepTimer, setSleepTimerState] = useState<SleepTimerInfo>({
     timeLeft: null,
     isActive: false,
@@ -153,6 +162,16 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       const storedLog = localStorage.getItem(LISTENING_LOG_KEY);
       if (storedLog) {
         setListeningLog(JSON.parse(storedLog));
+      }
+      const storedVolume = localStorage.getItem(PLAYER_VOLUME_KEY);
+      if (storedVolume) {
+        const parsedVolume = parseFloat(storedVolume);
+        if (!isNaN(parsedVolume)) {
+          setVolumeState(parsedVolume);
+          if (audioRef.current) {
+            audioRef.current.volume = parsedVolume;
+          }
+        }
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
@@ -256,10 +275,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
           audioRef.current!.currentTime = savedProgress.progress;
         }
         setIsPlaying(true);
+        setIsExpanded(true);
         audioRef.current!.playbackRate = playbackRate;
         lastTimeUpdate.current = Date.now();
       } catch (e: any) {
-        if (e.name !== 'AbortError') {
+        if (e.name !== "AbortError") {
           console.error("Playback failed", e);
           setIsPlaying(false);
         }
@@ -316,9 +336,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (trackToPlay) {
-        const newPlaylist = playlistToUse.slice(startFromIndex);
+        const newQueue = playlistToUse.slice(startFromIndex + 1);
         setCurrentPlaylist(playlistToUse);
-        setQueue(playlistToUse.slice(startFromIndex + 1));
+        setQueue(newQueue);
+        setOriginalQueue(newQueue); // Store original order
+        setIsShuffled(false); // Reset shuffle state
 
 
         if (currentTrack?.id !== trackToPlay.id) {
@@ -337,10 +359,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
             .then(() => {
                if (signal.aborted) return;
               setIsPlaying(true);
+              setIsExpanded(true);
               lastTimeUpdate.current = Date.now();
             })
             .catch((e) => {
-              if (e.name !== 'AbortError') {
+              if (e.name !== "AbortError") {
                  console.error("Playback failed", e)
               }
             }).finally(() => {
@@ -393,15 +416,23 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const nextTrack = useCallback(() => {
     if (queue.length > 0) {
       const nextTrackInQueue = queue[0];
-      setQueue((prev) => prev.slice(1));
+      const newQueue = queue.slice(1);
+      
+      if(isShuffled) {
+        setOriginalQueue(prev => prev.filter(t => t.id !== nextTrackInQueue.id));
+      }
+      setQueue(newQueue);
+
       play(nextTrackInQueue.id, currentPlaylist || podcasts);
       return;
     }
     
-    if (repeatMode === 'all' && currentPlaylist && currentPlaylist.length > 0) {
-      play(currentPlaylist[0].id, currentPlaylist);
+    if (repeatMode === "all" && currentPlaylist && currentPlaylist.length > 0) {
+      const currentIndex = findCurrentTrackIndex();
+      const nextIndex = (currentIndex + 1) % currentPlaylist.length;
+      play(currentPlaylist[nextIndex].id, currentPlaylist);
     }
-  }, [queue, play, currentPlaylist, podcasts, repeatMode]);
+  }, [queue, play, currentPlaylist, podcasts, repeatMode, findCurrentTrackIndex, isShuffled]);
 
   const prevTrack = useCallback(() => {
     const playlist = currentPlaylist || podcasts;
@@ -412,18 +443,35 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (currentIndex > 0) {
       const prevTrackId = playlist[currentIndex - 1].id;
       play(prevTrackId, playlist);
-    } else if (repeatMode === 'all') {
+    } else if (repeatMode === "all") {
       const lastTrackId = playlist[playlist.length - 1].id;
       play(lastTrackId, playlist);
     }
-  }, [currentPlaylist, podcasts, play, findCurrentTrackIndex, currentTrack, repeatMode]);
+  }, [currentPlaylist, podcasts, play, findCurrentTrackIndex, repeatMode]);
 
-  const playRandom = useCallback((podcasts: Podcast[]) => {
-    if (podcasts.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * podcasts.length);
-    const randomPodcast = podcasts[randomIndex];
-    play(randomPodcast.id, podcasts);
-  }, [podcasts, play]);
+  const playRandom = useCallback((podcastsToShuffle: Podcast[]) => {
+    if (podcastsToShuffle.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * podcastsToShuffle.length);
+    const randomPodcast = podcastsToShuffle[randomIndex];
+    play(randomPodcast.id, podcastsToShuffle);
+  }, [play]);
+
+  const toggleShuffle = useCallback(() => {
+    if (isShuffled) {
+      setQueue(originalQueue);
+      setIsShuffled(false);
+    } else {
+      const shuffled = [...queue];
+      // Fisher-Yates (aka Knuth) Shuffle
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      setQueue(shuffled);
+      setIsShuffled(true);
+    }
+  }, [isShuffled, queue, originalQueue]);
+
 
   const closePlayer = useCallback(() => {
     if (audioRef.current) {
@@ -467,6 +515,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (audioRef.current) {
       audioRef.current.volume = vol;
       setVolumeState(vol);
+      try {
+        localStorage.setItem(PLAYER_VOLUME_KEY, vol.toString());
+      } catch (error) {
+        console.error("Failed to save volume to localStorage", error);
+      }
     }
   };
 
@@ -479,7 +532,11 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addToQueue = (track: Podcast) => {
     if (!queue.find((t) => t.id === track.id) && currentTrack?.id !== track.id) {
-      setQueue((prev) => [...prev, track]);
+       const newQueue = [...queue, track];
+       setQueue(newQueue);
+       if (!isShuffled) {
+         setOriginalQueue(newQueue);
+       }
     }
   };
 
@@ -491,6 +548,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
       setCurrentTrack(trackToPlay);
       setQueue(newQueue);
+      setOriginalQueue(newQueue);
+      setIsShuffled(false);
       setCurrentPlaylist([trackToPlay, ...newQueue, ...(currentPlaylist || [])]);
       addToHistory(trackToPlay);
       setAudioSource(trackToPlay, true);
@@ -498,30 +557,41 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const removeFromQueue = (trackId: string) => {
-    setQueue((prev) => prev.filter((t) => t.id !== trackId));
+    const newQueue = queue.filter((t) => t.id !== trackId);
+    setQueue(newQueue);
+     if (!isShuffled) {
+        setOriginalQueue(newQueue);
+     } else {
+        setOriginalQueue(originalQueue.filter((t) => t.id !== trackId));
+     }
   };
   
   const moveTrackInQueue = (trackId: string, direction: "up" | "down") => {
-    setQueue(prevQueue => {
-      const index = prevQueue.findIndex(t => t.id === trackId);
-      if (index === -1) return prevQueue;
+    const reorder = (list: Podcast[]) => {
+      const index = list.findIndex(t => t.id === trackId);
+      if (index === -1) return list;
 
       const newIndex = direction === 'up' ? index - 1 : index + 1;
-      if (newIndex < 0 || newIndex >= prevQueue.length) return prevQueue;
+      if (newIndex < 0 || newIndex >= list.length) return list;
       
-      const newQueue = [...prevQueue];
-      const [movedTrack] = newQueue.splice(index, 1);
-      newQueue.splice(newIndex, 0, movedTrack);
+      const newList = [...list];
+      const [movedTrack] = newList.splice(index, 1);
+      newList.splice(newIndex, 0, movedTrack);
       
-      return newQueue;
-    });
+      return newList;
+    }
+
+    setQueue(prev => reorder(prev));
+    if (!isShuffled) {
+       setOriginalQueue(prev => reorder(prev));
+    }
   };
 
   const toggleRepeatMode = () => {
-    setRepeatMode(prev => {
-      if (prev === 'off') return 'all';
-      if (prev === 'all') return 'one';
-      return 'off';
+    setRepeatMode((prev) => {
+      if (prev === "off") return "all";
+      if (prev === "all") return "one";
+      return "off";
     });
   };
 
@@ -560,7 +630,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   };
   
   const handleTrackEnd = () => {
-    if (repeatMode === 'one' && currentTrack) {
+    if (repeatMode === "one" && currentTrack) {
       seek(0);
       play();
     } else {
@@ -620,6 +690,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       audio.addEventListener("pause", onTimeUpdate); // Log remaining time on pause
       audio.addEventListener("loadedmetadata", onLoadedMetadata);
       audio.addEventListener("ended", handleTrackEnd);
+      audio.volume = volume;
 
       return () => {
         audio.removeEventListener("timeupdate", throttledTimeUpdate);
@@ -632,11 +703,13 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         audio.removeEventListener("ended", handleTrackEnd);
       };
     }
-  }, [handleTrackEnd]);
+  }, [handleTrackEnd, volume]);
 
   const value = {
     currentTrack,
     isPlaying,
+    isExpanded,
+    setIsExpanded,
     play,
     autoPlay,
     pause,
@@ -644,6 +717,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     nextTrack,
     prevTrack,
     playRandom,
+    toggleShuffle,
+    isShuffled,
     closePlayer,
     audioRef,
     progress,
@@ -668,6 +743,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     setSleepTimer,
     listeningLog,
     repeatMode,
+    setRepeatMode,
     toggleRepeatMode,
   };
 
