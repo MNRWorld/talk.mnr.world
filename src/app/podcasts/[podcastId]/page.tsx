@@ -28,7 +28,7 @@ interface PodcastPageProps {
 
 const PodcastPage = ({ params }: PodcastPageProps) => {
   const { podcastId } = React.use(params);
-  const { play, autoPlay, isExpanded } = usePlayer();
+  const { play, autoPlay } = usePlayer();
   const { podcasts: allPodcasts } = usePodcast();
   const podcast = allPodcasts.find((p) => p.id === podcastId);
 
@@ -37,11 +37,14 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
   
   const relatedPodcasts = React.useMemo(() => {
     if (!podcast) return [];
+    
+    const podcastArtists = Array.isArray(podcast.artist) ? podcast.artist : [podcast.artist];
 
     const related = allPodcasts.filter(p => {
       if (p.id === podcast.id) return false;
+      const pArtists = Array.isArray(p.artist) ? p.artist : [p.artist];
 
-      const hasCommonArtist = p.artist.some(artist => podcast.artist.includes(artist));
+      const hasCommonArtist = pArtists.some(artist => podcastArtists.includes(artist));
       const hasCommonCategory = p.categories.some(category => podcast.categories.includes(category));
       
       return hasCommonArtist || hasCommonCategory;
@@ -52,8 +55,11 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
       let scoreA = 0;
       let scoreB = 0;
 
-      if (a.artist.some(artist => podcast.artist.includes(artist))) scoreA += 2;
-      if (b.artist.some(artist => podcast.artist.includes(artist))) scoreB += 2;
+      const aArtists = Array.isArray(a.artist) ? a.artist : [a.artist];
+      const bArtists = Array.isArray(b.artist) ? b.artist : [b.artist];
+
+      if (aArtists.some(artist => podcastArtists.includes(artist))) scoreA += 2;
+      if (bArtists.some(artist => podcastArtists.includes(artist))) scoreB += 2;
       
       scoreA += a.categories.filter(category => podcast.categories.includes(category)).length;
       scoreB += b.categories.filter(category => podcast.categories.includes(category)).length;
@@ -90,11 +96,14 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
           <AnimatePresence>
             <Player />
           </AnimatePresence>
-          {!isExpanded && <BottomNavBar />}
+          <BottomNavBar />
         </div>
       </SidebarProvider>
     );
   }
+  
+  const artistText = Array.isArray(podcast.artist) ? podcast.artist.join(", ") : (podcast.artist || "Unknown Artist");
+
 
   if (isEmbedView) {
     return (
@@ -110,13 +119,12 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
           </div>
           <div className="w-full max-w-sm text-center">
             <h3 className="text-2xl font-bold">{podcast.title}</h3>
-            <p className="text-base text-muted-foreground">{podcast.artist.join(", ")}</p>
+            <p className="text-base text-muted-foreground">{artistText}</p>
           </div>
         </div>
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        {!isExpanded && <BottomNavBar />}
       </div>
     );
   }
@@ -148,7 +156,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
                       {podcast.title}
                     </h1>
                     <h2 className="mt-4 text-xl font-medium text-muted-foreground">
-                       {podcast.artist.join(", ")}
+                       {artistText}
                     </h2>
                     <div className="mt-6 flex flex-wrap justify-center gap-2 md:justify-start">
                       {podcast.categories.map((category) => (
@@ -183,7 +191,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        {!isExpanded && <BottomNavBar />}
+        <BottomNavBar />
       </div>
     </SidebarProvider>
   );

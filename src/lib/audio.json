@@ -1,6 +1,42 @@
 
 [
   {
+    "id": "19",
+    "title": "সীরাহ | পর্ব ০১ | কেমন ছিলেন তিনি",
+    "artist": ["Rain Drops Media"],
+    "categories": ["Sirah"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Sirah/Rain%20Drops%20Media/Seerah_Episode-01_How_was_he-Rain_Drops_Media.png",
+    "coverArtHint": "Sirah | Episode 01 | How was he?",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Sirah/Rain%20Drops%20Media/Seerah_Episode-01_How_was_he-Rain_Drops_Media.opus"
+  },
+  {
+    "id": "18",
+    "title": "বরযাত্রী জোর করে বেশি যাওয়া যৌতুক | ড. খোন্দকার আব্দুল্লাহ জাহাঙ্গীর",
+    "artist": ["Dr. Khandaker Abdullah Jahangir"],
+    "categories": ["Discussion", "Thinkable"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Dr.%20Khandaker%20Abdullah%20Jahangir/Bridegroom_forced_to_pay_more_dowry-Dr.Khandaker_Abdullah_Jahangir.png",
+    "coverArtHint": "Bridegroom forced to pay more dowry | Dr. Khandaker Abdullah Jahangir",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Dr.%20Khandaker%20Abdullah%20Jahangir/Bridegroom_forced_to_pay_more_dowry-Dr.Khandaker_Abdullah_Jahangir.opus"
+  },
+  {
+    "id": "17",
+    "title": "Allahu (Heart Touching Nasheed)",
+    "artist": ["MercifulServant"],
+    "categories": ["Nasheed"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Nasheed/Others/Allahu_MercifulServant.png",
+    "coverArtHint": "Allahu - Heart Touching Nasheed",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Nasheed/Others/Allahu_MercifulServant.opus"
+  },
+  {
+    "id": "16",
+    "title": "Allah Hu Allah",
+    "artist": ["Usaid Zahid Siddique"],
+    "categories": ["Nasheed"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Nasheed/Others/Allah_Hu_Allah-Usaid%20Zahid%20Siddique.png",
+    "coverArtHint": "Allah Hu Allah",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Nasheed/Others/Allah_Hu_Allah-Usaid%20Zahid%20Siddique.opus"
+  },
+  {
     "id": "15",
     "title": "সূরা ফাতিহার বিস্ময়কর তাফসীর - নোমান আলী খান",
     "artist": ["Nouman Ali Khan"],
@@ -29,7 +65,7 @@
   },
   {
     "id": "12",
-    "title": "Quran Majeed - The Book That Contains the Unknown Truths of Humanity | Shaykh Ahmadullah & Mahmudul Hasan Sohag",
+    "title": "কুরআন মাজিদ - যে কিতাবে আছে মানবজাতির অজানা সত্য । মাহমুদুল হাসান সোহাগ এবং শায়খ আহমাদুল্লাহ",
     "artist": ["Mahmudul Hasan Sohag", "Shaykh Ahmadullah"],
     "categories": ["Podcast", "Rokomari Boikotha"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Rokomari%20Boikotha/Quran_Majeed-The_Book_That_Contains_the_Unknown_Truths_of_Humanity_by_Shaykh_Ahmadullah_and_Mahmudul_Hasan_Sohag.png",
@@ -38,7 +74,7 @@
   },
   {
     "id": "11",
-    "title": "Journey to the Light - 07",
+    "title": "আলোর পথে যাত্রা - ৭: বিনষ্টকারীর পাহাড়",
     "artist": ["Baseera"],
     "categories": ["Story", "Thinkable"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-7_Baseera.png",
@@ -47,7 +83,7 @@
   },
   {
     "id": "10",
-    "title": "Journey to the Light - 06",
+    "title": "আলোর পথে যাত্রা - ৬: উদ্দীপনার পাহাড়",
     "artist": ["Baseera"],
     "categories": ["Story", "Thinkable"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-6_Baseera.png",
@@ -56,7 +92,7 @@
   },
   {
     "id": "9",
-    "title": "Journey to the Light - 05",
+    "title": "আলোর পথে যাত্রা - ৫: দুশ্চিন্তার পাহাড়",
     "artist": ["Baseera"],
     "categories": ["Story", "Thinkable"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-5_Baseera.png",
@@ -65,7 +101,7 @@
   },
   {
     "id": "8",
-    "title": "Journey to the Light - 04",
+    "title": "আলোর পথে যাত্রা - ৪: প্রতিবন্ধকতার পাহাড়",
     "artist": ["Baseera"],
     "categories": ["Story", "Thinkable"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-4_Baseera.png",
@@ -74,7 +110,7 @@
   },
   {
     "id": "7",
-    "title": "Journey to the Light - 03",
+    "title": "আলোর পথে যাত্রা - ৩: তওবার পাহাড়",
     "artist": ["Baseera"],
     "categories": ["Story", "Thinkable"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-3_Baseera.png",
@@ -83,7 +119,7 @@
   },
   {
     "id": "6",
-    "title": "Journey to the Light - 02",
+    "title": "আলোর পথে যাত্রা - ২: জ্ঞানের পাহাড়",
     "artist": ["Baseera"],
     "categories": ["Story", "Thinkable"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-2_Baseera.png",
@@ -92,7 +128,7 @@
   },
   {
     "id": "5",
-    "title": "Journey to the Light - 01",
+    "title": "আলোর পথে যাত্রা - ১: কিছু প্রশ্ন",
     "artist": ["Baseera"],
     "categories": ["Story", "Thinkable"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Baseera/Journey%20to%20the%20Light/Journey_to_the_Light-1_Baseera.png",
@@ -129,12 +165,12 @@
   },
   {
     "id": "1",
-    "title": "055.Ar-Rahman",
+    "title": "055.Ar-Rahman (অতি দয়ালু)",
     "artist": ["Zain Abu Kautsar"],
     "categories": ["Quran"],
-    "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Zain%20Abu%20Kautsar/055.Ar-Rahman_Zain_Abu_Kautsar.png",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Zain%20Abu%20Kautsar/055_Ar-Rahman_Zain_Abu_Kautsar.png",
     "coverArtHint": "Best Al Quran Recitation",
-    "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Zain%20Abu%20Kautsar/055.Ar-Rahman_Zain_Abu_Kautsar.opus"
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Zain%20Abu%20Kautsar/055_Ar-Rahman_Zain_Abu_Kautsar.opus"
   }
 ]
 
