@@ -265,50 +265,6 @@ export default function PodcastCard({
                 className="absolute bottom-0 h-1 w-full rounded-none rounded-b-md"
               />
             )}
-            {isActive && (
-              <div className="absolute inset-0 grid place-items-center bg-black/40">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/80">
-                   {isPlaying ? (
-                    <svg width="24" height="24" viewBox="0 0 24 24">
-                      <rect x="6" y="4" width="4" height="16" fill="white" rx="1">
-                        <animate
-                          attributeName="height"
-                          values="16;8;16"
-                          dur="1s"
-                          repeatCount="indefinite"
-                          begin="0s"
-                        />
-                         <animate
-                          attributeName="y"
-                          values="4;10;4"
-                          dur="1s"
-                          repeatCount="indefinite"
-                          begin="0s"
-                        />
-                      </rect>
-                      <rect x="14" y="4" width="4" height="16" fill="white" rx="1">
-                        <animate
-                          attributeName="height"
-                          values="16;8;16"
-                          dur="1s"
-                          repeatCount="indefinite"
-                          begin="0.2s"
-                        />
-                        <animate
-                          attributeName="y"
-                          values="4;10;4"
-                          dur="1s"
-                          repeatCount="indefinite"
-                          begin="0.2s"
-                        />
-                      </rect>
-                    </svg>
-                  ) : (
-                     <Play className="ml-1 h-6 w-6 fill-current text-primary-foreground" />
-                  )}
-                </div>
-              </div>
-            )}
           </div>
           <h3 className="h-12 font-semibold text-foreground line-clamp-2">
             {podcast.title}
@@ -336,7 +292,40 @@ export default function PodcastCard({
           )}
         >
           {isActive && isPlaying ? (
-             <Pause className="h-6 w-6 fill-current" />
+             <svg width="24" height="24" viewBox="0 0 24 24">
+              <rect x="6" y="4" width="4" height="16" fill="currentColor" rx="1">
+                <animate
+                  attributeName="height"
+                  values="16;8;16"
+                  dur="1s"
+                  repeatCount="indefinite"
+                  begin="0s"
+                />
+                  <animate
+                  attributeName="y"
+                  values="4;10;4"
+                  dur="1s"
+                  repeatCount="indefinite"
+                  begin="0s"
+                />
+              </rect>
+              <rect x="14" y="4" width="4" height="16" fill="currentColor" rx="1">
+                <animate
+                  attributeName="height"
+                  values="16;8;16"
+                  dur="1s"
+                  repeatCount="indefinite"
+                  begin="0.2s"
+                />
+                <animate
+                  attributeName="y"
+                  values="4;10;4"
+                  dur="1s"
+                  repeatCount="indefinite"
+                  begin="0.2s"
+                />
+              </rect>
+            </svg>
           ) : (
             <Play className="ml-1 h-6 w-6 fill-current" />
           )}
