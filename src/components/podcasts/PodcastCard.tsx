@@ -10,6 +10,7 @@ import {
   Trash2,
   ListPlus,
   Share2,
+  Pause,
 } from "lucide-react";
 import type { Podcast } from "@/lib/types";
 import { usePlayer } from "@/context/PlayerContext";
@@ -53,6 +54,7 @@ export default function PodcastCard({
     isPlaying,
     addToQueue,
     getPodcastProgress,
+    togglePlay,
   } = usePlayer();
   const { podcasts: allPodcasts } = usePodcast();
   const {
@@ -139,6 +141,18 @@ export default function PodcastCard({
 
   const progressPercentage = duration > 0 ? (progress / duration) * 100 : 0;
   const showProgressBar = progress > 1 && progress < duration - 1;
+
+  const artistText = Array.isArray(podcast.artist)
+    ? podcast.artist.join(", ")
+    : podcast.artist || "Unknown Artist";
+
+  const handlePlayPauseClick = () => {
+    if (isActive) {
+      togglePlay();
+    } else {
+      play(podcast.id, playlist ?? allPodcasts);
+    }
+  };
 
 
   return (
@@ -232,7 +246,7 @@ export default function PodcastCard({
       <button
         type="button"
         className="w-full text-left"
-        onClick={() => play(podcast.id, playlist ?? allPodcasts)}
+        onClick={handlePlayPauseClick}
         aria-label={`Play ${podcast.title}`}
       >
         <CardContent className="p-4">
@@ -251,14 +265,56 @@ export default function PodcastCard({
                 className="absolute bottom-0 h-1 w-full rounded-none rounded-b-md"
               />
             )}
+            {isActive && (
+              <div className="absolute inset-0 grid place-items-center bg-black/40">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/80">
+                   {isPlaying ? (
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <rect x="6" y="4" width="4" height="16" fill="white" rx="1">
+                        <animate
+                          attributeName="height"
+                          values="16;8;16"
+                          dur="1s"
+                          repeatCount="indefinite"
+                          begin="0s"
+                        />
+                         <animate
+                          attributeName="y"
+                          values="4;10;4"
+                          dur="1s"
+                          repeatCount="indefinite"
+                          begin="0s"
+                        />
+                      </rect>
+                      <rect x="14" y="4" width="4" height="16" fill="white" rx="1">
+                        <animate
+                          attributeName="height"
+                          values="16;8;16"
+                          dur="1s"
+                          repeatCount="indefinite"
+                          begin="0.2s"
+                        />
+                        <animate
+                          attributeName="y"
+                          values="4;10;4"
+                          dur="1s"
+                          repeatCount="indefinite"
+                          begin="0.2s"
+                        />
+                      </rect>
+                    </svg>
+                  ) : (
+                     <Play className="ml-1 h-6 w-6 fill-current text-primary-foreground" />
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <h3 className="h-12 font-semibold text-foreground line-clamp-2">
             {podcast.title}
           </h3>
           <p className="h-5 text-sm text-muted-foreground line-clamp-1">
-          {Array.isArray(podcast.artist) 
-  ? podcast.artist.join(", ") 
-  : podcast.artist || "Unknown Artist"}
+            {artistText}
           </p>
           <div className="mt-2 flex h-6 flex-wrap gap-1 overflow-hidden">
             {podcast.categories.slice(0, 2).map((category) => (
@@ -272,14 +328,18 @@ export default function PodcastCard({
       <div className="absolute bottom-24 right-6">
         <button
           type="button"
-          onClick={() => play(podcast.id, playlist ?? allPodcasts)}
+          onClick={handlePlayPauseClick}
           aria-label={`Play ${podcast.title}`}
           className={cn(
-            "flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-xl transform transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-90",
-            { "opacity-100 scale-100": isActive && isPlaying },
+            "flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transform transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-90",
+            { "opacity-100 scale-100": isActive },
           )}
         >
-          <Play className="ml-1 h-6 w-6 fill-current" />
+          {isActive && isPlaying ? (
+             <Pause className="h-6 w-6 fill-current" />
+          ) : (
+            <Play className="ml-1 h-6 w-6 fill-current" />
+          )}
         </button>
       </div>
     </Card>

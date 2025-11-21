@@ -1,6 +1,78 @@
 
 [
   {
+    "id": "27",
+    "title": "নামাজের মধুরতা (পর্ব-০৮): আযান - এক স্বর্গীয় আহবান",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/gyOJRBi0JuQ/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-08.opus"
+  },
+  {
+    "id": "26",
+    "title": "নামাজের মধুরতা (পর্ব-০৭): নামাজে পরিপূর্ণ একাগ্রতা অর্জন",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/gT8bSLez2y0/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-07.opus"
+  },
+  {
+    "id": "25",
+    "title": "নামাজের মধুরতা (পর্ব-০৬): আল্লাহ্‌র অনুগ্রহ",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/s-yysD8l0NU/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-06.opus"
+  },
+  {
+    "id": "24",
+    "title": "নামাজের মধুরতা (পর্ব-০৫): আল্লাহ্‌র প্রতি ভালোবাসা",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/WVqv9zS_p_o/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-05.opus"
+  },
+  {
+    "id": "23",
+    "title": "নামাজের মধুরতা (পর্ব-০৪): আবেগ অনুভূতির সর্বোচ্চ শিখর",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/XAhuEPl_NOQ/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-04.opus"
+  },
+  {
+    "id": "22",
+    "title": "নামাজের মধুরতা (পর্ব-০৩): আল্লাহ্‌র প্রতি আমাদের আশা ও ভয়",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/htuLhCOrbzc/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-03.opus"
+  },
+  {
+    "id": "21",
+    "title": "নামাজের মধুরতা (পর্ব-০২): আবু নুয়াস এর তাওবা",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/x-B5ZLYQ7LY/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-02.opus"
+  },
+  {
+    "id": "20",
+    "title": "নামাজের মধুরতা (পর্ব-০১): এক আনসারী ও এক মুহাজির এর কাহিনী",
+    "artist": ["Niyamah", "Muslim Speakers In Bangla"],
+    "categories": ["Thinkable", "Discussion"],
+    "coverArt": "https://img.youtube.com/vi/IUiO1P4RvXw/mqdefault.jpg",
+    "coverArtHint": "The sweetness of Salat",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-01.opus"
+  },
+  {
     "id": "19",
     "title": "সীরাহ | পর্ব ০১ | কেমন ছিলেন তিনি",
     "artist": ["Rain Drops Media"],
