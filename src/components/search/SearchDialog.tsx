@@ -10,6 +10,7 @@ import {
   Plus,
   Heart,
   MoreVertical,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -266,9 +267,20 @@ export function SearchDialog({ children }: { children: ReactNode }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for audios, artists, or categories..."
-              className="h-12 pl-10 text-lg"
+              className="h-12 pl-10 pr-10 text-lg"
               autoFocus
             />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Clear search</span>
+              </Button>
+            )}
           </div>
         </div>
 
