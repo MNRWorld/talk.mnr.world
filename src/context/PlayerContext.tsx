@@ -427,26 +427,53 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       : -1;
   }, [currentTrack, podcasts, currentPlaylist]);
 
+  const playTrackFromQueue = useCallback(
+    (trackId: string, options?: PlayOptions) => {
+      const trackIndex = queue.findIndex((t) => t.id === trackId);
+      if (trackIndex !== -1) {
+        const trackToPlay = queue[trackIndex];
+        const newQueue = queue.slice(trackIndex + 1);
+
+        setCurrentTrack(trackToPlay);
+        addToHistory(trackToPlay);
+        setQueue(newQueue);
+
+        if (!isShuffled) {
+          setOriginalQueue(newQueue);
+        }
+
+        // Don't reset the whole playlist, just what's left in the queue
+        const fullRemainingPlaylist = [trackToPlay, ...newQueue];
+        if (currentPlaylist) {
+          const currentTrackIdxInFullPlaylist = currentPlaylist.findIndex(p => p.id === trackToPlay.id);
+          if (currentTrackIdxInFullPlaylist !== -1) {
+             setCurrentPlaylist(currentPlaylist);
+          } else {
+             setCurrentPlaylist(fullRemainingPlaylist);
+          }
+        } else {
+          setCurrentPlaylist(fullRemainingPlaylist);
+        }
+
+        setAudioSource(trackToPlay, true, options);
+      }
+    },
+    [queue, addToHistory, setAudioSource, isShuffled, currentPlaylist]
+  );
+
   const nextTrack = useCallback(() => {
     if (queue.length > 0) {
       const nextTrackInQueue = queue[0];
-      const newQueue = queue.slice(1);
-      
-      if(isShuffled) {
-        setOriginalQueue(prev => prev.filter(t => t.id !== nextTrackInQueue.id));
-      }
-      setQueue(newQueue);
-
-      play(nextTrackInQueue.id, currentPlaylist || podcasts);
+      playTrackFromQueue(nextTrackInQueue.id);
       return;
     }
-    
+
     if (repeatMode === "all" && currentPlaylist && currentPlaylist.length > 0) {
       const currentIndex = findCurrentTrackIndex();
       const nextIndex = (currentIndex + 1) % currentPlaylist.length;
       play(currentPlaylist[nextIndex].id, currentPlaylist);
     }
-  }, [queue, play, currentPlaylist, podcasts, repeatMode, findCurrentTrackIndex, isShuffled]);
+  }, [queue, play, playTrackFromQueue, currentPlaylist, repeatMode, findCurrentTrackIndex]);
 
   const prevTrack = useCallback(() => {
     const playlist = currentPlaylist || podcasts;
@@ -551,22 +578,6 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
        if (!isShuffled) {
          setOriginalQueue(newQueue);
        }
-    }
-  };
-
-  const playTrackFromQueue = (trackId: string) => {
-    const trackIndex = queue.findIndex((t) => t.id === trackId);
-    if (trackIndex !== -1) {
-      const trackToPlay = queue[trackIndex];
-      const newQueue = queue.slice(trackIndex + 1);
-
-      setCurrentTrack(trackToPlay);
-      setQueue(newQueue);
-      setOriginalQueue(newQueue);
-      setIsShuffled(false);
-      setCurrentPlaylist([trackToPlay, ...newQueue, ...(currentPlaylist || [])]);
-      addToHistory(trackToPlay);
-      setAudioSource(trackToPlay, true);
     }
   };
 
