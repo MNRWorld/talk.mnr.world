@@ -409,14 +409,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     const playlist = currentPlaylist || podcasts;
     if (!currentTrack) {
       if (!playlist || playlist.length === 0) return;
-      play(playlist[0].id, playlist);
+      play(playlist[0].id, playlist, { expand: true });
       return;
     }
 
     if (isPlaying) {
       pause();
     } else {
-      play();
+      play(currentTrack.id, playlist, { expand: true });
     }
   }, [isPlaying, pause, play, currentTrack, podcasts, currentPlaylist]);
 
