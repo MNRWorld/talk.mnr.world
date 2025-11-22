@@ -28,7 +28,7 @@ interface PodcastPageProps {
 
 const PodcastPage = ({ params }: PodcastPageProps) => {
   const { podcastId } = React.use(params);
-  const { play, autoPlay } = usePlayer();
+  const { play, autoPlay, isExpanded } = usePlayer();
   const { podcasts: allPodcasts } = usePodcast();
   const podcast = allPodcasts.find((p) => p.id === podcastId);
 
@@ -72,10 +72,10 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
 
 
   React.useEffect(() => {
-    if (podcast) {
+    if (podcast && !isEmbedView) {
       autoPlay(podcast.id, allPodcasts);
     }
-  }, [podcast, autoPlay, allPodcasts]);
+  }, [podcast, autoPlay, allPodcasts, isEmbedView]);
 
   if (!podcast) {
     return (
@@ -96,7 +96,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
           <AnimatePresence>
             <Player />
           </AnimatePresence>
-          <BottomNavBar />
+          {!isExpanded && <BottomNavBar />}
         </div>
       </SidebarProvider>
     );
@@ -121,6 +121,13 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
             <h3 className="text-2xl font-bold">{podcast.title}</h3>
             <p className="text-base text-muted-foreground">{artistText}</p>
           </div>
+           <Button
+              onClick={() => play(podcast.id, allPodcasts, { expand: true })}
+              className="mt-8 h-12 rounded-full px-8 text-lg"
+            >
+              <Play className="mr-2 h-5 w-5 fill-current" />
+              Play
+            </Button>
         </div>
         <AnimatePresence>
           <Player />
@@ -169,7 +176,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
                       ))}
                     </div>
                     <Button
-                      onClick={() => play(podcast.id)}
+                      onClick={() => play(podcast.id, allPodcasts, { expand: true })}
                       className="mt-8 h-12 rounded-full px-8 text-lg"
                     >
                       <Play className="mr-2 h-5 w-5 fill-current" />
@@ -191,7 +198,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );
