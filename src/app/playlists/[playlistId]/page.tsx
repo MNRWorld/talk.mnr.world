@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import MobileHeader from "@/components/layout/MobileHeader";
 import { usePlaylist } from "@/context/PlaylistContext";
 import { usePodcast } from "@/context/PodcastContext";
-import { Heart, Share2 } from "lucide-react";
+import { Heart, Play, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -34,7 +34,7 @@ interface PlaylistPageProps {
 
 const PlaylistPage = ({ params }: PlaylistPageProps) => {
   const { playlistId } = React.use(params);
-  const { isExpanded } = usePlayer();
+  const { play, isExpanded } = usePlayer();
   const {
     getPlaylistById,
     getPodcastsForPlaylist,
@@ -85,6 +85,12 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
     getPodcastsForPlaylist,
     playlist,
   ]);
+
+  const handlePlayAll = () => {
+    if (podcastsInPlaylist.length > 0) {
+      play(podcastsInPlaylist[0].id, podcastsInPlaylist, { expand: true });
+    }
+  };
 
   const handleToggleFavorite = () => {
     if (playlist) {
@@ -149,32 +155,44 @@ const PlaylistPage = ({ params }: PlaylistPageProps) => {
                     <p className="text-sm text-muted-foreground">
                       {podcastsInPlaylist.length} episodes
                     </p>
-                    <div className="mt-4 flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleToggleFavorite}
-                        aria-label={
-                          playlist.isFavorite
-                            ? "Remove from favorites"
-                            : "Add to favorites"
-                        }
-                      >
-                        <Heart
-                          className={cn(
-                            "h-6 w-6",
-                            playlist.isFavorite && "fill-primary text-primary",
-                          )}
-                        />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleShare}
-                        aria-label="Share Playlist"
-                      >
-                        <Share2 className="h-6 w-6" />
-                      </Button>
+                    <div className="mt-4 flex items-center gap-4">
+                      {podcastsInPlaylist.length > 0 && (
+                        <Button
+                          onClick={handlePlayAll}
+                          className="h-12 rounded-full px-8 text-lg"
+                        >
+                          <Play className="mr-2 h-5 w-5 fill-current" />
+                          Play all
+                        </Button>
+                      )}
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleToggleFavorite}
+                          aria-label={
+                            playlist.isFavorite
+                              ? "Remove from favorites"
+                              : "Add to favorites"
+                          }
+                        >
+                          <Heart
+                            className={cn(
+                              "h-6 w-6",
+                              playlist.isFavorite &&
+                                "fill-primary text-primary",
+                            )}
+                          />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleShare}
+                          aria-label="Share Playlist"
+                        >
+                          <Share2 className="h-6 w-6" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                   <div className="flex w-full gap-2 md:w-auto">
