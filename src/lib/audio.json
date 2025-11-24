@@ -1,11 +1,56 @@
 
 [
   {
+    "id": "32",
+    "title": "067. Al-Mulk (আল-মুলক)",
+    "artist": ["Omar Hisham Al Arabi"],
+    "categories": ["Quran"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Omar%20Hisham%20Al%20Arabi/067_Al-Mulk_Omar_Hisham_Al_Arabi.png",
+    "coverArtHint": "067. Al-Mulk (আল-মুলক)",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Omar%20Hisham%20Al%20Arabi/067_Al-Mulk_Omar_Hisham_Al_Arabi.opus"
+  },
+  {
+    "id": "31",
+    "title": "055. Ar-Rahman (আর-রাহমান)",
+    "artist": ["Omar Hisham Al Arabi"],
+    "categories": ["Quran"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Omar%20Hisham%20Al%20Arabi/055_Ar-Rahman_Omar_Hisham_Al_Arabi.png",
+    "coverArtHint": "055. Ar-Rahman (আর-রাহমান)",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Omar%20Hisham%20Al%20Arabi/055_Ar-Rahman_Omar_Hisham_Al_Arabi.opus"
+  },
+  {
+    "id": "30",
+    "title": "067. Al-Mulk (আল-মুলক)",
+    "artist": ["Ridjaal Ahmed"],
+    "categories": ["Quran"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Ridjaal%20Ahmed/067_Al-Mulk_Ridjaal_Ahmed.png",
+    "coverArtHint": "067. Al-Mulk (আল-মুলক)",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Ridjaal%20Ahmed/067_Al-Mulk_Ridjaal_Ahmed.opus"
+  },
+  {
+    "id": "29",
+    "title": "055. Ar-Rahman (আর-রাহমান)",
+    "artist": ["Ridjaal Ahmed"],
+    "categories": ["Quran"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Ridjaal%20Ahmed/055_Ar-Rahman_Ridjaal_Ahmed.png",
+    "coverArtHint": "055. Ar-Rahman (আর-রাহমান)",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Ridjaal%20Ahmed/055_Ar-Rahman_Ridjaal_Ahmed.opus"
+  },
+  {
+    "id": "28",
+    "title": "067. Al-Mulk (আল-মুলক)",
+    "artist": ["Alaa Aqel"],
+    "categories": ["Quran"],
+    "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Alaa%20Aqel/067_Al-Mulk_Alaa_Aqel.png",
+    "coverArtHint": "067. Al-Mulk (আল-মুলক)",
+    "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Alaa%20Aqel/067_Al-Mulk_Alaa_Aqel.opus"
+  },
+  {
     "id": "27",
     "title": "নামাজের মধুরতা (পর্ব-০৮): আযান - এক স্বর্গীয় আহবান",
     "artist": ["Niyamah", "Muslim Speakers In Bangla"],
     "categories": ["Thinkable", "Discussion"],
-    "coverArt": "https://img.youtube.com/vi/gyOJRBi0JuQ/mqdefault.jpg",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-08.png",
     "coverArtHint": "The sweetness of Salat",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-08.opus"
   },
@@ -14,7 +59,7 @@
     "title": "নামাজের মধুরতা (পর্ব-০৭): নামাজে পরিপূর্ণ একাগ্রতা অর্জন",
     "artist": ["Niyamah", "Muslim Speakers In Bangla"],
     "categories": ["Thinkable", "Discussion"],
-    "coverArt": "https://img.youtube.com/vi/gT8bSLez2y0/mqdefault.jpg",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-07.png",
     "coverArtHint": "The sweetness of Salat",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-07.opus"
   },
@@ -23,7 +68,7 @@
     "title": "নামাজের মধুরতা (পর্ব-০৬): আল্লাহ্‌র অনুগ্রহ",
     "artist": ["Niyamah", "Muslim Speakers In Bangla"],
     "categories": ["Thinkable", "Discussion"],
-    "coverArt": "https://img.youtube.com/vi/s-yysD8l0NU/mqdefault.jpg",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-06.png",
     "coverArtHint": "The sweetness of Salat",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-06.opus"
   },
@@ -32,7 +77,7 @@
     "title": "নামাজের মধুরতা (পর্ব-০৫): আল্লাহ্‌র প্রতি ভালোবাসা",
     "artist": ["Niyamah", "Muslim Speakers In Bangla"],
     "categories": ["Thinkable", "Discussion"],
-    "coverArt": "https://img.youtube.com/vi/WVqv9zS_p_o/mqdefault.jpg",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-05.png",
     "coverArtHint": "The sweetness of Salat",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-05.opus"
   },
@@ -41,7 +86,7 @@
     "title": "নামাজের মধুরতা (পর্ব-০৪): আবেগ অনুভূতির সর্বোচ্চ শিখর",
     "artist": ["Niyamah", "Muslim Speakers In Bangla"],
     "categories": ["Thinkable", "Discussion"],
-    "coverArt": "https://img.youtube.com/vi/XAhuEPl_NOQ/mqdefault.jpg",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-04.png",
     "coverArtHint": "The sweetness of Salat",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-04.opus"
   },
@@ -50,7 +95,7 @@
     "title": "নামাজের মধুরতা (পর্ব-০৩): আল্লাহ্‌র প্রতি আমাদের আশা ও ভয়",
     "artist": ["Niyamah", "Muslim Speakers In Bangla"],
     "categories": ["Thinkable", "Discussion"],
-    "coverArt": "https://img.youtube.com/vi/htuLhCOrbzc/mqdefault.jpg",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-03.png",
     "coverArtHint": "The sweetness of Salat",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-03.opus"
   },
@@ -59,7 +104,7 @@
     "title": "নামাজের মধুরতা (পর্ব-০২): আবু নুয়াস এর তাওবা",
     "artist": ["Niyamah", "Muslim Speakers In Bangla"],
     "categories": ["Thinkable", "Discussion"],
-    "coverArt": "https://img.youtube.com/vi/x-B5ZLYQ7LY/mqdefault.jpg",
+    "coverArt": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-02.png",
     "coverArtHint": "The sweetness of Salat",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Niyamah/The%20sweetness%20of%20Salat/The_sweetness_of_Salat-02.opus"
   },
@@ -237,11 +282,11 @@
   },
   {
     "id": "1",
-    "title": "055.Ar-Rahman (অতি দয়ালু)",
+    "title": "055. Ar-Rahman (আর-রাহমান)",
     "artist": ["Zain Abu Kautsar"],
     "categories": ["Quran"],
     "coverArt": "https://stream.mnr.world/0:/Talk/Quran/Zain%20Abu%20Kautsar/055_Ar-Rahman_Zain_Abu_Kautsar.png",
-    "coverArtHint": "Best Al Quran Recitation",
+    "coverArtHint": "055. Ar-Rahman (আর-রাহমান)",
     "audioUrl": "https://stream.mnr.world/0:/Talk/Quran/Zain%20Abu%20Kautsar/055_Ar-Rahman_Zain_Abu_Kautsar.opus"
   }
 ]
