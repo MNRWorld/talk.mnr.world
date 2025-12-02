@@ -244,50 +244,49 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const setAudioSource = useCallback(
-    async (track: Podcast, shouldAutoPlay = true, options: PlayOptions = {}) => {
+    async (
+      track: Podcast,
+      shouldAutoPlay = true,
+      options: PlayOptions = {},
+      startTime = 0
+    ) => {
       if (!audioRef.current) return;
-
+  
       const sourceUrl = track.audioUrl;
-      const savedProgress = getPodcastProgress(track.id);
-
+  
       if (audioRef.current.src !== sourceUrl) {
         audioRef.current.src = sourceUrl;
-        // When source changes, reset progress
-        setProgress(0);
+        setProgress(0); // Reset visual progress when source changes
       }
-      
+  
       if (options.expand) {
         setIsExpanded(true);
       }
-
-
+  
       if (!shouldAutoPlay) {
         setIsPlaying(false);
         return;
       }
-      
+  
       if (playPromiseController.current) {
         playPromiseController.current.abort();
       }
       playPromiseController.current = new AbortController();
       const { signal } = playPromiseController.current;
-
-
+  
       try {
         await audioRef.current.play();
-         if (signal.aborted) {
+        if (signal.aborted) {
           return;
         }
-        
-        if (
-          savedProgress &&
-          savedProgress.progress > 0 &&
-          audioRef.current!.src === sourceUrl
-        ) {
-          audioRef.current!.currentTime = savedProgress.progress;
+  
+        // Set currentTime only after play() is successful
+        if (startTime > 0 && audioRef.current.src === sourceUrl) {
+           audioRef.current.currentTime = startTime;
         }
+  
         setIsPlaying(true);
-        audioRef.current!.playbackRate = playbackRate;
+        audioRef.current.playbackRate = playbackRate;
         lastTimeUpdate.current = Date.now();
       } catch (e: any) {
         if (e.name !== "AbortError") {
@@ -300,7 +299,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     },
-    [playbackRate, getPodcastProgress],
+    [playbackRate],
   );
 
   const addToHistory = useCallback((track: Podcast) => {
@@ -346,22 +345,44 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
           );
         }
       }
+      
+      let startTime = 0;
+      const savedProgress = trackToPlay ? getPodcastProgress(trackToPlay.id) : undefined;
+      
+      // If it's a new track
+      if (trackToPlay && currentTrack?.id !== trackToPlay.id) {
+        const remainingTime = duration - progress;
+        // If the old track was almost finished, start the new one from the beginning
+        if (duration > 0 && remainingTime < 3) {
+           startTime = 0;
+        } else if (savedProgress) {
+           startTime = savedProgress.progress;
+        }
+      } else if (savedProgress) {
+         // If it's the same track, resume from saved progress
+         startTime = savedProgress.progress;
+      }
+
 
       if (trackToPlay) {
         if (options.expand) {
           setIsExpanded(true);
         }
-        const newQueue = playlistToUse.slice(startFromIndex + 1);
-        setCurrentPlaylist(playlistToUse);
-        setQueue(newQueue);
-        setOriginalQueue(newQueue); // Store original order
-        setIsShuffled(false); // Reset shuffle state
+        
+        // This logic should run only when a track is explicitly played, not on toggle
+        if (currentTrack?.id !== trackToPlay.id) {
+          const newQueue = playlistToUse.slice(startFromIndex + 1);
+          setCurrentPlaylist(playlistToUse);
+          setQueue(newQueue);
+          setOriginalQueue(newQueue); // Store original order
+          setIsShuffled(false); // Reset shuffle state
+        }
 
 
         if (currentTrack?.id !== trackToPlay.id) {
           setCurrentTrack(trackToPlay);
           addToHistory(trackToPlay);
-          setAudioSource(trackToPlay, shouldAutoPlay, options);
+          setAudioSource(trackToPlay, shouldAutoPlay, options, startTime);
         } else if (shouldAutoPlay) {
            if (playPromiseController.current) {
             playPromiseController.current.abort();
@@ -388,7 +409,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     },
-    [podcasts, currentTrack, addToHistory, setAudioSource],
+    [podcasts, currentTrack, addToHistory, setAudioSource, getPodcastProgress, progress, duration],
   );
 
   const play = useCallback(
@@ -416,7 +437,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     if (isPlaying) {
       pause();
     } else {
-      play(currentTrack.id, playlist, { expand: true });
+      if (audioRef.current) {
+        audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.error("Toggle play failed", e));
+      }
     }
   }, [isPlaying, pause, play, currentTrack, podcasts, currentPlaylist]);
 
@@ -433,6 +456,12 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       if (trackIndex !== -1) {
         const trackToPlay = queue[trackIndex];
         const newQueue = queue.slice(trackIndex + 1);
+        
+        let startTime = 0;
+        const savedProgress = getPodcastProgress(trackToPlay.id);
+        if (savedProgress) {
+          startTime = savedProgress.progress;
+        }
 
         setCurrentTrack(trackToPlay);
         addToHistory(trackToPlay);
@@ -442,23 +471,20 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
           setOriginalQueue(newQueue);
         }
 
-        // Don't reset the whole playlist, just what's left in the queue
         const fullRemainingPlaylist = [trackToPlay, ...newQueue];
         if (currentPlaylist) {
           const currentTrackIdxInFullPlaylist = currentPlaylist.findIndex(p => p.id === trackToPlay.id);
-          if (currentTrackIdxInFullPlaylist !== -1) {
-             setCurrentPlaylist(currentPlaylist);
-          } else {
+          if (currentTrackIdxInFullPlaylist === -1) {
              setCurrentPlaylist(fullRemainingPlaylist);
           }
         } else {
           setCurrentPlaylist(fullRemainingPlaylist);
         }
 
-        setAudioSource(trackToPlay, true, options);
+        setAudioSource(trackToPlay, true, options, startTime);
       }
     },
-    [queue, addToHistory, setAudioSource, isShuffled, currentPlaylist]
+    [queue, addToHistory, setAudioSource, isShuffled, currentPlaylist, getPodcastProgress]
   );
 
   const nextTrack = useCallback(() => {
@@ -657,7 +683,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const handleTrackEnd = () => {
     if (repeatMode === "one" && currentTrack) {
       seek(0);
-      play();
+      play(currentTrack.id);
     } else {
       nextTrack();
     }

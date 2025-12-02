@@ -146,7 +146,8 @@ export default function PodcastCard({
     ? podcast.artist.join(", ")
     : podcast.artist || "Unknown Artist";
 
-  const handlePlayPauseClick = () => {
+  const handlePlayPauseClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (isActive) {
       togglePlay();
     } else {
@@ -246,7 +247,7 @@ export default function PodcastCard({
       <button
         type="button"
         className="w-full text-left"
-        onClick={handlePlayPauseClick}
+        onClick={() => play(podcast.id, playlist ?? allPodcasts)}
         aria-label={`Play ${podcast.title}`}
       >
         <CardContent className="p-4">
@@ -285,7 +286,7 @@ export default function PodcastCard({
         <button
           type="button"
           onClick={handlePlayPauseClick}
-          aria-label={`Play ${podcast.title}`}
+          aria-label={`Play or pause ${podcast.title}`}
           className={cn(
             "flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transform transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-90",
             { "opacity-100 scale-100": isActive },
