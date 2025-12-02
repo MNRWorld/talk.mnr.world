@@ -1,6 +1,8 @@
 
 "use client";
 
+export const runtime = 'edge';
+
 import { AnimatePresence } from "framer-motion";
 import * as React from "react";
 import Image from "next/image";
@@ -34,13 +36,6 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
 
   const searchParams = useSearchParams();
   const isEmbedView = searchParams.get("embed") === "true";
-  
-  const [showFullApp, setShowFullApp] = React.useState(!isEmbedView);
-
-  const handlePlayFromEmbed = () => {
-    setShowFullApp(true);
-    play(podcast!.id, allPodcasts, { expand: true });
-  };
   
   const relatedPodcasts = React.useMemo(() => {
     if (!podcast) return [];
@@ -112,7 +107,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
   const artistText = Array.isArray(podcast.artist) ? podcast.artist.join(", ") : (podcast.artist || "Unknown Artist");
 
 
-  if (isEmbedView && !showFullApp) {
+  if (isEmbedView) {
     return (
       <div className="relative flex h-screen flex-col bg-background">
         <div className="flex flex-1 flex-col items-center justify-center gap-8 overflow-hidden p-8">
@@ -129,7 +124,7 @@ const PodcastPage = ({ params }: PodcastPageProps) => {
             <p className="text-base text-muted-foreground">{artistText}</p>
           </div>
            <Button
-              onClick={handlePlayFromEmbed}
+              onClick={() => play(podcast.id, allPodcasts, { expand: true })}
               className="mt-8 h-12 rounded-full px-8 text-lg"
             >
               <Play className="mr-2 h-5 w-5 fill-current" />

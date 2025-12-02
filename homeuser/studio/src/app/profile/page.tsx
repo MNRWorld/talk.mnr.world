@@ -1,6 +1,8 @@
 
 "use client";
 
+export const runtime = 'edge';
+
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence } from "framer-motion";
@@ -65,7 +67,7 @@ const StatCard = ({
 
 export default function ProfilePage() {
   const { user, login, logout } = useUser();
-  const { history, listeningLog } = usePlayer();
+  const { history, listeningLog, isExpanded } = usePlayer();
   const { podcasts } = usePodcast();
   const { getPodcastsForPlaylist, FAVORITES_PLAYLIST_ID } = usePlaylist();
   const [avatarPreview, setAvatarPreview] = React.useState<string | null>(
@@ -99,9 +101,7 @@ export default function ProfilePage() {
     history.forEach((podcast) => {
       const artists = Array.isArray(podcast.artist) ? podcast.artist : [podcast.artist];
       artists.forEach(artist => {
-        if (artist) {
-          artistCounts.set(artist, (artistCounts.get(artist) || 0) + 1);
-        }
+        artistCounts.set(artist, (artistCounts.get(artist) || 0) + 1);
       });
 
       podcast.categories.forEach((category) => {
@@ -408,7 +408,7 @@ export default function ProfilePage() {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );

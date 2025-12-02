@@ -1,6 +1,8 @@
 
 "use client";
 
+export const runtime = 'edge';
+
 import { AnimatePresence } from "framer-motion";
 import AppSidebar from "@/components/layout/AppSidebar";
 import BottomNavBar from "@/components/layout/BottomNavBar";
@@ -21,6 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { usePlayer } from "@/context/PlayerContext";
+import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
 
 interface ArtistPageProps {
   params: Promise<{
@@ -31,6 +36,7 @@ interface ArtistPageProps {
 const ArtistPage = ({ params }: ArtistPageProps) => {
   const { artistName: encodedArtistName } = React.use(params);
   const artistName = decodeURIComponent(encodedArtistName);
+  const { isExpanded, play } = usePlayer();
 
   const [sortOrder, setSortOrder] = React.useState("newest");
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -69,6 +75,12 @@ const ArtistPage = ({ params }: ArtistPageProps) => {
     return podcasts;
   }, [artistName, sortOrder, searchTerm]);
 
+  const handlePlayAll = () => {
+    if (podcastsByArtist.length > 0) {
+      play(podcastsByArtist[0].id, podcastsByArtist, { expand: true });
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen flex-col bg-background">
@@ -79,9 +91,17 @@ const ArtistPage = ({ params }: ArtistPageProps) => {
             <ScrollArea className="h-full">
               <main className={cn("p-4 sm:p-6 lg:p-8", "pb-24 md:pb-8")}>
                 <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <h1 className="font-headline text-3xl font-bold tracking-tight">
-                    {artistName}
-                  </h1>
+                  <div className="flex items-center gap-4">
+                    <h1 className="font-headline text-3xl font-bold tracking-tight">
+                      {artistName}
+                    </h1>
+                     {podcastsByArtist.length > 0 && (
+                      <Button onClick={handlePlayAll} size="sm" className="rounded-full">
+                        <Play className="mr-2 h-4 w-4 fill-current" />
+                        Play all
+                      </Button>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Filter in this artist..."
@@ -105,7 +125,7 @@ const ArtistPage = ({ params }: ArtistPageProps) => {
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                   {podcastsByArtist.map((podcast) => (
-                    <PodcastCard key={podcast.id} podcast={podcast} />
+                    <PodcastCard key={podcast.id} podcast={podcast} playlist={podcastsByArtist}/>
                   ))}
                 </div>
               </main>
@@ -115,7 +135,7 @@ const ArtistPage = ({ params }: ArtistPageProps) => {
         <AnimatePresence>
           <Player />
         </AnimatePresence>
-        <BottomNavBar />
+        {!isExpanded && <BottomNavBar />}
       </div>
     </SidebarProvider>
   );
